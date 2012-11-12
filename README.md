@@ -3,11 +3,11 @@
 Graphite can show events such as [code deploys](http://codeascraft.etsy.com/2010/12/08/track-every-release/) and
 [puppet changes](https://github.com/joemiller/puppet-graphite_event) as lines on your graph.
 With the advent of new graphite dashboards and interfaces where we can have popups and annotations to show metadata for each event (by means of client-side rendering),
-it's time we have a database to track all events along with categorisation and text descriptions (which can include rich text and hyperlinks).
+it's time we have a database to track all events along with categorization and text descriptions (which can include rich text and hyperlinks).
 Graphite is meant for time series (metrics over time), Anthracite aims to be the companion for annotated events.  
 More precisely, **Anthracite aims to be a database of "relevant events"** (see further down), **for the purpose of enriching monitoring dashboards,
 as well as allowing visual and numerical analysis of events that have a business impact**  
-It has a TCP receiver, a database (sqlite3), a http interface to deliver event data in many formats and a simple web frontend for humans.
+It has a TCP receiver, a database (sqlite3), a HTTP interface to deliver event data in many formats and a simple web frontend for humans.
 
 design goals:
 * do one thing and do it well.  aim for integration.
@@ -61,7 +61,7 @@ However, I do think these levels are very useful for reporting and numerical ana
 On slide 53 of [the metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametrics-the-currency-you-pay-for-change) Allspaw
 mentions severity levels, which can be paraphrased in terms of service degradation for the end user:
 1 (full), 2 (major), 3 (minor), 4 (no)  
-I would like to extend this notion into the opposite spectrum, and have the same levels but on the positivie scale,
+I would like to extend this notion into the opposite spectrum, and have the same levels but on the positive scale,
 so that they represent positive incidents (like viral videos, press mentions, ...) as opposed to problematic ones (outage).
 I just need to think of good nomenclature.  
 <!--- (score, gain, boom) -->
@@ -81,9 +81,9 @@ some events are reported after the fact, due to their nature or due to temp. con
 
 ## TODO ##
 
-* plugings for puppet, chef to automatically submit their stuff
+* plugins for puppet, chef to automatically submit their stuff
 * better web UI add form, with type selector, date picker
 * avoid adding the exact same event twice
-* make web ui table use colors to denote outages according to their severity
-* timeline widget, http://www.simile-widgets.org/timeline/
+* make web UI table use colors to denote outages according to their severity
+* time line widget, http://www.simile-widgets.org/timeline/
 * auto-update events on web interface to make semi-realtime
