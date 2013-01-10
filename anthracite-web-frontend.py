@@ -51,5 +51,7 @@ def error404(code):
     return '404 page not found.<br/><a href="/">main</a>'
 
 backend = Backend("anthracite.db")
+
+import config
 debug(True)
-run(reloader=True)
+run(reloader=True, host=config.listen_host, port=config.listen_port)
