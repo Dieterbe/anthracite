@@ -14,9 +14,12 @@ class Store(LineReceiver):
         # this should be sufficient for proper concurrent behavior,
         # but if anyone can confirm this, that would be appreciated
         self.backend = Backend(db, exists=True)
+        # support both \n and (default) \r\n delimiters
+        # http://stackoverflow.com/questions/5087559/twisted-server-nc-client
+        self.delimiter = "\n"
 
     def lineReceived(self, line):
-        event = tuple(line.split(" ", 2))
+        event = tuple(line.rstrip("\r").split(" ", 2))
         try:
             self.backend.add_event(event)
             print "line:", line
