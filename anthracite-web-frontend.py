@@ -5,7 +5,7 @@ from backend import Backend
 
 @route('/')
 def main():
-    options = [('/table', 'table list'), ('/raw', 'raw list'), ('/json', 'json list'), ('/sqlite', 'sqlite file'), ('/add', 'add event')]
+    options = [('/table', 'table list'), ('/raw', 'raw list'), ('/json', 'json list'), ('/jsonp', 'jsonp list'), ('/sqlite', 'sqlite file'), ('/add', 'add event')]
     return '<ul>%s</ul>' % ''.join('<li><a href="%s">%s</a></li>' % e for e in options)
 
 
@@ -22,7 +22,14 @@ def raw():
 
 @route('/json')
 def json():
-    return {"events": [{"time": record[0], "type": record[1], "desc": record[2]} for record in backend.get_events()]}
+    return {"events": [{"time": record[0], "type": str(record[1]), "desc": str(record[2])} for record in backend.get_events()]}
+
+
+@route('/jsonp')
+def jsonp():
+    response.content_type = 'application/x-javascript'
+    jsonp = request.query.jsonp or 'jsonp'
+    return '%s(%s);' % (jsonp, str(json()))
 
 
 @route('/sqlite')
