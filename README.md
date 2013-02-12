@@ -38,8 +38,8 @@ The TCP receiver listens for lines in this format:
 
     <unix timestamp> <type> <description>
 
-There are no restrictions for type and description, other than that they must be non-empty strings.
-That said, I do have some suggestions and recommendations, which I'll demonstrate through fictive examples:
+Type must be a non-empty string not containing whitespace; description must be a non-empty string.
+I have some suggestions and recommendations, which I'll demonstrate through fictive examples:
 (but note that there's room for improvement, see the section below)
 
     # a deploy_* type for each project
@@ -51,6 +51,11 @@ That said, I do have some suggestions and recommendations, which I'll demonstrat
     <ts> backup backup from database slave vimeomysql22
     # in those cases of manual production changes, try to not forget adding your event
     <ts> manual_dieter i have to try this firewall thing on the LB
+
+Note that `<description>` can have whitespace.  It's trivial to work with tags and give your events
+more structure.  Note that you can mix with text, for example to include more arbitrary keywords like so:
+
+    <ts> deploy_vimeo.com commit_old=foobar commit_new=e8e5e4 author=Nicolas memcache fixes.. should lower network traffic
 
 ## FAQ ##
 
