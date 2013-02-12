@@ -1,9 +1,9 @@
 ## Introduction ##
 
 Graphite can show events such as [code deploys](http://codeascraft.etsy.com/2010/12/08/track-every-release/) and
-[puppet changes](https://github.com/joemiller/puppet-graphite_event) as lines on your graph.
+[puppet changes](https://github.com/joemiller/puppet-graphite_event) as vertical markers on your graph.
 With the advent of new graphite dashboards and interfaces where we can have popups and annotations to show metadata for each event (by means of client-side rendering),
-it's time we have a database to track all events along with categorization and text descriptions (which can include rich text and hyperlinks).
+it's time we have a database to track all events along with categorisation and text descriptions (which can include rich text and hyperlinks).
 Graphite is meant for time series (metrics over time), Anthracite aims to be the companion for annotated events.  
 More precisely, **Anthracite aims to be a database of "relevant events"** (see further down), **for the purpose of enriching monitoring dashboards,
 as well as allowing visual and numerical analysis of events that have a business impact**  
@@ -40,15 +40,17 @@ The TCP receiver listens for lines in this format:
 
 There are no restrictions for type and description, other than that they must be non-empty strings.
 That said, I do have some suggestions and recommendations, which I'll demonstrate through fictive examples:
+(but note that there's room for improvement, see the section below)
 
     # a deploy_* type for each project
-    <ts> deploy_vimeo.com "deploy e8e5e4 initiated by Nicolas -- github.com/Vimeo/main/compare/foobar..e8e5e4"
-    <ts> puppet "all nodes of class web_cluster_1: modified apache.conf; restart service apache"
-    <ts> incident_sev2_start "mysql2 crashed, site degraded"
-    <ts> incident_sev2_resolved "replaced db server"
-    <ts> incident "hurricane Sandy, systems unaffected but power outages among users, expect lower site usage"
-    # in those exceptional cases of manual production changes, try to not forget adding your event
-    <ts> manual_dieter "i have to try this firewall thing on the LB"
+    <ts> deploy_vimeo.com deploy e8e5e4 initiated by Nicolas -- github.com/Vimeo/main/compare/foobar..e8e5e4
+    <ts> puppet all nodes of class web_cluster_1: modified apache.conf; restart service apache
+    <ts> incident_sev2_start mysql2 crashed, site degraded
+    <ts> incident_sev2_resolved replaced db server
+    <ts> incident hurricane Sandy, systems unaffected but power outages among users, expect lower site usage
+    <ts> backup backup from database slave vimeomysql22
+    # in those cases of manual production changes, try to not forget adding your event
+    <ts> manual_dieter i have to try this firewall thing on the LB
 
 ## FAQ ##
 
@@ -81,9 +83,12 @@ some events are reported after the fact, due to their nature or due to temp. con
 
 ## TODO ##
 
-* plugins for puppet, chef to automatically submit their stuff
+* plugins for puppet, chef to automatically submit their relevant events
 * better web UI add form, with type selector, date picker
 * avoid adding the exact same event twice
 * make web UI table use colors to denote outages according to their severity
 * time line widget, http://www.simile-widgets.org/timeline/
 * auto-update events on web interface to make semi-realtime
+* on graphs in dashboards, show timeframs from start to end, and start to "cause found", to "resolved" etc.
+* a better web UI and actually provide features to do statistics on events and analysis such as TTD, TTR, with colors for severity levels etc
+* document timeserieswidget integration
