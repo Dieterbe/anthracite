@@ -28,7 +28,12 @@ function submit () {
     msg="$(date +%s) $type server=$server $1"
     echo "submitting to $anthracite_host:$anthracite_port:"
     echo "$msg"
-    if netcat -c $anthracite_host $anthracite_port <<< "$msg"; then
+    # note:
+    # netcat: netcat -c $anthracite_host $anthracite_port <<< "$msg"
+    # on centos, both bash and netcat approach work
+    # debian bash is compiled without support for /dev/tcp
+    # debian netcat doesn't support this syntax; without -c it stays open, waiting
+    if echo "$msg" > /dev/tcp/$anthracite_host/$anthracite_port; then
         echo ok
         exit 0
     else
