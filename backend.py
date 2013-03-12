@@ -44,3 +44,8 @@ class Backend():
             WHERE events.type_id == event_types.type_id
             ORDER BY time DESC""")
         return self.cursor.fetchall()
+
+    def get_events_count(self):
+        self.assure_db()
+        self.cursor.execute("""SELECT count(*) FROM events""")
+        return self.cursor.fetchone()[0]

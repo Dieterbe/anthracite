@@ -5,57 +5,67 @@ from backend import Backend
 
 @route('/')
 def main():
-    options = [('/table', 'table list'), ('/raw', 'raw list'), ('/json', 'json list'), ('/jsonp', 'jsonp list'), ('/sqlite', 'sqlite file'), ('/add', 'add event')]
-    return '<ul>%s</ul>' % ''.join('<li><a href="%s">%s</a></li>' % e for e in options)
+    return page(body=template('tpl/index'))
 
 
-@route('/table')
+@route('/events')
 def table():
-    return template('tpl/table', rows=backend.get_events())
+    return page(body=template('tpl/events_table', rows=backend.get_events()))
 
 
-@route('/raw')
+@route('/events/raw')
 def raw():
     response.content_type = 'text/plain'
     return "\n".join(','.join(map(str, record)) for record in backend.get_events())
 
 
-@route('/json')
+@route('/events/json')
 def json():
     return {"events": [{"time": record[0], "type": str(record[1]), "desc": str(record[2])} for record in backend.get_events()]}
 
 
-@route('/jsonp')
+@route('/events/jsonp')
 def jsonp():
     response.content_type = 'application/x-javascript'
     jsonp = request.query.jsonp or 'jsonp'
     return '%s(%s);' % (jsonp, str(json()))
 
 
-@route('/sqlite')
+@route('/events/sqlite')
 def sqlite():
     # TODO: root is not good when run from other dir
     # for some reason python's mimetype module can't autoguess this
     return static_file("anthracite.db", root=".", mimetype='application/octet-stream')
 
 
-@route('/add', method='GET')
+@route('/events/add', method='GET')
 def add_get():
-    return template('tpl/add.tpl')
+    return page(body=template('tpl/events_add'))
 
 
-@route('/add', method='POST')
+@route('/events/add', method='POST')
 def add_post():
     try:
         event = (request.forms.event_time, request.forms.event_type, request.forms.event_desc)
         backend.add_event(event)
         return '<p>The new event was added into the database<a href="/">main</a></p>'
     except Exception, e:
-        return template('tpl/add.tpl', error=e)
+        return page(body=template('tpl/events_add'), error=e)
+
+
+@route('<path:re:/assets/.*>')
+def static(path):
+    return static_file(path, root='.')
+
 
 @error(404)
 def error404(code):
-    return '404 page not found.<br/><a href="/">main</a>'
+    return page(body=template('tpl/error', title='404 page not found', msg='The requested page was not found'))
+
+
+def page(**kwargs):
+    kwargs['events_count'] = backend.get_events_count()
+    return template('tpl/page', kwargs)
 
 backend = Backend("anthracite.db")
 
