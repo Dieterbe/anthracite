@@ -49,6 +49,14 @@ class Backend():
             ORDER BY time DESC""")
         return self.cursor.fetchall()
 
+    def get_events_range(self):
+        self.assure_db()
+        self.cursor.execute("""select time from events order by time desc limit 1""")
+        high = self.cursor.fetchone()[0]
+        self.cursor.execute("""select time from events order by time asc limit 1""")
+        low = self.cursor.fetchone()[0]
+        return (low, high)
+
     def get_events_count(self):
         self.assure_db()
         self.cursor.execute("""SELECT count(*) FROM events""")

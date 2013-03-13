@@ -13,6 +13,14 @@ def table():
     return page(body=template('tpl/events_table', rows=backend.get_events()))
 
 
+@route('/events/timeline')
+def timeline():
+    rows = backend.get_events()
+    (range_low, range_high) = backend.get_events_range()
+
+    return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high))
+
+
 @route('/events/raw')
 def raw():
     response.content_type = 'text/plain'
@@ -29,6 +37,12 @@ def jsonp():
     response.content_type = 'application/x-javascript'
     jsonp = request.query.jsonp or 'jsonp'
     return '%s(%s);' % (jsonp, str(json()))
+
+
+@route('/events/xml')
+def xml():
+    response.content_type = 'application/xml'
+    return template('tpl/events_xml', events = backend.get_events())
 
 
 @route('/events/sqlite')

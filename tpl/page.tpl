@@ -46,8 +46,12 @@
     <script src="../assets/jquery/jquery-1.9.1.js"></script>
     <script src="../assets/bootstrap/js/bootstrap.js"></script>
   </head>
-
-  <body>
+    <script>
+        // will be overridden on timeline page
+        function onLoad() {};
+        function onResize() {};
+    </script>
+  <body onload="onLoad();" onresize="onResize();">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -90,9 +94,11 @@
               <li><a href="/events/add">add event</a></li>
               <li class="nav-header">Event views</li>
               <li><a href="/events">table</a></li>
+              <li><a href="/events/timeline">timeline</a></li>
               <li><a href="/events/raw">raw</a></li>
               <li><a href="/events/json">json</a></li>
               <li><a href="/events/jsonp">jsonp</a></li>
+              <li><a href="/events/xml">xml</a></li>
               <li><a href="/events/sqlite">sqlite</a></li>
             </ul>
           </div><!--/.well -->
