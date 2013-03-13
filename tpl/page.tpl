@@ -98,7 +98,37 @@
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span9">
+        % if defined('successes'):
+            <div class="row">
+                % for s in successes:
+                    %include tpl/success msg=s
+                % end
+            </div>
+        % end
+        % if defined('infos'):
+            <div class="row">
+                % for i in infos:
+                    %include tpl/info msg=i
+                % end
+            </div>
+        % end
+        % if defined('warnings'):
+            <div class="row">
+                % for w in warnings:
+                    %include tpl/warning msg=w
+                % end
+            </div>
+        % end
+        % if defined('errors'):
+            <div class="row">
+                % for (title, msg) in errors:
+                    %include tpl/error title=title, msg=msg
+                % end
+            </div>
+        % end
+        <div class='container'>
             {{!body}}
+        </div>
         </div><!--/span-->
       </div><!--/row-->
 
