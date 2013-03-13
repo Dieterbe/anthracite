@@ -43,7 +43,7 @@ class Backend():
 
     def get_events(self):
         self.assure_db()
-        self.cursor.execute("""SELECT events.time, event_types.name, events.desc
+        self.cursor.execute("""SELECT events.ROWID, events.time, event_types.name, events.desc
             FROM events, event_types
             WHERE events.type_id == event_types.type_id
             ORDER BY time DESC""")
