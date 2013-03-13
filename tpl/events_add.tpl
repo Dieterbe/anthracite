@@ -3,25 +3,17 @@
 
 <div class="hero-unit">
 <h3>Add an event</h3>
-    <form action="/add" method="POST">
+    <form action="/events/add" method="POST">
       <fieldset>
-        <label>Enter a Unix Timestamp (left) or a Date+Time (right)</label>
-        <input type="text" size="10" maxlength="10" name="event_timestamp" placeholder="unix timestamp">
+        <label>Date-Time (enter manually, use the picker, or populate from a unix timestamp)</label>
   <div id="event_datetime" class="input-append date">
-    <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text"></input>
+    <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="event_datetime"></input>
     <span class="add-on">
       <i data-time-icon="icon-time" data-date-icon="icon-calendar">
       </i>
     </span>
   </div>
-<script type="text/javascript">
-  $(function() {
-    $('#event_datetime').datetimepicker({
-      language: 'en',
-      pick12HourFormat: true
-    });
-  });
-</script>
+        <input type="text" size="10" maxlength="10" id="event_timestamp" name="event_timestamp" placeholder="unix timestamp">
         <label>Type</label>
         <input type="text" name="event_type" placeholder="type">
         <label>Description</label>
@@ -32,3 +24,16 @@
     </form>
 </div>
 
+<script type="text/javascript">
+  $(function() {
+    $('#event_datetime').datetimepicker({
+      language: 'en',
+      pick12HourFormat: true
+    });
+    $('#event_timestamp').change(function() {
+        var myDate = new Date($(this).val() * 1000);
+        var picker = $('#event_datetime').data('datetimepicker');
+        picker.setLocalDate(myDate);
+    });
+  });
+</script>

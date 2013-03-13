@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
-from backend import Backend
+from backend import Backend, Event
 
 
 @route('/')
@@ -46,11 +46,18 @@ def add_get():
 @route('/events/add', method='POST')
 def add_post():
     try:
-        event = (request.forms.event_time, request.forms.event_type, request.forms.event_desc)
-        backend.add_event(event)
-        return '<p>The new event was added into the database<a href="/">main</a></p>'
+        import time
+        import datetime
+        # we receive something like 12/31/1969 10:25:35 PM
+        ts = time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple())
+        event = Event(timestamp=ts, t=request.forms.event_type, desc=request.forms.event_desc)
     except Exception, e:
-        return page(body=template('tpl/events_add'), error=e)
+        return page(body=template('tpl/events_add'), errors=[('Could not create new event', e)])
+    try:
+        backend.add_event(event)
+        return page(body=template('tpl/events_add'), successes=['The new event was added into the database'])
+    except Exception, e:
+        return page(body=template('tpl/events_add'), errors=[('Could not save new event', e)])
 
 
 @route('<path:re:/assets/.*>')

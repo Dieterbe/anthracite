@@ -1,5 +1,17 @@
 import sqlite3
 
+class Event():
+
+    def __init__(self, desc=None, t=None, timestamp=None):
+        if not desc:
+            raise Exception("desc must be set to a non-zero string")
+        if not t:
+            raise Exception("type must be set to a non-zero string")
+        if not timestamp:
+            raise Exception("timestamp must be set")
+        self.desc = desc
+        self.t = t
+        self.timestamp = timestamp
 
 class Backend():
 
@@ -22,19 +34,11 @@ class Backend():
         """
         can raise sqlite3 exceptions and any other exception means something's wrong with the data
         """
-        event_time = int(event[0])
-        event_type = str(event[1])
-        event_desc = str(event[2])
-        if (len(event_type) < 1):
-            raise Exception("event_type must be a non-zero string")
-        if (len(event_desc) < 1):
-            raise Exception("event_desc must be a non-zero string")
-
         self.assure_db()
-        self.cursor.execute("INSERT OR IGNORE INTO event_types (name) VALUES (?)", (event_type,))
-        self.cursor.execute("SELECT type_id FROM event_types WHERE name =?", (event_type,))
+        self.cursor.execute("INSERT OR IGNORE INTO event_types (name) VALUES (?)", (event.t,))
+        self.cursor.execute("SELECT type_id FROM event_types WHERE name =?", (event.t,))
         type_id = self.cursor.fetchone()[0]
-        self.cursor.execute("INSERT INTO events VALUES (?,?,?)", (type_id, event_time, event_desc))
+        self.cursor.execute("INSERT INTO events VALUES (?,?,?)", (type_id, event.timestamp, event.desc))
         self.conn.commit()
 
     def get_events(self):
