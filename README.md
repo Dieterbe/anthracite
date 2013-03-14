@@ -27,7 +27,7 @@ some use cases:
 ## Methods of submitting events ##
 
 * TCP receiver on port 2005 (for one line events) in `<unix timestamp> <type> <description>` format
-* HTTP POST reicever in the web app (use curl, see source of anthracite-submit.sh)
+* HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-submit.sh)
 * manually, in the web interface
 * manually, with a CLI script
 
