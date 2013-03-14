@@ -12,7 +12,7 @@ some use cases:
 ## Design goals ##
 
 * do one thing and do it well.  aim for simplicity, flexibility and integration.
-* deliver events in various formats (html, raw, json, jsonp, xml, sqlite,...)
+* deliver events in various formats and support querying for tags and text (full text search)
 * support arbitrary tags, allow events with multiple lines, even rich text and hyperlinks.
 
 
