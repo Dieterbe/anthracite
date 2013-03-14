@@ -1,5 +1,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/assets/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
     <script type="text/javascript" src="/assets/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"> </script>
+    <link href="/assets/select2/select2.css" rel="stylesheet"/>
+    <script src="/assets/select2/select2.js"></script>
 
 <div class="hero-unit">
 <h3>Add an event</h3>
@@ -14,13 +16,19 @@
     </span>
   </div>
         <input type="text" size="10" maxlength="10" id="event_timestamp" name="event_timestamp" placeholder="unix timestamp">
-        <label>Type</label>
-        <input type="text" name="event_type" placeholder="type">
         <label>Description</label>
         <textarea rows="10" name="event_desc">
         </textarea>
+        <label>Tags (use space to separate). TODO doesn't get sent?</label>
+        <input type="text" size="10" style="width:300px" id="event_tags"/>
         <br/><button type="submit" class="btn">Submit</button>
       </fieldset>
+    <script>
+        $(document).ready(function() { $("#event_tags").select2({
+          tags:{{!list(tags)}},
+          tokenSeparators: [" "]});
+        });
+    </script>
     </form>
 </div>
 
