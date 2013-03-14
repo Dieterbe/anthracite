@@ -2,7 +2,7 @@
 from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
 from twisted.internet import reactor
-from backend import Backend
+from backend import Backend, Event
 import sqlite3
 import sys
 
@@ -21,13 +21,14 @@ class Store(LineReceiver):
     def lineReceived(self, line):
         event = tuple(line.rstrip("\r").split(" ", 2))
         try:
-            self.backend.add_event(event)
+            event = Event(timestamp=int(event[0]), desc=event[2], tags=[event[1]])
             print "line:", line
+            self.backend.add_event(event)
         except sqlite3.OperationalError, e:
             sys.stderr.write("sqlite error, aborting. : %s" % e)
             sys.exit(2)
-        except Exception:
-            sys.stderr.write("bad line: %s\n" % line)
+        except Exception, e:
+            sys.stderr.write("bad line: %s  --> error: %s\n" % (line, e))
 
 
 class StoreFactory(Factory):
