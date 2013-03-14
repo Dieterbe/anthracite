@@ -29,7 +29,7 @@ def raw():
 
 @route('/events/json')
 def json():
-    return {"events": [{"time": record[0], "type": str(record[1]), "desc": str(record[2])} for record in backend.get_events()]}
+    return {"events": [{"id": record[0], "time": record[1], "desc": str(record[2])} for record in backend.get_events()]}
 
 
 @route('/events/jsonp')
@@ -54,7 +54,7 @@ def sqlite():
 
 @route('/events/add', method='GET')
 def add_get():
-    return page(body=template('tpl/events_add'))
+    return page(body=template('tpl/events_add', tags=backend.get_tags()))
 
 
 @route('/events/add', method='POST')
@@ -64,14 +64,14 @@ def add_post():
         import datetime
         # we receive something like 12/31/1969 10:25:35 PM
         ts = time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple())
-        event = Event(timestamp=ts, t=request.forms.event_type, desc=request.forms.event_desc)
+        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=request.forms.event_tags)
     except Exception, e:
-        return page(body=template('tpl/events_add'), errors=[('Could not create new event', e)])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)])
     try:
         backend.add_event(event)
-        return page(body=template('tpl/events_add'), successes=['The new event was added into the database'])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), successes=['The new event was added into the database'])
     except Exception, e:
-        return page(body=template('tpl/events_add'), errors=[('Could not save new event', e)])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not save new event', e)])
 
 
 @route('<path:re:/assets/.*>')

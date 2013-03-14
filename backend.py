@@ -1,17 +1,22 @@
 import sqlite3
 
+
 class Event():
 
-    def __init__(self, desc=None, t=None, timestamp=None):
-        if not desc:
-            raise Exception("desc must be set to a non-zero string")
-        if not t:
-            raise Exception("type must be set to a non-zero string")
+    def __init__(self, timestamp=None, desc=None, tags=[]):
         if not timestamp:
             raise Exception("timestamp must be set")
-        self.desc = desc
-        self.t = t
+        if not desc:
+            raise Exception("desc must be set to a non-zero string")
         self.timestamp = timestamp
+        self.desc = desc
+        self.tags = tags  # just a list of strings
+
+    def __str__(self):
+        pretty_desc = self.desc
+        if "\n" in self.desc:
+            pretty_desc = "%s..." % self.desc[:self.desc.find('\n')]
+        return "Event object. ts=%i, tags=%s, desc=%s" % (self.timestamp, ','.join(self.tags), pretty_desc)
 
 class Backend():
 
@@ -23,31 +28,50 @@ class Backend():
     def assure_db(self):
         if self.exists:
             return True
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS event_types
-                (type_id integer primary key autoincrement, name text unique)""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS tags
+                (tag_id text primary key)""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS events
-                (type_id integer, time int, desc text,
-                FOREIGN KEY(type_id) REFERENCES event_types(type_id))""")
+                (time int, desc text)""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS events_tags
+                (tag_id text, event_id integer,
+                FOREIGN KEY(tag_id) REFERENCES tags(tag_id),
+                FOREIGN KEY(event_id) REFERENCES events(ROWID))""")
         self.exists = True
 
     def add_event(self, event):
         """
         can raise sqlite3 exceptions and any other exception means something's wrong with the data
         """
+        # TODO transaction, performance
         self.assure_db()
-        self.cursor.execute("INSERT OR IGNORE INTO event_types (name) VALUES (?)", (event.t,))
-        self.cursor.execute("SELECT type_id FROM event_types WHERE name =?", (event.t,))
-        type_id = self.cursor.fetchone()[0]
-        self.cursor.execute("INSERT INTO events VALUES (?,?,?)", (type_id, event.timestamp, event.desc))
+        for tag in event.tags:
+            self.cursor.execute("INSERT OR IGNORE INTO tags (tag_id) VALUES (?)", (tag,))
+        self.cursor.execute("INSERT INTO events VALUES (?,?)", (event.timestamp, event.desc))
+        event_id = self.cursor.lastrowid
+        for tag_id in event.tags:
+            self.cursor.execute("INSERT INTO events_tags VALUES (?,?)", (tag, event_id))
         self.conn.commit()
 
     def get_events(self):
         self.assure_db()
-        self.cursor.execute("""SELECT events.ROWID, events.time, event_types.name, events.desc
-            FROM events, event_types
-            WHERE events.type_id == event_types.type_id
-            ORDER BY time DESC""")
-        return self.cursor.fetchall()
+        #self.cursor.execute("""SELECT events.ROWID, events.time, events.desc, tags.tag_id
+        #    FROM events, events_tags, tags
+        #    WHERE events.ROWID == events_tags.event_id AND events_tags.tag_id == tags.tag_id
+        #    ORDER BY time DESC""")
+        self.cursor.execute('SELECT events.ROWID, events.time, events.desc FROM events ORDER BY events.time DESC')
+        events = self.cursor.fetchall()
+        return events
+
+    # events for given tag:
+    #select events.* from events, tags, events_tags
+    #    where events_tags.event_id = events.id
+    #        and events_tags.tag_id = tags.id
+    #            and tags.tag = "whatever_tag"
+
+    def get_tags(self):
+        self.assure_db()
+        self.cursor.execute("""SELECT tag_id FROM tags""")
+        return [row[0] for row in self.cursor.fetchall()]
 
     def get_events_range(self):
         self.assure_db()
