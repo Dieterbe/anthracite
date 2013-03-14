@@ -1,29 +1,59 @@
-## Introduction ##
+## Anthracite event manager ##
 
-Graphite can show events such as [code deploys](http://codeascraft.etsy.com/2010/12/08/track-every-release/) and
-[puppet changes](https://github.com/joemiller/puppet-graphite_event) as vertical markers on your graph.
-With the advent of new graphite dashboards and interfaces where we can have popups and annotations to show metadata for each event (by means of client-side rendering),
-it's time we have a database to track all events along with categorisation and text descriptions (which can include rich text and hyperlinks).
-Graphite is meant for time series (metrics over time), Anthracite aims to be the companion for annotated events.  
-More precisely, **Anthracite aims to be a database of "relevant events"** (see further down), **for the purpose of enriching monitoring dashboards,
-as well as allowing visual and numerical analysis of events that have a business impact**  
-It has a TCP receiver, a database (sqlite3), a HTTP interface to deliver event data in many formats and a simple web frontend for humans.
+* what: track and manage all changes and events that can have a business and/or operational impact.
+* why: to increase operational visibility and collaboration
 
-design goals:
-* do one thing and do it well.  aim for integration.
-* take inspiration from graphite:
- * simple TCP protocol
- * automatically create new event types as they are used
- * run on port 2005 by default (carbon is 2003,2004)
- * deliver events in various formats (html, raw, json, sqlite,...)
- * stay out of the way
-* super easy to install and run: install dependencies, clone repo. <i>the app is ready to run</i>
+some use cases:
+
+* changelog for troubleshooting and keeping people informed
+* enriching monitoring dashboards with markers and annotation text
+* aiding with visual and numerical analysis of events that affect performance (MTTD, MTTR, etc)
+
+## Design goals ##
+
+* do one thing and do it well.  aim for simplicity, flexibility and integration.
+* deliver events in various formats (html, raw, json, jsonp, xml, sqlite,...)
+* support arbitrary tags, allow events with multiple lines, even rich text and hyperlinks.
+
+
+## Components ##
+
+* anthracite-receiver.py is the TCP receiver (will be revised/deprecated with the advent of multi-line events with tags)
+* anthracite-web.py is the web app
+* anthracite-submit.sh to interactively compose and submit events from the CLI.
+* an sqlite database is automatically created, it suffices.
+
+
+## Methods of submitting events ##
+
+* TCP receiver on port 2005 (for one line events) in `<unix timestamp> <type> <description>` format
+* HTTP POST reicever in the web app (use curl, see source of anthracite-submit.sh)
+* manually, in the web interface
+* manually, with a CLI script
+
+
+## Integration ##
+
+* [Timeserieswidget](https://github.com/Dieterbe/timeserieswidget) shows graphite graphs with anthracite's events
+* The [Graph-Explorer graphite dashboard](https://github.com/Dieterbe/graph-explorer) uses that.
+* At Vimeo we submit deploy events using curl
+
 
 ## Dependencies ##
 
 * python2
 * python2-pysqlite
-* twisted
+* twisted (only needed for the TCP receiver)
+
+
+## Installation ##
+
+should be super easy...
+
+* install dependencies
+* clone repo
+* there is no third step. you're ready.
+
 
 ## About "relevant events" ##
 
@@ -32,7 +62,7 @@ I recommend you submit any event that **has** or **might have** a **relevant** e
 * monitoring itself (for example you fixed a bug in metrics reporting. it shouldn't look like the app behavior changed)
 * the business (press coverage, viral videos, etc), because this also affects your app usage and metrics.
 
-## Formats and conventions ##
+## Formats and conventions (DEPRECATED) ##
 
 The TCP receiver listens for lines in this format:
 
@@ -57,7 +87,7 @@ more structure.  Note that you can mix with text, for example to include more ar
 
     <ts> deploy_vimeo.com commit_old=foobar commit_new=e8e5e4 author=Nicolas memcache fixes.. should lower network traffic
 
-## FAQ ##
+## FAQ (DEPRECATED) ##
 
 * What's up with the incident severity levels?  
 Because there are so many unique and often subtle pieces of information pertaining to each individual incident, it's often hard to map an incident to
@@ -89,11 +119,12 @@ some events are reported after the fact, due to their nature or due to temp. con
 ## TODO ##
 
 * plugins for puppet, chef to automatically submit their relevant events
-* better web UI add form, with type selector, date picker
 * avoid adding the exact same event twice
 * make web UI table use colors to denote outages according to their severity
-* time line widget, http://www.simile-widgets.org/timeline/
 * auto-update events on web interface to make semi-realtime
 * on graphs in dashboards, show timeframs from start to end, and start to "cause found", to "resolved" etc.
-* a better web UI and actually provide features to do statistics on events and analysis such as TTD, TTR, with colors for severity levels etc
-* document timeserieswidget integration
+* actually provide features to do statistics on events and analysis such as TTD, TTR, with colors for severity levels etc
+
+
+
+
