@@ -15,6 +15,8 @@ some use cases:
 * deliver events in various formats and support querying for tags and text (full text search)
 * support arbitrary tags, allow events with multiple lines, even rich text and hyperlinks.
 
+![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot.png)
+![Screenshot2](https://raw.github.com/Dieterbe/anthracite/master/screenshots/flot-annotated-event.png)
 
 ## Components ##
 
