@@ -3,7 +3,9 @@ prog="$(basename $0)"
 
 anthracite_host=localhost
 anthracite_port=8081
-tmp_file_tpl=/tmp/anthracite-submit-${USER}
+template_file_pattern=/tmp/anthracite-template-${USER}
+content_file_pattern=/tmp/anthracite-content-${USER}
+submission_file_pattern=/tmp/anthracite-submission-${USER}
 
 function die_error () {
     echo "$1" >&2
@@ -64,21 +66,22 @@ template
 function submit () {
     [ -n "$EDITOR" ] || die_error "\$EDITOR must be set (protip: export EDITOR=vim in ~/.bashrc)"
     which $EDITOR > /dev/null || die_error "can't find your editor, $EDITOR"
-    templates=($(shopt -s nullglob; echo $tmp_file_tpl*))
+    templates=($(shopt -s nullglob; echo $template_file_pattern*))
     if [ ${#templates[@]} -gt 1 ]; then
         die_error "More than 1 existing template found: ${templates[*]}.  Please clean them up"
     elif [ ${#templates[@]} -eq 1 ]; then
         template_file=${templates[0]}
     else
-        template_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
+        template_file=$(mktemp $template_file_pattern) || die_error "Couldn't make tmpfile"
         template > $template_file || die_error "Couldn't write to tmpfile $tmp_file"
     fi
+    submission_file=$(mktemp $submission_file_pattern) || die_error "Couldn't make tmpfile"
     $EDITOR $template_file || die_error "Editor exited $?. aborting..."
     if [ -z "$(cat $template_file | template_get_content)" ]; then
         rm -f "$template_file"
         die_error "empty file. aborting.."
     fi
-    content_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
+    content_file=$(mktemp $content_file_pattern) || die_error "Couldn't make tmpfile"
     cat $template_file | template_get_content > $content_file || die_error "Couldn't process template contents"
     date=$(cat $content_file | template_filter_date) || die_error "Couldn't find a date in the template. aborting.."
     tags=$(cat $content_file | template_filter_tags)
