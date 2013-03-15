@@ -16,15 +16,14 @@ function die_error () {
 template () {
 cat << EOF
 # date can be any value accepted by 'date -d'
-# no strict format.  anything is allowed (tags, unstructured text, ..)
+# no strict format.  any text (html, ..) is allowed.
 # if the event (i.e. this file) is empty, submission will be aborted.
+# use the last line for arbitrary tags (keep the 'TAGS: ' intact)
 # everything upto the line below will be ignored
-# please type your event message below. what happened?
+# please type your message below. what happened?
+
 date=$(date)
-user=$USER
-type=manual
-source_host=$HOSTNAME
-source=$prog
+TAGS: source_host=$HOSTNAME source=$prog manual $USER
 EOF
 }
 
@@ -34,6 +33,14 @@ template_get_content () {
 
 template_filter_date () {
     sed -n 's#^date=##p'
+}
+
+template_filter_tags () {
+    sed -n 's#^TAGS: ##p'
+}
+
+template_remove_date_tags () {
+    egrep -v '^(TAGS: |date=)'
 }
 
 function usage () {
@@ -48,7 +55,6 @@ OPTIONS:
    -H          anthracite host (default: $anthracite_host)
    -p          anthracite port (default: $anthracite_port)
    -s          submit message
-   -t <file>   start from template <file>
 
 == MESSAGE TEMPLATE: ==
 EOF
@@ -69,14 +75,15 @@ function submit () {
     fi
     $EDITOR $template_file || die_error "Editor exited $?. aborting..."
     [ -n "$(cat $template_file | template_get_content)" ] || { rm -f "$template_file" ; die_error "empty file. aborting.." }
-    submission_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
-    cat $template_file | template_get_content > $submission_file || die_error "Couldn't process template contents"
-    date=$(cat $submission_file | template_filter_date) || die_error "Couldn't find a date in the template. aborting.."
+    content_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
+    cat $template_file | template_get_content > $content_file || die_error "Couldn't process template contents"
+    date=$(cat $content_file | template_filter_date) || die_error "Couldn't find a date in the template. aborting.."
+    tags=$(cat $content_file | template_filter_tags)
     timestamp=$(date +%s -d "$date") || die_error "Couldn't parse date from $date. aborting.."
+    cat $content_file | template_remove_date_tags > $submission_file || die_error "Couldn't create submission file. aborting.."
 
     echo "submitting to $anthracite_host:$anthracite_port:"
-    echo curl -F "event_time=$timestamp;event_type=manual;event_desc=@$submission_file" http://$anthracite_host:$anthracite_port
-    if curl -F 'event_time=$timestamp' - F 'event_type=manual' -F 'event_desc=<$submission_file' http://$anthracite_host:$anthracite_port/add | grep -q 'The new event was added'; then
+    if curl -F 'event_time=$timestamp' -F 'event_type=manual' -F "event_tags=$tags" -F "event_desc=<$submission_file" http://$anthracite_host:$anthracite_port/add | grep -q 'The new event was added'; then
         echo "submitted!"
         exit
     else
@@ -85,7 +92,7 @@ function submit () {
 }
 
 action=
-while getopts ":hH:p:st:" opt; do
+while getopts ":hH:p:s" opt; do
     case $opt in
         h) action=usage
             ;;
@@ -94,9 +101,6 @@ while getopts ":hH:p:st:" opt; do
         p) anthracite_port=$OPTARG
             ;;
         s) action=submit
-            ;;
-        t) template_file=$OPTARG
-           [ -f "$template_file" ] || die_error "Can't read template file $template_file"
             ;;
         ?) echo "Invalid option: -$OPTARG" >&2; usage >&2; exit 1;;
     esac
