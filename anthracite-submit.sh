@@ -67,14 +67,17 @@ function submit () {
     templates=($(shopt -s nullglob; echo $tmp_file_tpl*))
     if [ ${#templates[@]} -gt 1 ]; then
         die_error "More than 1 existing template found: ${templates[*]}.  Please clean them up"
-    elif [ ${#templates[@]} -eq 1]; then
+    elif [ ${#templates[@]} -eq 1 ]; then
         template_file=${templates[0]}
     else
         template_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
-        template > $template_file  || die_error "Couldn't write to tmpfile $tmp_file"
+        template > $template_file || die_error "Couldn't write to tmpfile $tmp_file"
     fi
     $EDITOR $template_file || die_error "Editor exited $?. aborting..."
-    [ -n "$(cat $template_file | template_get_content)" ] || { rm -f "$template_file" ; die_error "empty file. aborting.." }
+    if [ -z "$(cat $template_file | template_get_content)" ]; then
+        rm -f "$template_file"
+        die_error "empty file. aborting.."
+    fi
     content_file=$(mktemp /tmp/anthracite-submit.XXXXX) || die_error "Couldn't make tmpfile"
     cat $template_file | template_get_content > $content_file || die_error "Couldn't process template contents"
     date=$(cat $content_file | template_filter_date) || die_error "Couldn't find a date in the template. aborting.."
