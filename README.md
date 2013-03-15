@@ -16,7 +16,6 @@ some use cases:
 * support arbitrary tags, allow events with multiple lines, even rich text and hyperlinks.
 
 ![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot.png)
-![Screenshot2](https://raw.github.com/Dieterbe/anthracite/master/screenshots/flot-annotated-event.png)
 
 ## Components ##
 
@@ -40,6 +39,7 @@ some use cases:
 * The [Graph-Explorer graphite dashboard](https://github.com/Dieterbe/graph-explorer) uses that.
 * At Vimeo we submit deploy events using curl
 
+![Screenshot2](https://raw.github.com/Dieterbe/anthracite/master/screenshots/flot-annotated-event.png)
 
 ## Dependencies ##
 
