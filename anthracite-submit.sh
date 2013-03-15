@@ -3,7 +3,7 @@ prog="$(basename $0)"
 
 anthracite_host=localhost
 anthracite_port=8081
-tmp_file_tpl=/tmp/anthracite-submit-${USER}.
+tmp_file_tpl=/tmp/anthracite-submit-${USER}
 
 function die_error () {
     echo "$1" >&2
