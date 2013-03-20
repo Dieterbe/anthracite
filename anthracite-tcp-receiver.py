@@ -46,5 +46,7 @@ class StoreFactory(Factory):
         return Store(self.db)
 
 reactor.listenTCP(2005, StoreFactory("anthracite.db"))
-print "anthracite receiver listening on port 2005"
+print "anthracite TCP receiver listening on port 2005"
+print "only supports single-line events."
+print "use anthracite-web to get multi-line event support"
 reactor.run()
