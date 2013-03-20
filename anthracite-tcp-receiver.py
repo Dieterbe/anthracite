@@ -19,9 +19,14 @@ class Store(LineReceiver):
         self.delimiter = "\n"
 
     def lineReceived(self, line):
-        event = tuple(line.rstrip("\r").split(" ", 2))
+        # line: <timestamp> <some> <tags=here> -- description text of the event goes here
+        event = line.rstrip("\r").split(" -- ", 1)
+        event[0] = event[0].split(' ', 1)
+        timestamp = int(event[0][0])
+        tags = event[0][1].split(' ')
+        desc = event[1]
         try:
-            event = Event(timestamp=int(event[0]), desc=event[2], tags=[event[1]])
+            event = Event(timestamp=timestamp, desc=desc, tags=tags)
             print "line:", line
             self.backend.add_event(event)
         except sqlite3.OperationalError, e:

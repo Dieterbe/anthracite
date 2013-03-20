@@ -30,7 +30,7 @@ some use cases:
 * HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-submit.sh)
 * manually, in the web interface
 * manually, with the `anthracite-submit.sh` CLI script
-* `anthracite-tcp-receiver.py` on TCP port 2005 (for one line events) in `<unix timestamp> <type> <description>` format
+* `anthracite-tcp-receiver.py` on TCP port 2005 (for one line events) in `<unix timestamp> [<tag1>[ <tag2>[...]]] -- <description>` format
 
 
 ## Integration ##
