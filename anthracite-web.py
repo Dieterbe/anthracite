@@ -42,7 +42,7 @@ def jsonp():
 @route('/events/xml')
 def xml():
     response.content_type = 'application/xml'
-    return template('tpl/events_xml', events = backend.get_events())
+    return template('tpl/events_xml', events=backend.get_events())
 
 
 @route('/events/sqlite')
