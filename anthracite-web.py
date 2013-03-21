@@ -64,11 +64,8 @@ def add_post():
         import datetime
         # we receive something like 12/31/1969 10:25:35 PM
         ts = time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple())
-        # split tags either by comma (select2 tags form field uses comma), or whitespace:
-        if ',' in request.forms.event_tags:
-            tags = request.forms.event_tags.split(',')
-        else:
-            tags = request.forms.event_tags.split()
+        # (select2 tags form field uses comma)
+        tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
     except Exception, e:
         return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)])
@@ -77,6 +74,21 @@ def add_post():
         return page(body=template('tpl/events_add', tags=backend.get_tags()), successes=['The new event was added into the database'])
     except Exception, e:
         return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not save new event', e)])
+
+
+@route('/events/add/script', method='POST')
+def add_post_script():
+    try:
+        event = Event(timestamp=request.forms.event_timestamp,
+                      desc=request.forms.event_desc,
+                      tags=request.forms.event_tags.split())
+    except Exception, e:
+        return 'Could not create new event: %s' % e
+    try:
+        backend.add_event(event)
+        return 'The new event was added into the database'
+    except Exception, e:
+        return 'Could not save new event: %s' % e
 
 
 @route('<path:re:/assets/.*>')

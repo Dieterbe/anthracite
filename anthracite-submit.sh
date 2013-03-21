@@ -4,45 +4,46 @@ prog="$(basename $0)"
 anthracite_host=localhost
 anthracite_port=8081
 template_file_pattern=/tmp/anthracite-template-${USER}
-content_file_pattern=/tmp/anthracite-content-${USER}
-submission_file_pattern=/tmp/anthracite-submission-${USER}
+event_desc_file_pattern=/tmp/anthracite-event_desc-${USER}
 
 function die_error () {
-    echo "$1" >&2
+    echo -e "$1" >&2
     if [ -n "$template_file" -a -f "$template_file" ]; then
         echo "template file: $template_file" >&2
     fi
     exit 2
 }
 
-template () {
+print_template () {
 cat << EOF
 # date can be any value accepted by 'date -d'
 # no strict format.  any text (html, ..) is allowed.
+# use the last 2 lines for date and tags.
 # if the event (i.e. this file) is empty, submission will be aborted.
-# use the last line for arbitrary tags (keep the 'TAGS: ' intact)
 # everything upto the line below will be ignored
 # please type your message below. what happened?
 
-date=$(date)
-TAGS: source_host=$HOSTNAME source=$prog manual $USER
+DATE:$(date)
+TAGS:source_host=$HOSTNAME source=$prog manual $USER
 EOF
 }
 
 template_get_content () {
-    sed '1,/# please type your event message below/d'
-}
-
-template_filter_date () {
-    sed -n 's#^date=##p'
-}
-
-template_filter_tags () {
-    sed -n 's#^TAGS: ##p'
-}
-
-template_remove_date_tags () {
-    egrep -v '^(TAGS: |date=)'
+    local template_file=$1
+    event_desc_file=$(mktemp $event_desc_file_pattern.XXXXX) || die_error "Couldn't make tmp event_desc_file"
+    sed '1,/# please type your message below/d' $template_file | egrep -v '^(DATE|TAGS):' | cat - > $event_desc_file || die_error "Couldn't write to $event_desc_file"
+    date=$(sed -n 's#^DATE:##p' $template_file)
+    tags=$(sed -n 's#^TAGS:##p' $template_file)
+    # sanity checks..
+    # by default, it'll just contain \n, i.e. size 1B
+    if [ $(stat --printf="%s" $event_desc_file) -lt 3 ]; then
+        rm -f "$template_file"
+        die_error "empty file (or practically empty). aborting.."
+    fi
+    [ -n "$date" ] || die_error "Couldn't find a date in the template. aborting.."
+    [ -n "$tags" ] || die_error "Couldn't find tags in the template. aborting.."
+    event_tags=$tags
+    event_timestamp=$(date +%s -d "$date") || die_error "Couldn't parse date from $date. aborting.."
 }
 
 function usage () {
@@ -60,42 +61,41 @@ OPTIONS:
 
 == MESSAGE TEMPLATE: ==
 EOF
-template
+print_template
 }
 
 function submit () {
-    [ -n "$EDITOR" ] || die_error "\$EDITOR must be set (protip: export EDITOR=vim in ~/.bashrc)"
+    [ -n "$EDITOR" ] || die_error "\$EDITOR must be set (protip: export EDITOR=vim in ~/.bashrc; source ~/.bashrc;)"
     which $EDITOR > /dev/null || die_error "can't find your editor, $EDITOR"
     templates=($(shopt -s nullglob; echo $template_file_pattern*))
     if [ ${#templates[@]} -gt 1 ]; then
-        die_error "More than 1 existing template found: ${templates[*]}.  Please clean them up"
+        die_error "More than 1 existing template found:\n${templates[*]}\nPlease clean them up\nYou can leave one which we'll reuse"
     elif [ ${#templates[@]} -eq 1 ]; then
         template_file=${templates[0]}
     else
-        template_file=$(mktemp $template_file_pattern) || die_error "Couldn't make tmpfile"
-        template > $template_file || die_error "Couldn't write to tmpfile $tmp_file"
+        template_file=$(mktemp $template_file_pattern.XXXXX) || die_error "Couldn't make tmpfile"
+        print_template > $template_file || die_error "Couldn't write to tmpfile $tmp_file"
     fi
-    submission_file=$(mktemp $submission_file_pattern) || die_error "Couldn't make tmpfile"
     $EDITOR $template_file || die_error "Editor exited $?. aborting..."
-    if [ -z "$(cat $template_file | template_get_content)" ]; then
-        rm -f "$template_file"
-        die_error "empty file. aborting.."
-    fi
-    content_file=$(mktemp $content_file_pattern) || die_error "Couldn't make tmpfile"
-    cat $template_file | template_get_content > $content_file || die_error "Couldn't process template contents"
-    date=$(cat $content_file | template_filter_date) || die_error "Couldn't find a date in the template. aborting.."
-    tags=$(cat $content_file | template_filter_tags)
-    timestamp=$(date +%s -d "$date") || die_error "Couldn't parse date from $date. aborting.."
-    cat $content_file | template_remove_date_tags > $submission_file || die_error "Couldn't create submission file. aborting.."
+    template_get_content $template_file # this function will die if anything is wrong
 
     echo "submitting to $anthracite_host:$anthracite_port:"
-    if curl -F 'event_time=$timestamp' -F 'event_type=manual' -F "event_tags=$tags" -F "event_desc=<$submission_file" http://$anthracite_host:$anthracite_port/add | grep -q 'The new event was added'; then
-        echo "submitted!"
+    output=$(curl -s -S -F "event_timestamp=$event_timestamp" -F "event_tags=$event_tags" -F "event_desc=<$event_desc_file" http://$anthracite_host:$anthracite_port/events/add/script)
+    if grep -q 'The new event was added' <<< "$output"; then
+        echo "$output"
+        rm $template_file || die_error "Could not delete template file $template_file"
+        rm $event_desc_file || die_error "Could not delete event_desc file $event_desc_file"
         exit
     else
-        die_error "failed"
+        rm $event_desc_file || die_error "Could not delete event_desc file $event_desc_file\nsending failed:\n$output"
+        die_error "$output"
     fi
 }
+
+# if script is sourced, return. we wouldn't want to execute anything
+if [ "$0" == 'bash' ]; then
+    return
+fi
 
 action=
 while getopts ":hH:p:s" opt; do
