@@ -19,13 +19,13 @@
         <label>Description</label>
         <textarea rows="10" name="event_desc">
         </textarea>
-        <label>Tags (use space to separate). TODO doesn't get sent?</label>
-        <input type="text" size="10" style="width:300px" id="event_tags"/>
+        <label>Tags (use space to separate)</label>
+        <input type="text" size="10" style="width:300px" id="event_tags" name="event_tags"/>
         <br/><button type="submit" class="btn">Submit</button>
       </fieldset>
     <script>
         $(document).ready(function() { $("#event_tags").select2({
-          tags:{{!list(tags)}},
+          tags:{{![u.encode() for u in tags]}},
           tokenSeparators: [" "]});
         });
     </script>

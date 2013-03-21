@@ -64,7 +64,12 @@ def add_post():
         import datetime
         # we receive something like 12/31/1969 10:25:35 PM
         ts = time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple())
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=request.forms.event_tags)
+        # split tags either by comma (select2 tags form field uses comma), or whitespace:
+        if ',' in request.forms.event_tags:
+            tags = request.forms.event_tags.split(',')
+        else:
+            tags = request.forms.event_tags.split()
+        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
     except Exception, e:
         return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)])
     try:
