@@ -50,7 +50,7 @@ class Backend():
         self.cursor.execute("INSERT INTO events VALUES (?,?)", (event.timestamp, event.desc))
         event_id = self.cursor.lastrowid
         for tag_id in event.tags:
-            self.cursor.execute("INSERT INTO events_tags VALUES (?,?)", (tag, event_id))
+            self.cursor.execute("INSERT INTO events_tags VALUES (?,?)", (tag_id, event_id))
         self.conn.commit()
 
     def get_events(self):
