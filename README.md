@@ -20,16 +20,16 @@ some use cases:
 ## Components ##
 
 * anthracite-web.py is the web app (interface for humans, and HTTP POST event receiver)
-* anthracite-submit.sh to interactively compose and submit events from the CLI.
+* anthracite-compose-submit.sh to interactively compose and submit events from the CLI.
 * anthracite-tcp-receiver.py is the TCP receiver (only supports single-line events!)
 * an sqlite database is automatically created, it suffices.
 
 
 ## Methods of submitting events ##
 
-* HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-submit.sh)
+* HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-compose-submit.sh)
 * manually, in the web interface
-* manually, with the `anthracite-submit.sh` CLI script
+* manually, with the `anthracite-compose-submit.sh` CLI script
 * `anthracite-tcp-receiver.py` on TCP port 2005 (for one line events) in `<unix timestamp> [<tag1>[ <tag2>[...]]] -- <description>` format
 
 
