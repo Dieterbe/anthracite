@@ -6,7 +6,7 @@
   <tr>
     <td>{{datetime.datetime.fromtimestamp(row[1]).strftime(format)}}</td>
     <td>
-        {{row[2]}}
+        {{!row[2]}}
         <br/>
             % for tag in row[3]:
                 <span class="label label-info">{{tag}}</span>
