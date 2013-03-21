@@ -19,6 +19,7 @@ class Event():
             pretty_desc = "%s..." % self.desc[:self.desc.find('\n')]
         return "Event object. rowid=%s, ts=%i, tags=%s, desc=%s" % (str(self.rowid), self.timestamp, ','.join(self.tags), pretty_desc)
 
+
 class Backend():
 
     def __init__(self, db, exists=False):
@@ -66,7 +67,7 @@ class Backend():
         for (i, event) in enumerate(events):
             events[i] = list(events[i])
             self.cursor.execute('SELECT tag_id FROM events_tags WHERE event_id == %i' % event[0])
-            events[i].append([row[0] for row in self.cursor.fetchall()]) # add tags
+            events[i].append([row[0] for row in self.cursor.fetchall()])  # add tags
         return events
 
     # events for given tag:
