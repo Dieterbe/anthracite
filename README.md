@@ -21,6 +21,7 @@ some use cases:
 
 * anthracite-web.py is the web app (interface for humans, and HTTP POST event receiver)
 * anthracite-compose-submit.sh to interactively compose and submit events from the CLI.
+* anthracite-submit-github.sh to send messages with git log from a code checkout
 * anthracite-tcp-receiver.py is the TCP receiver (only supports single-line events!)
 * an sqlite database is automatically created, it suffices.
 
@@ -30,6 +31,8 @@ some use cases:
 * HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-compose-submit.sh)
 * manually, in the web interface
 * manually, with the `anthracite-compose-submit.sh` CLI script
+* `anthracite-submit-github.sh` goes into a code checkout, generates a nice message with the commits/author info from a given
+  commit range, and submits it, along with a given list of tags
 * `anthracite-tcp-receiver.py` on TCP port 2005 (for one line events) in `<unix timestamp> [<tag1>[ <tag2>[...]]] -- <description>` format
 
 
