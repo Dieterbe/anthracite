@@ -9,7 +9,7 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="../assets/journal/bootstrap.css" rel="stylesheet">
+    <link href="/assets/journal/bootstrap.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -28,7 +28,7 @@
         }
       }
     </style>
-    <link href="../assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="/assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -43,8 +43,9 @@
                     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
                                    <link rel="shortcut icon" href="../assets/ico/favicon.png">
     -->
-    <script src="../assets/jquery/jquery-1.9.1.js"></script>
-    <script src="../assets/bootstrap/js/bootstrap.js"></script>
+    <script src="/assets/jquery/jquery-1.9.1.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.js"></script>
+    <script src="/assets/bootboxjs/bootbox.js"></script>
   </head>
     <script>
         // will be overridden on timeline page
