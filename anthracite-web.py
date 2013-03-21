@@ -52,6 +52,16 @@ def sqlite():
     return static_file("anthracite.db", root=".", mimetype='application/octet-stream')
 
 
+@route('/events/delete/<event_id:int>')
+def delete(event_id):
+    try:
+        backend.delete_event(event_id)
+        return page(body=template('tpl/events_table', rows=backend.get_events()), successes=['The event was deleted from the database'])
+    except Exception, e:
+        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not delete event', e)])
+    # TODO redirect back to original page
+
+
 @route('/events/add', method='GET')
 def add_get():
     return page(body=template('tpl/events_add', tags=backend.get_tags()))
