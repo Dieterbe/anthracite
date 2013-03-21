@@ -17,7 +17,7 @@ class Event():
         pretty_desc = self.desc
         if "\n" in self.desc:
             pretty_desc = "%s..." % self.desc[:self.desc.find('\n')]
-        return "Event object. id=%s, ts=%i, tags=%s, desc=%s" % (str(self.id), self.timestamp, ','.join(self.tags), pretty_desc)
+        return "Event object. rowid=%s, ts=%i, tags=%s, desc=%s" % (str(self.rowid), self.timestamp, ','.join(self.tags), pretty_desc)
 
 class Backend():
 
