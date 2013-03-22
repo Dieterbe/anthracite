@@ -93,6 +93,7 @@
             <ul class="nav nav-list">
               <li class="active"><a href="/">main</a></li>
               <li><a href="/events/add">add event</a></li>
+              <li><a href="/report">operational report</a></li>
               <li class="nav-header">Event views</li>
               <li><a href="/events">table</a></li>
               <li><a href="/events/timeline">timeline</a></li>

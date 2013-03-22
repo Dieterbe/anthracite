@@ -28,15 +28,15 @@ def raw():
 
 
 @route('/events/json')
-def json():
+def events_json():
     return {"events": [{"id": record[0], "time": record[1], "desc": str(record[2])} for record in backend.get_events()]}
 
 
 @route('/events/jsonp')
-def jsonp():
+def events_jsonp():
     response.content_type = 'application/x-javascript'
     jsonp = request.query.jsonp or 'jsonp'
-    return '%s(%s);' % (jsonp, str(json()))
+    return '%s(%s);' % (jsonp, str(events_json()))
 
 
 @route('/events/xml')
@@ -99,6 +99,86 @@ def add_post_script():
         return 'The new event was added into the database'
     except Exception, e:
         return 'Could not save new event: %s' % e
+
+
+@route('/report')
+def report():
+    import time
+    import datetime
+    start = time.mktime(datetime.datetime.strptime(config.opsreport_start, "%m/%d/%Y %I:%M:%S %p").timetuple())
+    return page(body=template('tpl/report', config=config, data=get_report_data(start, time.time())))
+
+
+def get_report_data(start, until):
+    outages = backend.get_outages()
+    downtime = 0
+    reportpoints = []
+    # TODO bring all stats into single datapoint, only split up when actually
+    # feeding to graphite. so that we can easily have 1 table with all stats on
+    # report page
+    # id timestamp desc tags
+    origin_event = [None, start, "start of ops reporting", []]
+    reportpoints.append(ReportPoint(uptime=100, downtime=downtime, start=start, outage=None, event=origin_event)
+    for (outage, events) in outages.items():
+        start_ts = events[0][1]
+        detect_ts = events[1][1]
+        fix_ts = events[2][1]
+        # at the beginning of the outage..
+        #if start_ts > until:
+        #    break
+        age = float(fix_ts - start)
+        uptime = float(age - downtime) / age
+        reportpoints.append(ReportPoint(uptime * 100, downtime, start_ts, outage, events[0]))
+        # when detected
+        outage_duration_part1 = detect_ts - start_ts
+        downtime += outage_duration_part1 / 60
+        age = detect_ts - start
+        uptime = (age - downtime) / age
+        datapoints_uptime.append((uptime * 100, detect_ts, outage_key, events[1]))
+        datapoints_downtime.append((downtime, detect_ts, outage_key, events[1]))
+
+        # at the end..
+        #if fix_ts > until:
+        #    break
+        outage_duration_part2 = fix_ts - detect_ts
+        downtime += outage_duration_part2 / 60
+        age = fix_ts - start
+        uptime = (age - downtime) / age
+        datapoints_uptime.append((uptime * 100, fix_ts, outage_key, events[2]))
+        datapoints_downtime.append((downtime, fix_ts, outage_key, events[2]))
+
+    import time
+    now = int(time.time())
+    age = now - start
+    end_event = [None, now, "now", []]
+    uptime = (age - downtime) / age
+    datapoints_uptime.append((uptime * 100, now, None, end_event))
+    datapoints_downtime.append((downtime, now, None, end_event))
+    return ({'uptime': datapoints_uptime, 'downtime': datapoints_downtime})
+
+
+@route('/report/data/<catchall:re:.*>')
+def report_data(catchall):
+    response.content_type = 'application/x-javascript'
+    import json
+    import datetime
+    import time
+    start = time.mktime(datetime.datetime.strptime(request.query['from'], "%m/%d/%Y %I:%M:%S %p").timetuple())  # pretty much ignored so far
+    until = request.query['until']
+    jsonp = request.query['jsonp']
+    datapoints = get_report_data(start, until)
+    data = [
+        {
+            "target": "uptime",
+            "datapoints": [[d[0], d[1]] for d in datapoints['uptime']]
+        },
+        {
+            "target": "downtime",
+            "datapoints": [[d[0], d[1]] for d in datapoints['downtime']]
+        }
+    ]
+    print 'JSON', data
+    return '%s(%s)' % (jsonp, json.dumps(data))
 
 
 @route('<path:re:/assets/.*>')

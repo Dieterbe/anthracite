@@ -77,6 +77,21 @@ However, I recommend to try to use some "standardized" nomenclature, such as 'de
 You can use tags like `author=<person>` but this usually doesn't give any benefit over just tagging `<person>`.
 
 
+## Operational metrics report ##
+
+The event format and its tags are very loose.  However, you can use specific tags to enable the ops reporting:
+
+* give outage related events an identifier key (`20130225_switch_broke`) and tag outage related events like `outage=<key>`.
+* add a tag like `impact=50`: scale of 0 to 100 to denote the extent to which users are affected during the outage.
+  this helps in assessing the severity of the event but don't obsess over it, it doesn't need to be too accurate.
+  note: nothing stops you from using a value like 1000 to mark an unrecoverable loss (i.e. dataloss)
+* tags `detect` for when the cause is identified. and `fixed` to mark resolution (actual service restoration)
+* add these tags to new events (or existing events such as code deploys) to mark the points in time where an outage started,
+  got detected, got resolved, or changed impact level (i.e. temporary partial fixes)
+
+The report will look for these tags and give you a report of your operational metrics. (note that the metrics are not weighted for impact yet)
+
+
 ## TODO ##
 
 * plugins for puppet, chef to automatically submit their relevant events (or logstash filter to create anthracite events from logs)

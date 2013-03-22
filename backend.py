@@ -74,15 +74,13 @@ class Backend():
         events = self.cursor.fetchall()
         for (i, event) in enumerate(events):
             events[i] = list(events[i])
-            self.cursor.execute('SELECT tag_id FROM events_tags WHERE event_id == %i' % event[0])
-            events[i].append([row[0] for row in self.cursor.fetchall()])  # add tags
+            events[i].append(self.event_get_tags(event[0]))
         return events
 
-    # events for given tag:
-    #select events.* from events, tags, events_tags
-    #    where events_tags.event_id = events.id
-    #        and events_tags.tag_id = tags.id
-    #            and tags.tag = "whatever_tag"
+    def event_get_tags(self, event_id):
+        self.assure_db()
+        self.cursor.execute('SELECT tag_id FROM events_tags WHERE event_id == %i' % event_id)
+        return [row[0] for row in self.cursor.fetchall()]
 
     def get_tags(self):
         self.assure_db()
@@ -101,3 +99,32 @@ class Backend():
         self.assure_db()
         self.cursor.execute("""SELECT count(*) FROM events""")
         return self.cursor.fetchone()[0]
+
+    def get_outages(self):
+        self.assure_db()
+        self.cursor.execute('SELECT tag_id FROM tags WHERE tag_id LIKE "outage=_%"')
+        outage_tags = [row[0].encode() for row in self.cursor.fetchall()]
+        outages = {}
+        for outage_tag in outage_tags:
+            self.cursor.execute("SELECT events.ROWID, events.time, events.desc FROM events, events_tags WHERE events_tags.tag_id = '%s' AND events_tags.event_id = events.ROWID ORDER BY events.time ASC" % outage_tag)
+            events = self.cursor.fetchall()
+            for (i, event) in enumerate(events):
+                events[i] = list(events[i])
+                events[i].append(self.event_get_tags(event[0]))
+            relevant_events = []
+            for event in events:
+                if len(relevant_events) < 1 and 'start' in event[3]:
+                    relevant_events.append(event)
+                if len(relevant_events) < 2 and 'detect' in event[3]:
+                    relevant_events.append(event)
+                if len(relevant_events) < 3 and 'fix' in event[3]:
+                    relevant_events.append(event)
+            if len(relevant_events) != 3:
+                import sys
+                sys.stderr.write("warning. improper events for outage %s (need start,detect,fix in the right order)" % outage_tag)
+            outages[outage_tag] = relevant_events
+        for key in outages:
+            print key
+            for l in outages[key]:
+                print l
+        return outages
