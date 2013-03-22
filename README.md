@@ -40,7 +40,6 @@ some use cases:
 
 * [Timeserieswidget](https://github.com/Dieterbe/timeserieswidget) shows graphite graphs with anthracite's events
 * The [Graph-Explorer graphite dashboard](https://github.com/Dieterbe/graph-explorer) uses that.
-* At Vimeo we submit deploy events using curl
 
 ![Screenshot2](https://raw.github.com/Dieterbe/anthracite/master/screenshots/flot-annotated-event.png)
 
