@@ -1,0 +1,3 @@
+[submodule "assets/timeserieswidget"]
+	path = assets/timeserieswidget
+	url = https://github.com/Dieterbe/timeserieswidget.git
