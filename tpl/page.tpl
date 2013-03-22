@@ -46,12 +46,12 @@
     <script src="/assets/jquery/jquery-1.9.1.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.js"></script>
     <script src="/assets/bootboxjs/bootbox.js"></script>
-  </head>
     <script>
         // will be overridden on timeline page
         function onLoad() {};
         function onResize() {};
     </script>
+  </head>
   <body onload="onLoad();" onresize="onResize();">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
