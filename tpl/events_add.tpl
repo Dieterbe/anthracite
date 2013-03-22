@@ -15,7 +15,7 @@
       </i>
     </span>
   </div>
-        <input type="text" size="10" maxlength="10" id="event_timestamp" name="event_timestamp" placeholder="unix timestamp">
+        <input type="text" size="10" maxlength="10" id="event_timestamp" name="event_timestamp" placeholder="unix timestamp"/>
         <label>Description</label>
         <textarea rows="10" name="event_desc">
         </textarea>
