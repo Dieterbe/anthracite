@@ -27,8 +27,8 @@ start, detect resolve
 	    $(document).ready(function () {
             var settings = {
                 graphite_url: "/report/data/", // we actually just mimic graphite's output format and serve the data ourself
-                from: "{{config.opsreport_start}}",
-                until: "now",
+                from: "{{reportpoints[0].event.timestamp}}",
+                until: "{{reportpoints[-1].event.timestamp}}",
                 height: "300",
                 width: "740",
                 targets: [
@@ -66,21 +66,40 @@ start, detect resolve
         </script>
 <table>
 %from datetime import datetime
-<tr><th>DateTime</th><th>Outage</th><th>Event</th><th>Uptime %</th><th>Downtime this event (minutes)</th><th>Downtime (minutes total)</th><th>TTD</th><th>TTR</th><th>MTTD</th><th>MTTR</th></tr>
-% for entry in data['uptime']:
-% outage = '-'
-% if entry[2] is not None:
-% outage = '<a href="/events/q=%s">%s</a>' % (entry[2], entry[2].replace('outage=', ''))
-% end
 <tr>
-    <td>{{datetime.fromtimestamp(entry[1]).strftime('%Y-%m-%d %H:%M:%S')}}</td>
+    <th>Time</th>
+    <th>Outage</th>
+    <th>Event</th>
+    <th>Uptime %</th>
+    <th>Downtime this event (minutes)</th>
+    <th>Downtime (minutes total)</th>
+    <th>TTF</th>
+    <th>TTD</th>
+    <th>TTR</th>
+    <th>MTTD</th>
+    <th>MTTR</th>
+</tr>
+% for r in reportpoints:
+    % outage = '-'
+    % if r.event.outage is not None:
+    % outage = '<a href="/events/q=%s">%s</a>' % (r.event.outage, r.event.outage)
+    % end
+    % print r.event.tags
+    % if 'start' in r.event.tags:
+    % css_class = 'error'
+    % elif 'detected' in r.event.tags:
+    % css_class = 'warning'
+    % elif 'resolved' in r.event.tags:
+    % css_class = 'success'
+    % else:
+    % css_class = ''
+    % end
+<tr class="{{css_class}}">
+    <td>{{datetime.fromtimestamp(r.event.timestamp).strftime('%Y-%m-%d %H:%M:%S')}}</td>
     <td>{{!outage}}</td>
-    <td><a href="/events/view/{{entry[0]}}">{{' '.join([t for t in entry[3][3] if not t.startswith('outage=')])}}</a></td>
-    <td>{{entry[0]}}</td>
+    <td><a href="/events/view/{{r.event.rowid}}">{{' '.join([t for t in r.event.tags if not t.startswith('outage=')])}}</a></td>
+    <td>{{r.uptime}}</td>
+    <td>{{r.downtime}}</td>
 </tr>
 % end
 </table>
-% for entry in data['downtime']:
-{{entry[0]}} 
-{{entry[1]}} 
-% end

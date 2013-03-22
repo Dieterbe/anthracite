@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
-from backend import Backend, Event
+from backend import Backend, Event, Reportpoint
 
 
 @route('/')
@@ -103,7 +103,7 @@ def add_post():
         import time
         import datetime
         # we receive something like 12/31/1969 10:25:35 PM
-        ts = time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple())
+        ts = int(time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple()))
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
@@ -135,76 +135,73 @@ def add_post_script():
 def report():
     import time
     import datetime
-    start = time.mktime(datetime.datetime.strptime(config.opsreport_start, "%m/%d/%Y %I:%M:%S %p").timetuple())
-    return page(body=template('tpl/report', config=config, data=get_report_data(start, time.time())))
+    start = int(time.mktime(datetime.datetime.strptime(config.opsreport_start, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+    return page(body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))))
 
 
 def get_report_data(start, until):
-    outages = backend.get_outages()
+    events = backend.get_outage_events()
     downtime = 0
+    age = 0  # time spent since start
+    last_failure = 0  # in the origin of time, all was ok.  this simple model ignores overlapping outages!
     reportpoints = []
-    # TODO bring all stats into single datapoint, only split up when actually
-    # feeding to graphite. so that we can easily have 1 table with all stats on
-    # report page
-    # id timestamp desc tags
-    origin_event = [None, start, "start of ops reporting", []]
-    reportpoints.append(ReportPoint(uptime=100, downtime=downtime, start=start, outage=None, event=origin_event)
-    for (outage, events) in outages.items():
-        start_ts = events[0][1]
-        detect_ts = events[1][1]
-        fix_ts = events[2][1]
-        # at the beginning of the outage..
-        #if start_ts > until:
-        #    break
-        age = float(fix_ts - start)
-        uptime = float(age - downtime) / age
-        reportpoints.append(ReportPoint(uptime * 100, downtime, start_ts, outage, events[0]))
-        # when detected
-        outage_duration_part1 = detect_ts - start_ts
-        downtime += outage_duration_part1 / 60
-        age = detect_ts - start
-        uptime = (age - downtime) / age
-        datapoints_uptime.append((uptime * 100, detect_ts, outage_key, events[1]))
-        datapoints_downtime.append((downtime, detect_ts, outage_key, events[1]))
-
-        # at the end..
-        #if fix_ts > until:
-        #    break
-        outage_duration_part2 = fix_ts - detect_ts
-        downtime += outage_duration_part2 / 60
-        age = fix_ts - start
-        uptime = (age - downtime) / age
-        datapoints_uptime.append((uptime * 100, fix_ts, outage_key, events[2]))
-        datapoints_downtime.append((downtime, fix_ts, outage_key, events[2]))
+    # TODO there's some assumptions on tag order and such. if your events are
+    # badly tagged, things could go wrong.
+    # TODO honor start/until
+    origin_event = Event(start, "start of ops reporting", [])
+    reportpoints.append(Reportpoint(origin_event, 100, downtime))
+    outages_seen = {}
+    for event in events:
+        if event.timestamp > until:
+            break
+        age = float(event.timestamp - start)
+        if 'start' in event.tags:
+            outages_seen[event.outage] = {'start': event.timestamp}
+            uptime = float(age - downtime) / age
+            ttf = event.timestamp - last_failure
+            reportpoints.append(Reportpoint(event, uptime * 100, downtime, ttf=ttf))
+            last_failure = event.timestamp
+        elif 'detected' in event.tags:
+            outages_seen[event.outage]['ttd'] = event.timestamp - outages_seen[event.outage]['start']
+            downtime += outages_seen[event.outage]['ttd'] / 60
+            uptime = (age - downtime) / age
+            reportpoints.append(Reportpoint(event, uptime * 100, downtime, ttd=outages_seen[event.outage]['ttd']))
+        elif 'resolved' in event.tags:
+            outages_seen[event.outage]['ttr'] = event.timestamp - outages_seen[event.outage]['start']
+            downtime += (outages_seen[event.outage]['ttr'] - outages_seen[event.outage]['ttd']) / 60
+            uptime = (age - downtime) / age
+            reportpoints.append(Reportpoint(event, uptime * 100, downtime, ttr=outages_seen[event.outage]['ttr']))
+        else:
+            # the outage changed impact. for now just ignore this, cause we
+            # don't do anything with impact yet.
+            pass
 
     import time
     now = int(time.time())
-    age = now - start
-    end_event = [None, now, "now", []]
-    uptime = (age - downtime) / age
-    datapoints_uptime.append((uptime * 100, now, None, end_event))
-    datapoints_downtime.append((downtime, now, None, end_event))
-    return ({'uptime': datapoints_uptime, 'downtime': datapoints_downtime})
+    if now <= until:
+        age = now - start
+        end_event = Event(until, "end of report", [])
+        uptime = (age - downtime) / age
+        reportpoints.append(Reportpoint(end_event, uptime * 100, downtime))
+    return reportpoints
 
 
 @route('/report/data/<catchall:re:.*>')
 def report_data(catchall):
     response.content_type = 'application/x-javascript'
     import json
-    import datetime
-    import time
-    start = time.mktime(datetime.datetime.strptime(request.query['from'], "%m/%d/%Y %I:%M:%S %p").timetuple())  # pretty much ignored so far
-    until = request.query['until']
+    start = int(request.query['from'])
+    until = int(request.query['until'])
     jsonp = request.query['jsonp']
-    datapoints = get_report_data(start, until)
+    reportpoints = get_report_data(start, until)
     data = [
         {
             "target": "uptime",
-            "datapoints": [[d[0], d[1]] for d in datapoints['uptime']]
+            "datapoints": [[r.uptime, r.event.timestamp] for r in reportpoints]
         },
         {
             "target": "downtime",
-            "datapoints": [[d[0], d[1]] for d in datapoints['downtime']]
+            "datapoints": [[r.downtime, r.event.timestamp] for r in reportpoints]
         }
     ]
     print 'JSON', data

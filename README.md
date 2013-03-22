@@ -85,7 +85,7 @@ The event format and its tags are very loose.  However, you can use specific tag
 * add a tag like `impact=50`: scale of 0 to 100 to denote the extent to which users are affected during the outage.
   this helps in assessing the severity of the event but don't obsess over it, it doesn't need to be too accurate.
   note: nothing stops you from using a value like 1000 to mark an unrecoverable loss (i.e. dataloss)
-* tags `detect` for when the cause is identified. and `fixed` to mark resolution (actual service restoration)
+* add tags like `start`, `detected` (cause is identified) and `resolved` to mark resolution (actual service restoration)
 * add these tags to new events (or existing events such as code deploys) to mark the points in time where an outage started,
   got detected, got resolved, or changed impact level (i.e. temporary partial fixes)
 
