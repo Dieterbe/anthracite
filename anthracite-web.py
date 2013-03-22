@@ -62,6 +62,36 @@ def delete(event_id):
     # TODO redirect back to original page
 
 
+@route('/events/edit/<event_id:int>')
+def edit(event_id):
+    try:
+        event = backend.get_event(event_id)
+        return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()))
+    except Exception, e:
+        raise
+        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not load event', e)])
+
+
+@route('/events/edit/<event_id:int>', method='POST')
+def edit_post(event_id):
+    try:
+        import time
+        import datetime
+        # we receive something like 12/31/1969 10:25:35 PM
+        ts = int(time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+        # (select2 tags form field uses comma)
+        tags = request.forms.event_tags.split(',')
+        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
+    except Exception, e:
+        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could recreate event from received information', e)])
+    try:
+        backend.edit_event(event)
+        return page(body=template('tpl/events_table', rows=backend.get_events()), successes=['The event was updated'])
+    except Exception, e:
+        raise
+        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not update event', e)])
+
+
 @route('/events/add', method='GET')
 def add_get():
     return page(body=template('tpl/events_add', tags=backend.get_tags()))

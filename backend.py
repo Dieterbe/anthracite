@@ -62,6 +62,15 @@ class Backend():
         self.conn.commit()
         # note, this doesn't check if the event existed in the first place..
 
+    def edit_event(self, event):
+        self.assure_db()
+        self.cursor.execute('''UPDATE events SET time=(?), desc=(?) WHERE ROWID ==(?)''', (event.timestamp, event.desc, event.rowid))
+        self.cursor.execute('''DELETE from events_tags WHERE event_id == (?)''', (event.rowid,))
+        for tag in event.tags:
+            self.cursor.execute("INSERT OR IGNORE INTO tags (tag_id) VALUES (?)", (tag,))
+            self.cursor.execute("INSERT INTO events_tags VALUES (?,?)", (tag, event.rowid))
+        self.conn.commit()
+
     def get_events(self):
         self.assure_db()
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])

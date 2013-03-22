@@ -13,7 +13,7 @@
             %end
     </td>
     <td>
-        <!-- TODO <a href="/events/edit/{{row[0]}}"><i class="icon-pencil"></i></a> -->
+        <a href="/events/edit/{{row[0]}}"><i class="icon-pencil"></i></a>
         <a href="#" event_id="{{row[0]}}" class="delete-link"><i class="icon-remove"></i></a>
     </td>
   </tr>
