@@ -1,9 +1,3 @@
-<!-- http://www.slideshare.net/jallspaw/ops-metametrics-the-currency-you-pay-for-change
-uptime
-ttr/ttd
-time to detect, time to resolve
-start, detect resolve
--->
 <script src="/assets/timeserieswidget/jquery.tswidget.js" type="text/javascript"></script>
 <script src="/assets/timeserieswidget/jquery-ui.min.js" type="text/javascript"></script>
 <script src="/assets/timeserieswidget/graphite_helpers.js" type="text/javascript"></script>
@@ -17,6 +11,16 @@ start, detect resolve
 <script src="/assets/timeserieswidget/rickshaw/vendor/d3.layout.min.js"></script>
 <script src="/assets/timeserieswidget/rickshaw/rickshaw.js"></script>
 <link type="text/css" rel="stylesheet" href="/assets/timeserieswidget/rickshaw/rickshaw.css">
+Terminology:
+<table class="table table-condensed">
+<tr><td>foo</td><td>foo this event</td></tr>
+<tr><td>Mfoo</td><td>mean foo since start</td></tr>
+<tr><td>Tfoo</td><td>total foo since start</td></tr>
+<tr><td>TTF</td><td>Time to failure (days between outage starts)</td></tr>
+<tr><td>TTD</td><td>Time to detection (minutes between outage start and detection)</td></tr>
+<tr><td>TTR</td><td>Time to recovery (minutes between outage start and full recovery)</td></tr>
+<tr><td>uptime</td><td>% of time without any downtime</td></tr>
+</table>
         <div class="chart_container rickshaw" id="chart_container_rickshaw">
             <div class="chart_y_axis" id="y_axis_rickshaw"></div>
             <div class="chart" id="chart_rickshaw"></div>
@@ -32,13 +36,13 @@ start, detect resolve
                 height: "300",
                 width: "740",
                 targets: [
-                    {name: 'uptime (in %)',
-                    color: 'green',
-                    target: 'uptime'
+                    {name: 'ttd',
+                    color: 'orange',
+                    target: 'ttd'
                     },
-                    {name: 'downtime (minutes)',
-                    color: 'red',
-                    target: 'downtime'
+                    {name: 'ttr',
+                    color: 'green',
+                    target: 'ttr'
                     }
                 ],
                 title: 'Uptime/Downtime',
@@ -64,20 +68,17 @@ start, detect resolve
         <script language="javascript">
 //        $("#chart_flot_stats").graphiteRick(settings, function(err) { $("#chart_flot_stats").append('<span class="label label-important">' + err + '</span>'); });
         </script>
-<table>
+<p>
+<table class="table">
 %from datetime import datetime
 <tr>
     <th>Time</th>
     <th>Outage</th>
     <th>Event</th>
-    <th>Uptime %</th>
-    <th>Downtime this event (minutes)</th>
-    <th>Downtime (minutes total)</th>
-    <th>TTF</th>
-    <th>TTD</th>
-    <th>TTR</th>
-    <th>MTTD</th>
-    <th>MTTR</th>
+    <th>TTF/MTTF/TTTF</th>
+    <th>TTD/MTTD/TTTD</th>
+    <th>TTR/MTTR/TTTR</th>
+    <th>M Uptime</th>
 </tr>
 % for r in reportpoints:
     % outage = '-'
@@ -94,12 +95,20 @@ start, detect resolve
     % else:
     % css_class = ''
     % end
+    % event_str = ' '.join([t for t in r.event.tags if not t.startswith('outage=')])
+    % # no other tags? this should be only the case for non-outage events
+    % if not event_str:
+    % event_str = r.event.desc
+    % css_class = 'info'
+    % end
 <tr class="{{css_class}}">
     <td>{{datetime.fromtimestamp(r.event.timestamp).strftime('%Y-%m-%d %H:%M:%S')}}</td>
     <td>{{!outage}}</td>
-    <td><a href="/events/view/{{r.event.rowid}}">{{' '.join([t for t in r.event.tags if not t.startswith('outage=')])}}</a></td>
-    <td>{{r.uptime}}</td>
-    <td>{{r.downtime}}</td>
+    <td><a href="/events/view/{{r.event.rowid}}">{{event_str}}</a></td>
+    <td>{{r.ttf/86400}}/{{r.mttf/86400}}/{{r.tttf/86400}}</td>
+    <td>{{r.ttd/60}}/{{r.mttd/60}}/{{r.tttd/60}}</td>
+    <td>{{r.ttr/60}}/{{r.mttr/60}}/{{r.tttr/60}}</td>
+    <td>{{round(r.muptime, 3)}}%</td>
 </tr>
 % end
 </table>

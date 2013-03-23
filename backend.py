@@ -35,13 +35,25 @@ class Event():
 
 class Reportpoint():
 
-    def __init__(self, event, uptime, downtime, ttd=None, ttf=None, ttr=None):
+    def __init__(self, event, outages, muptime, ttf, tttf, ttd, tttd, ttr, tttr):
         self.event = event
-        self.uptime = uptime
-        self.downtime = downtime
-        self.ttd = ttd
+        self.outages = outages  # number of outages occured until now (including this one, if appropriate)
+        self.muptime = muptime
         self.ttf = ttf
+        self.tttf = tttf
+        self.ttd = ttd
+        self.tttd = tttd
         self.ttr = ttr
+        self.tttr = tttr
+
+    def __getattr__(self, nm):
+        if nm == 'mttf':
+            return self.tttf / self.outages
+        if nm == 'mttd':
+            return self.tttd / self.outages
+        if nm == 'mttr':
+            return self.tttr / self.outages
+        raise AttributeError("no attribute %s" % nm)
 
 
 class Backend():
