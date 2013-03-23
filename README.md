@@ -52,12 +52,11 @@ some use cases:
 
 ## Installation ##
 
-should be super easy...
+Install dependencies, and just get a code checkout and initialize all git submodules, like so:
 
-* install dependencies
-* clone repo
-* there is no third step. you're ready.
-
+```
+git clone --recursive https://github.com/Dieterbe/anthracite.git
+```
 
 ## About "relevant events" ##
 
