@@ -47,7 +47,7 @@ some use cases:
 
 * python2
 * python2-pysqlite
-* twisted (only needed for the TCP receiver)
+* twisted (only needed for the TCP receiver, which you probably don't want - http receiver is better)
 
 
 ## Installation ##
