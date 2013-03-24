@@ -2,22 +2,34 @@
 <script src="/assets/timeserieswidget/jquery-ui.min.js" type="text/javascript"></script>
 <script src="/assets/timeserieswidget/graphite_helpers.js" type="text/javascript"></script>
 <script src="/assets/timeserieswidget/flot/jquery.flot.js" type="text/javascript"></script>
+<script src="/assets/timeserieswidget/flot/jquery.flot.selection.js"></script>
 <script src="/assets/timeserieswidget/flot/jquery.flot.time.js" type="text/javascript"></script>
+<script src="/assets/timeserieswidget/flot/jquery.flot.stack.js"></script>
 <script src="/assets/timeserieswidget/jquery.flot.axislabels.js" type="text/javascript"></script>
 <link type="text/css" rel="stylesheet" href="/assets/timeserieswidget/tswidget.css">
 <script src="/assets/timeserieswidget/timezone-js/src/date.js"></script>
 
+<!--
 <script src="/assets/timeserieswidget/rickshaw/vendor/d3.min.js"></script>
 <script src="/assets/timeserieswidget/rickshaw/vendor/d3.layout.min.js"></script>
 <script src="/assets/timeserieswidget/rickshaw/rickshaw.js"></script>
 <link type="text/css" rel="stylesheet" href="/assets/timeserieswidget/rickshaw/rickshaw.css">
+-->
 <h3>Operational Report</h3>
+<!--
         <div class="chart_container rickshaw" id="chart_container_rickshaw">
             <div class="chart_y_axis" id="y_axis_rickshaw"></div>
             <div class="chart" id="chart_rickshaw"></div>
             <div class="legend" id="legend_rickshaw"></div>
             <form class="toggler" id="line_stack_form_rickshaw"></form>
         </div>
+-->
+        <div class="chart_container flot" id="chart_container_flot">
+            <div class="chart" id="chart_flot" height="300px" width="700px"></div>
+            <div class="legend" id="legend_flot"></div>
+            <form class="toggler" id="line_stack_form_flot"></form>
+        </div>
+
         <script language="javascript">
 	    $(document).ready(function () {
             var settings = {
@@ -36,29 +48,27 @@
                     target: 'ttr'
                     }
                 ],
-                title: 'Uptime/Downtime',
-                vtitle: 'meh',
-                y_axis: 'y_axis_rickshaw',
-                x_axis: true,
-                legend: 'legend_rickshaw',
-                legend_highlight: true,
-                hoover_details: true,
-                line_stack_toggle: 'line_stack_form_rickshaw',
+                title: 'TTD/TTR at each outage. lower is better',
+                vtitle: 'Minutes',
+                // rickshaw options
+                //y_axis: 'y_axis_rickshaw',
+                //x_axis: true,
+                //legend: 'legend_rickshaw',
+                //legend_highlight: true,
+                //hoover_details: true,
+                //line_stack_toggle: 'line_stack_form_rickshaw',
+                // flot options
+                drawNullAsZero: false,
+                line_stack_toggle: 'line_stack_form_flot',
+                state: 'stacked',
+                legend: { container: '#legend_flot', noColumns: 1 },
             };
-            $("#chart_rickshaw").graphiteRick(settings, function(err) { console.log(err); });
+            //$("#chart_rickshaw").graphiteRick(settings, function(err) { console.log(err); });
+            $("#chart_flot").graphiteFlot(settings, function(err) { console.log(err); });
         });
         </script>
     </body>
 </html>
-
-        <!--<div class="chart_container flot" id="chart_container_flot_stats">
-            <div class="chart" id="chart_flot_stats" height="300px" width="700px"></div>
-            <div class="legend" id="legend_flot_stats"></div>
-            <form class="toggler" id="line_stack_form_flot_stats"></form>
-        </div> -->
-        <script language="javascript">
-//        $("#chart_flot_stats").graphiteRick(settings, function(err) { $("#chart_flot_stats").append('<span class="label label-important">' + err + '</span>'); });
-        </script>
 <p>
 <table class="table">
 %from datetime import datetime
