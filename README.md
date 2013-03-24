@@ -80,14 +80,24 @@ You can use tags like `author=<person>` but this usually doesn't give any benefi
 The event format and its tags are very loose.  However, you can use specific tags to enable the ops reporting:
 
 * give outage related events an identifier key (`20130225_switch_broke`) and tag outage related events like `outage=<key>`.
-* add a tag like `impact=50`: scale of 0 to 100 to denote the extent to which users are affected during the outage. (100 being full outage for all)
+* add tags like `start`, `detected` (issue noticed) and `resolved` to mark resolution (actual service restoration). TODO metric for 'cause identified'.
+* add these tags to existing events (such as code deploys) or create new events to mark the points in time where an outage started,
+  got detected, got resolved, or changed impact level (i.e. temporary partial fixes)
+* Optional: add a tag like `impact=50`: scale of 0 to 100 to denote the extent to which users are affected during the outage. (100 being full outage for all)
   this helps in assessing the severity of the event but don't obsess over it, it doesn't need to be too accurate.
   note: nothing stops you from using a value like 1000 to mark an unrecoverable loss (i.e. dataloss)
-* add tags like `start`, `detected` (issue noticed) and `resolved` to mark resolution (actual service restoration). TODO metric for 'cause identified'.
-* add these tags to new events (or existing events such as code deploys) to mark the points in time where an outage started,
-  got detected, got resolved, or changed impact level (i.e. temporary partial fixes)
 
-The report will look for these tags and give you a report of your operational metrics. (note that the metrics are not weighted for impact yet)
+The report will look for these tags and give you a report of your operational metrics: (note that the metrics are not weighted for impact yet)
+
+per event, mean, and total:
+
+* TTF (time to failure)
+* TTD (time to detection)
+* TTR (time to resolution)
+
+average (TODO per-year)
+* Uptime
+
 
 The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametrics-the-currency-you-pay-for-change) give you more information.
 
