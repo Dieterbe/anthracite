@@ -1,18 +1,19 @@
 ## Anthracite event manager ##
 
-* what: track and manage all changes and events that can have a business and/or operational impact.
+* what: track and manage all changes and events that can have a business and/or operational impact.  
+  (deploys, manual changes, outages, press releases, etc)
 * why: to increase operational visibility and collaboration
 
 some use cases:
 
 * changelog for troubleshooting and keeping people informed
-* enriching monitoring dashboards with markers and annotation text
-* aiding with visual and numerical analysis of events that affect performance (MTTD, MTTR, etc)
+* enriching monitoring dashboards with markers and annotation text, for visual interactive analysis
+* generating reports of operational outage response metrics (see further down)
 
 ## Design goals ##
 
 * do one thing and do it well.  aim for simplicity, flexibility and integration.
-* deliver events in various formats and support querying for tags and text (full text search)
+* accept and deliver events in various ways and support querying for tags and text (full text search)
 * support arbitrary tags, allow events with multiple lines, even rich text and hyperlinks.
 
 ![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot-table.png)
@@ -77,6 +78,8 @@ You can use tags like `author=<person>` but this usually doesn't give any benefi
 
 ## Operational metrics report ##
 
+![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot-opsreport.png)
+
 The event format and its tags are very loose.  However, you can use specific tags to enable the ops reporting:
 
 * give outage related events an identifier key (`20130225_switch_broke`) and tag outage related events like `outage=<key>`.
@@ -97,8 +100,6 @@ per event, mean, and total:
 
 average (TODO per-year)
 * Uptime
-
-![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot-opsreport.png)
 
 The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametrics-the-currency-you-pay-for-change) give you more information.
 
