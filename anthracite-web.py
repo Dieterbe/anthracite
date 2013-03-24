@@ -21,12 +21,6 @@ def timeline():
     return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high))
 
 
-@route('/events/raw')
-def raw():
-    response.content_type = 'text/plain'
-    return "\n".join(','.join(map(str, record)) for record in backend.get_events())
-
-
 @route('/events/json')
 def events_json():
     return {"events": [{"id": record[0], "time": record[1], "desc": str(record[2])} for record in backend.get_events()]}

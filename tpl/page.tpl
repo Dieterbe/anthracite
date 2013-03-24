@@ -97,7 +97,6 @@
               <li class="nav-header">Event views</li>
               <li><a href="/events">table</a></li>
               <li><a href="/events/timeline">timeline</a></li>
-              <li><a href="/events/raw">raw</a></li>
               <li><a href="/events/json">json</a></li>
               <li><a href="/events/jsonp">jsonp</a></li>
               <li><a href="/events/xml">xml</a></li>
