@@ -22,6 +22,7 @@ Generate anthracite message from a code checkout and revision spec and submit to
 
 OPTIONS:
    -c <directory>       git project checkout dir
+   -d <date>            override event date, any format 'date -d' accepts. (default:now)
    -h                   Show this message
    -H <anthracite host> (default: $anthracite_host)
    -p <anthracite port> (default: $anthracite_port)
@@ -49,7 +50,7 @@ function submit () {
     event_desc_file=$(mktemp $event_desc_file_pattern.XXXXX) || die_error "Couldn't make tmp event_desc_file"
     cd "$checkout_dir" || die_error "could not cd into $checkout_dir"
     print_event_desc > $event_desc_file || die_error "could not write to event desc file $event_desc_file"
-    output=$(curl -s -S -F "event_timestamp=$(date +%s)" -F "event_tags=$event_tags" -F "event_desc=<$event_desc_file" http://$anthracite_host:$anthracite_port/events/add/script)
+    output=$(curl -s -S -F "event_timestamp=$event_timestamp" -F "event_tags=$event_tags" -F "event_desc=<$event_desc_file" http://$anthracite_host:$anthracite_port/events/add/script)
     if grep -q 'The new event was added' <<< "$output"; then
         echo "$output"
         rm $event_desc_file || die_error "Could not delete event_desc file $event_desc_file"
@@ -60,9 +61,10 @@ function submit () {
     fi
 }
 action=
-while getopts "c:hH:p:n:o:t:u:a:P:" opt; do
+while getopts "c:d:hH:p:n:o:t:u:a:P:" opt; do
     case $opt in
         c) checkout_dir=$OPTARG;;
+        d) event_timestamp=$(date +%s -d "$OPTARG") || die_error "date -d could not parse $OPTARG";;
         h) action=usage;;
         H) anthracite_host=$OPTARG;;
         p) anthracite_port=$OPTARG;;
@@ -84,5 +86,6 @@ else
     [ -n "$github_url" ] || die_error "set github_url"
     [ -n "$github_account" ] || die_error "set github_account"
     [ -n "$github_project" ] || die_error "set github_project"
+    [ -n "$event_timestamp" ] || event_timestamp=$(date +%s)
     submit
 fi
