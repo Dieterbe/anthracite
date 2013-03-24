@@ -142,17 +142,18 @@ def report():
 def get_report_data(start, until):
     events = backend.get_outage_events()
     # see report.tpl for definitions
+    # this simple model ignores overlapping outages!
     tttf = 0
     tttd = 0
     tttr = 0
     age = 0  # time spent since start
-    last_failure = 0  # in the origin of time, all was ok.  this simple model ignores overlapping outages!
+    last_failure = start
     reportpoints = []
     # TODO there's some assumptions on tag order and such. if your events are
     # badly tagged, things could go wrong.
     # TODO honor start/until
     origin_event = Event(start, "start", [])
-    reportpoints.append(Reportpoint(origin_event, 100, 0, 0, tttf, 0, tttd, 0, tttd))
+    reportpoints.append(Reportpoint(origin_event, 0, 100, 0, tttf, 0, tttd, 0, tttr))
     outages_seen = {}
     for event in events:
         if event.timestamp > until:
@@ -178,15 +179,12 @@ def get_report_data(start, until):
             # don't do anything with impact yet.
             pass
         muptime = float(age - tttr) * 100 / age
-        reportpoints.append(Reportpoint(event, muptime, len(outages_seen), ttf, tttf, ttd, tttd, ttr, tttr))
+        reportpoints.append(Reportpoint(event, len(outages_seen), muptime, ttf, tttf, ttd, tttd, ttr, tttr))
 
-    import time
-    now = int(time.time())
-    if now <= until:
-        age = now - start
-        end_event = Event(until, "end", [])
-        muptime = (age - tttr) * 100 / age
-        reportpoints.append(Reportpoint(end_event, muptime, len(outages_seen), 0, tttf, 0, tttd, 0, tttd))
+    age = until - start
+    end_event = Event(until, "end", [])
+    muptime = float(age - tttr) * 100 / age
+    reportpoints.append(Reportpoint(end_event, len(outages_seen), muptime, 0, tttf, 0, tttd, 0, tttr))
     return reportpoints
 
 
@@ -201,11 +199,11 @@ def report_data(catchall):
     data = [
         {
             "target": "ttd",
-            "datapoints": [[r.ttd, r.event.timestamp] for r in reportpoints]
+            "datapoints": [[r.ttd / 60, r.event.timestamp] for r in reportpoints]
         },
         {
             "target": "ttr",
-            "datapoints": [[r.ttr, r.event.timestamp] for r in reportpoints]
+            "datapoints": [[r.ttr / 60, r.event.timestamp] for r in reportpoints]
         }
     ]
     print 'JSON', data

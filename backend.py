@@ -47,12 +47,15 @@ class Reportpoint():
         self.tttr = tttr
 
     def __getattr__(self, nm):
+        divisor = self.outages
+        if divisor == 0:
+            divisor = 1
         if nm == 'mttf':
-            return self.tttf / self.outages
+            return self.tttf / divisor
         if nm == 'mttd':
-            return self.tttd / self.outages
+            return self.tttd / divisor
         if nm == 'mttr':
-            return self.tttr / self.outages
+            return self.tttr / divisor
         raise AttributeError("no attribute %s" % nm)
 
 
