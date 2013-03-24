@@ -171,6 +171,7 @@ def get_report_data(start, until):
             tttd += ttd
             outages_seen[event.outage]['ttd'] = ttd
         elif 'resolved' in event.tags:
+            ttd = outages_seen[event.outage]['ttd']
             ttr = event.timestamp - outages_seen[event.outage]['start']
             tttr += ttr
             outages_seen[event.outage]['ttr'] = ttr
