@@ -33,15 +33,22 @@ OPTIONS:
    -P <github_project>
 EOF
 }
+print_event_desc () {
+    local spec="$commit_old..$commit_new"
+    local base_uri=$github_url/$github_account/$github_project
+    git_log=$(git log --pretty=format:"<li><a href='$base_uri/commit/%h'>%s</a>%n<br/>&nbsp;&nbsp;&nbsp;by %an on %ai</li>%n" $spec) || die_error "Could not get git log $spec"
+    cat << EOF
+<ul>
+$git_log
+</ul>
+<a href='$base_uri/compare/$commit_old...$commit_new'>$github_account/$github_project/compare/$commit_old...$commit_new</a>
+EOF
+}
 
 function submit () {
     event_desc_file=$(mktemp $event_desc_file_pattern.XXXXX) || die_error "Couldn't make tmp event_desc_file"
     cd "$checkout_dir" || die_error "could not cd into $checkout_dir"
-    spec="$commit_old..$commit_new"
-    echo '<ul>' > $event_desc_file || die_error "could not write to event desc file $event_desc_file"
-    git log --pretty=format:"<li><a href='$github_url/$github_account/$github_project/commit/%h'>%s</a>%n<br/>&nbsp;&nbsp;&nbsp;by %an on %ai</li>%n" $spec >> $event_desc_file || die_error "could not write git output to event desc file $event_desc_file"
-    echo '</ul>' >> $event_desc_file || die_error "could not write to event desc file $event_desc_file"
-
+    print_event_desc > $event_desc_file || die_error "could not write to event desc file $event_desc_file"
     output=$(curl -s -S -F "event_timestamp=$(date +%s)" -F "event_tags=$event_tags" -F "event_desc=<$event_desc_file" http://$anthracite_host:$anthracite_port/events/add/script)
     if grep -q 'The new event was added' <<< "$output"; then
         echo "$output"
