@@ -75,7 +75,7 @@ However, I recommend to try to use some "standardized" nomenclature, such as 'de
 You can use tags like `author=<person>` but this usually doesn't give any benefit over just tagging `<person>`.
 
 
-## Operational metrics report (WIP) ##
+## Operational metrics report ##
 
 The event format and its tags are very loose.  However, you can use specific tags to enable the ops reporting:
 
