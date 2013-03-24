@@ -98,6 +98,7 @@ per event, mean, and total:
 average (TODO per-year)
 * Uptime
 
+![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot-opsreport.png)
 
 The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametrics-the-currency-you-pay-for-change) give you more information.
 
