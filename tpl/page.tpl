@@ -104,6 +104,9 @@
               <li><a href="/events/sqlite">sqlite</a></li>
             </ul>
           </div><!--/.well -->
+            % if page == 'report':
+            % include tpl/sidebar.report
+            % end
         </div><!--/span-->
         <div class="span9">
         % if defined('successes'):

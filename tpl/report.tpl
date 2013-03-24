@@ -11,16 +11,7 @@
 <script src="/assets/timeserieswidget/rickshaw/vendor/d3.layout.min.js"></script>
 <script src="/assets/timeserieswidget/rickshaw/rickshaw.js"></script>
 <link type="text/css" rel="stylesheet" href="/assets/timeserieswidget/rickshaw/rickshaw.css">
-Terminology:
-<table class="table table-condensed">
-<tr><td>foo</td><td>foo this event</td></tr>
-<tr><td>Mfoo</td><td>mean foo since start</td></tr>
-<tr><td>Tfoo</td><td>total foo since start</td></tr>
-<tr><td>TTF</td><td>Time to failure (days between outage starts)</td></tr>
-<tr><td>TTD</td><td>Time to detection (minutes between outage start and detection)</td></tr>
-<tr><td>TTR</td><td>Time to recovery (minutes between outage start and full recovery)</td></tr>
-<tr><td>uptime</td><td>% of time without any downtime</td></tr>
-</table>
+<h3>Operational Report</h3>
         <div class="chart_container rickshaw" id="chart_container_rickshaw">
             <div class="chart_y_axis" id="y_axis_rickshaw"></div>
             <div class="chart" id="chart_rickshaw"></div>

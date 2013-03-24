@@ -136,7 +136,7 @@ def report():
     import time
     import datetime
     start = int(time.mktime(datetime.datetime.strptime(config.opsreport_start, "%m/%d/%Y %I:%M:%S %p").timetuple()))
-    return page(body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))))
+    return page(page='report', body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))))
 
 
 def get_report_data(start, until):
