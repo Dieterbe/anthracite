@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
 from backend import Backend, Event, Reportpoint
+import json
 
 
 @route('/')
@@ -30,7 +31,7 @@ def events_json():
 def events_jsonp():
     response.content_type = 'application/x-javascript'
     jsonp = request.query.jsonp or 'jsonp'
-    return '%s(%s);' % (jsonp, str(events_json()))
+    return '%s(%s);' % (jsonp, json.dumps(events_json()))
 
 
 @route('/events/xml')
@@ -186,7 +187,6 @@ def get_report_data(start, until):
 @route('/report/data/<catchall:re:.*>')
 def report_data(catchall):
     response.content_type = 'application/x-javascript'
-    import json
     start = int(request.query['from'])
     until = int(request.query['until'])
     jsonp = request.query['jsonp']
@@ -201,7 +201,6 @@ def report_data(catchall):
             "datapoints": [[r.ttr / 60, r.event.timestamp] for r in reportpoints]
         }
     ]
-    print 'JSON', data
     return '%s(%s)' % (jsonp, json.dumps(data))
 
 
