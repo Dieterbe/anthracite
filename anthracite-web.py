@@ -2,6 +2,7 @@
 from bottle import route, run, debug, template, request, static_file, error, response
 from backend import Backend, Event, Reportpoint
 import json
+import os
 
 
 @route('/')
@@ -220,6 +221,7 @@ def page(**kwargs):
     kwargs['events_count'] = backend.get_events_count()
     return template('tpl/page', kwargs)
 
+os.chdir(os.path.dirname(__file__))
 backend = Backend("anthracite.db")
 
 import config
