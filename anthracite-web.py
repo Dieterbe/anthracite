@@ -12,12 +12,12 @@ def main():
 
 @route('/events')
 def table():
-    return page(body=template('tpl/events_table', rows=backend.get_events()))
+    return page(body=template('tpl/events_table', events=backend.get_events()))
 
 
 @route('/events/timeline')
 def timeline():
-    rows = backend.get_events()
+    rows = backend.get_event_rows()
     (range_low, range_high) = backend.get_events_range()
 
     return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high))
@@ -25,7 +25,7 @@ def timeline():
 
 @route('/events/json')
 def events_json():
-    return {"events": [{"id": record[0], "time": record[1], "desc": str(record[2])} for record in backend.get_events()]}
+    return {"events": [{"id": record[0], "time": record[1], "desc": str(record[2])} for record in backend.get_event_rows()]}
 
 
 @route('/events/jsonp')
@@ -38,7 +38,7 @@ def events_jsonp():
 @route('/events/xml')
 def xml():
     response.content_type = 'application/xml'
-    return template('tpl/events_xml', events=backend.get_events())
+    return template('tpl/events_xml', events=backend.get_event_rows())
 
 
 @route('/events/sqlite')

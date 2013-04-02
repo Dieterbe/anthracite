@@ -110,7 +110,7 @@ class Backend():
             self.cursor.execute("INSERT INTO events_tags VALUES (?,?)", (tag, event.rowid))
         self.conn.commit()
 
-    def get_events(self):
+    def get_event_rows(self):
         self.assure_db()
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
         # TODO performance
@@ -119,10 +119,21 @@ class Backend():
         #    WHERE events.ROWID == events_tags.event_id AND events_tags.tag_id == tags.tag_id
         #    ORDER BY time DESC""")
         self.cursor.execute('SELECT events.ROWID, events.time, events.desc FROM events ORDER BY events.time DESC')
-        events = self.cursor.fetchall()
-        for (i, event) in enumerate(events):
-            events[i] = list(events[i])
-            events[i].append(self.event_get_tags(event[0]))
+        rows = self.cursor.fetchall()
+        for (i, row) in enumerate(rows):
+            rows[i] = list(rows[i])
+            rows[i].append(self.event_get_tags(row[0]))
+        return rows
+
+    def get_events(self):
+        self.assure_db()
+        # retuns a list of event objects
+        # TODO performance
+        self.cursor.execute('SELECT events.ROWID, events.time, events.desc FROM events ORDER BY events.time DESC')
+        rows = self.cursor.fetchall()
+        events = []
+        for row in rows:
+            events.append(Event(timestamp=row[1], desc=row[2], tags=self.event_get_tags(row[0]), rowid=row[0]))
         return events
 
     def get_event(self, rowid):
