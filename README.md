@@ -107,9 +107,8 @@ The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametri
 ## TODO ##
 
 * plugins for puppet, chef to automatically submit their relevant events (or logstash filter to create anthracite events from logs)
-* make web UI table use colors to denote outages according to their severity
 * auto-update events on web interface to make semi-realtime
 * on graphs in dashboards, show timeframs from start to end, and start to "cause found", to "resolved" etc.
-* implement automatic statistics on events and analysis such as TTD, TTR, with colors for severity levels etc
+* a way to prevent id's from incrementing on every read in sql (read cache?)
 * concurrent webserver to make sure all http requests can get served
-
+* better MTBF
