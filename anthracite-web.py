@@ -221,7 +221,10 @@ def page(**kwargs):
     kwargs['events_count'] = backend.get_events_count()
     return template('tpl/page', kwargs)
 
-os.chdir(os.path.dirname(__file__))
+app_dir = os.path.dirname(__file__)
+if app_dir:
+    os.chdir(app_dir)
+
 backend = Backend("anthracite.db")
 
 import config
