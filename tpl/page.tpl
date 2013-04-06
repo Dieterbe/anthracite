@@ -1,4 +1,3 @@
-% setdefault('page', 'index')
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -51,6 +50,13 @@
         function onLoad() {};
         function onResize() {};
     </script>
+	<script>
+		$().ready(function() {
+			// change active link based on "page"
+			var page="{{page}}";
+			$('ul.nav-list').find("a[name=\'" + page +"\']").parent().attr("class","active");
+		});
+	</script>
   </head>
   <body onload="onLoad();" onresize="onResize();">
 
@@ -91,12 +97,12 @@
         <div class="span3">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="active"><a href="/">main</a></li>
-              <li><a href="/events/add">add event</a></li>
-              <li><a href="/report">operational report</a></li>
+              <li><a name="main" href="/">main</a></li>
+              <li><a name="add" href="/events/add">add event</a></li>
+              <li><a name="report" href="/report">operational report</a></li>
               <li class="nav-header">Event views</li>
-              <li><a href="/events">table</a></li>
-              <li><a href="/events/timeline">timeline</a></li>
+              <li><a name="table" href="/events">table</a></li>
+              <li><a name="timeline" href="/events/timeline">timeline</a></li>
               <li><a href="/events/json">json</a></li>
               <li><a href="/events/jsonp">jsonp</a></li>
               <li><a href="/events/xml">xml</a></li>
