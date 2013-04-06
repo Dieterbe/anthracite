@@ -7,12 +7,12 @@ import os
 
 @route('/')
 def main():
-    return page(body=template('tpl/index'))
+    return page(body=template('tpl/index'), page='main')
 
 
 @route('/events')
 def table():
-    return page(body=template('tpl/events_table', events=backend.get_events()))
+    return page(body=template('tpl/events_table', events=backend.get_events()), page='table')
 
 
 @route('/events/timeline')
@@ -20,7 +20,7 @@ def timeline():
     rows = backend.get_event_rows()
     (range_low, range_high) = backend.get_events_range()
 
-    return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high))
+    return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high), page='timeline')
 
 
 @route('/events/json')
@@ -68,7 +68,7 @@ def delete(event_id):
 def edit(event_id):
     try:
         event = backend.get_event(event_id)
-        return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()))
+        return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags(), page='edit'))
     except Exception, e:
         raise
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)])
@@ -96,7 +96,7 @@ def edit_post(event_id):
 
 @route('/events/add', method='GET')
 def add_get():
-    return page(body=template('tpl/events_add', tags=backend.get_tags()))
+    return page(body=template('tpl/events_add', tags=backend.get_tags()), page='add')
 
 
 @route('/events/add', method='POST')
