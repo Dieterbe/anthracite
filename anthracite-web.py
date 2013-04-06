@@ -8,7 +8,6 @@ import os
 @route('/')
 def main():
     return page(body=template('tpl/events_table', events=backend.get_events()), page='main')
-    # return page(body=template('tpl/index'))
 
 
 @route('/events')
