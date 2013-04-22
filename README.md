@@ -59,6 +59,14 @@ Install dependencies, and just get a code checkout and initialize all git submod
 git clone --recursive https://github.com/Dieterbe/anthracite.git
 ```
 
+## Deployment ##
+
+Start the web applicaiton and point your browser to http://0.0.0.0:8081/
+
+```
+python anthracite-web.py
+```
+
 ## About "relevant events" ##
 
 I recommend you submit any event that **has** or **might have** a **relevant** effect on:
