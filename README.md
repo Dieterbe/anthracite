@@ -61,10 +61,11 @@ git clone --recursive https://github.com/Dieterbe/anthracite.git
 
 ## Deployment ##
 
-Start the web applicaiton and point your browser to http://0.0.0.0:8081/
+Start the web application and point your browser to http://0.0.0.0:8081/
 
 ```
-python anthracite-web.py
+cd <path_to_anthracite>
+./anthracite-web.py
 ```
 
 ## About "relevant events" ##
