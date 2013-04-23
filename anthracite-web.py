@@ -25,7 +25,7 @@ def timeline():
 
 @route('/events/json')
 def events_json():
-    return {"events": [{"id": record[0], "time": record[1], "desc": record[2]} for record in backend.get_event_rows()]}
+    return {"events": [{"id": record[0], "time": record[1], "desc": record[2], "tags": record[3]} for record in backend.get_event_rows()]}
 
 
 @route('/events/jsonp')
