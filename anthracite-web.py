@@ -128,7 +128,7 @@ def add_post():
 @route('/events/add/script', method='POST')
 def add_post_script():
     try:
-        event = Event(timestamp=request.forms.event_timestamp,
+        event = Event(timestamp=int(request.forms.event_timestamp),
                       desc=request.forms.event_desc,
                       tags=request.forms.event_tags.split())
     except Exception, e:
