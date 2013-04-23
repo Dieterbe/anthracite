@@ -92,7 +92,7 @@ def edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could recreate event from received information', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not recreate event from received information', e)])
     try:
         backend.edit_event(event)
         return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'])
