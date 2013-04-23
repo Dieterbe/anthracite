@@ -99,6 +99,7 @@
               <li><a href="/events/timeline">timeline</a></li>
               <li><a href="/events/json">json</a></li>
               <li><a href="/events/jsonp">jsonp</a></li>
+              <li><a href="/events/csv">csv</a></li>
               <li><a href="/events/xml">xml</a></li>
               <li><a href="/events/sqlite">sqlite</a></li>
             </ul>

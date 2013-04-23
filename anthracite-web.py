@@ -28,6 +28,19 @@ def events_json():
     return {"events": [{"id": record[0], "time": record[1], "desc": record[2], "tags": record[3]} for record in backend.get_event_rows()]}
 
 
+@route('/events/csv')
+def events_csv():
+    '''
+    returns the first line of every event
+    '''
+    response.content_type = 'text/plain'
+    events = []
+    for r in backend.get_event_rows():
+        event = ','.join([str(r[0]), str(r[1]), r[2][:r[2].find('\n')], ' '.join(r[3])])
+        events.append(event)
+    return "\n".join(events)
+
+
 @route('/events/jsonp')
 def events_jsonp():
     response.content_type = 'application/x-javascript'
