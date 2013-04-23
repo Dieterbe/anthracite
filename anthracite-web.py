@@ -65,9 +65,9 @@ def sqlite():
 def delete(event_id):
     try:
         backend.delete_event(event_id)
-        return page(body=template('tpl/events_table', rows=backend.get_events()), successes=['The event was deleted from the database'])
+        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was deleted from the database'])
     except Exception, e:
-        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not delete event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not delete event', e)])
     # TODO redirect back to original page
 
 
@@ -78,7 +78,7 @@ def edit(event_id):
         return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()))
     except Exception, e:
         raise
-        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not load event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)])
 
 
 @route('/events/edit/<event_id:int>', method='POST')
@@ -92,13 +92,13 @@ def edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
     except Exception, e:
-        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could recreate event from received information', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could recreate event from received information', e)])
     try:
         backend.edit_event(event)
-        return page(body=template('tpl/events_table', rows=backend.get_events()), successes=['The event was updated'])
+        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'])
     except Exception, e:
         raise
-        return page(body=template('tpl/events_table', rows=backend.get_events()), errors=[('Could not update event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not update event', e)])
 
 
 @route('/events/add', method='GET')
