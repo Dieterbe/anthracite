@@ -1,13 +1,17 @@
-import sqlite3
-
+from types import IntType, StringType, UnicodeType
 
 class Event():
+    '''
+    timestamp must be a unix timestamp (int)
+    desc is a string in whatever markup you want (html usually)
+    tags is a list of strings (usally simple words)
+    rowid is optional, it's either the sqlite rowid (int), or the elasticsearch _id field
+    '''
 
     def __init__(self, timestamp=None, desc=None, tags=[], rowid=None):
-        if not timestamp:
-            raise Exception("timestamp must be set")
-        if not desc:
-            raise Exception("desc must be set to a non-zero string")
+        assert type(timestamp) is IntType, "timestamp must be an integer: %r" % timestamp
+        assert type(desc) in (StringType, UnicodeType), "desc must be a non-empty string: %r" % desc
+        assert desc, "desc must be a non-empty string: %r" % desc
         self.timestamp = timestamp
         self.desc = desc
         self.tags = tags  # just a list of strings
@@ -59,9 +63,19 @@ class Reportpoint():
         raise AttributeError("no attribute %s" % nm)
 
 
-class Backend():
+def get_backend(backend):
+    if backend == 'sqlite':
+        return BackendSqlite3('anthracite.db')
+    elif backend == 'elasticsearch':
+        return BackendES()
+    else:
+        raise Exception("Unknown backend '%s'" % backend)
+
+
+class BackendSqlite3():
 
     def __init__(self, db, exists=False):
+        import sqlite3
         self.conn = sqlite3.connect(db)
         self.cursor = self.conn.cursor()
         self.exists = exists  # only set this to True if you're sure the db is already set up correctly
@@ -94,6 +108,7 @@ class Backend():
         self.conn.commit()
 
     def delete_event(self, event_id):
+        assert type(event_id) is IntType or event_id.isdigit(), "event_id must be an integer: %r" % event_id
         self.assure_db()
         # TODO transaction
         self.cursor.execute("DELETE FROM events_tags WHERE event_id == " + str(event_id))
@@ -102,6 +117,8 @@ class Backend():
         # note, this doesn't check if the event existed in the first place..
 
     def edit_event(self, event):
+        assert type(event.rowid) is IntType or event.rowid.isdigit(), "event.rowid must be an integer: %r" % event.rowid
+        event.rowid = int(event.rowid)
         self.assure_db()
         self.cursor.execute('''UPDATE events SET time=(?), desc=(?) WHERE ROWID ==(?)''', (event.timestamp, event.desc, event.rowid))
         self.cursor.execute('''DELETE from events_tags WHERE event_id == (?)''', (event.rowid,))
@@ -137,6 +154,8 @@ class Backend():
         return events
 
     def get_event(self, rowid):
+        assert type(rowid) is IntType or rowid.isdigit(), "rowid must be an integer: %r" % rowid
+        rowid = int(rowid)
         self.assure_db()
         self.cursor.execute('SELECT events.time, events.desc FROM events WHERE events.ROWID = %i' % rowid)
         event = self.cursor.fetchone()
@@ -144,6 +163,8 @@ class Backend():
         return event
 
     def event_get_tags(self, event_id):
+        assert type(event_id) is IntType or event_id.isdigit(), "event_id must be an integer: %r" % event_id
+        event_id = int(event_id)
         self.assure_db()
         self.cursor.execute('SELECT tag_id FROM events_tags WHERE event_id == %i' % event_id)
         return [row[0] for row in self.cursor.fetchall()]
@@ -173,6 +194,150 @@ class Backend():
         FROM events, events_tags
         WHERE events_tags.tag_id LIKE "outage=_%" AND events_tags.event_id = events.ROWID ORDER BY events.time ASC""")
         events = self.cursor.fetchall()
+        event_objects = []
+        for (i, event) in enumerate(events):
+            event_object = Event(timestamp=event[1], desc=event[2], tags=self.event_get_tags(event[0]), rowid=event[0])
+            event_objects.append(event_object)
+        return event_objects
+
+
+class BackendES():
+
+    def __init__(self):
+        globals()['time'] = __import__('time')
+        globals()['datetime'] = __import__('datetime')
+        import sys
+        import os
+        sys.path.append("%s/%s" % (os.getcwd(), 'python-dateutil'))
+        sys.path.append("%s/%s" % (os.getcwd(), 'requests'))
+        sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
+        import rawes
+        from rawes.elastic_exception import ElasticException
+        globals()['ElasticException'] = ElasticException
+        self.es = rawes.Elastic('localhost:9200', except_on_error=True)
+        # make sure the index exists
+        try:
+            # to explain the custom mapping:
+            # * _source enabled is maybe not really needed, but it's easiest at
+            # least. we just need to be able to reconstruct the original document.
+            # * tags are not analyzed so that when we want to get a list of all
+            # tags (a facet search) it returns the original tags, not the
+            # tokenized terms.
+            self.es.post('anthracite', data={
+                "mappings": {
+                    "post": {
+                        "_source": {
+                            "enabled": True
+                        },
+                        "properties": {
+                            "tags": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    }
+                }
+            })
+            print "created new ElasticSearch Index"
+        except ElasticException as e:
+            if e.result['error'] == 'IndexAlreadyExistsException[[anthracite] Already exists]':
+                pass
+            else:
+                raise
+
+    def object_to_dict(self, event):
+        # python unix timestamp to ISO 8601 format, i.e. something like '2012-8-27T09:30:03Z' for elasticsearch
+        iso = datetime.datetime.fromtimestamp(event.timestamp).isoformat()
+        return {
+            'post_date': iso,
+            'tags': event.tags,
+            'desc': event.desc
+        }
+        # timestamp?
+
+    def add_event(self, event):
+        """
+        can raise sqlite3 exceptions and any other exception means something's wrong with the data
+        """
+        self.es.post('anthracite/post', data=self.object_to_dict(event))
+
+    def delete_event(self, event_id):
+        try:
+            self.es.delete('anthracite/post/%s' % event_id)
+        except ElasticException as e:
+            if 'found' in e.result and not e.result['found']:
+                raise Exception("Document %s can't be found" % event_id)
+            else:
+                raise
+
+    def edit_event(self, event):
+        self.es.post('anthracite/post/%s/_update' % event.rowid, data={'doc':self.object_to_dict(event)})
+
+    def get_event_rows(self):
+        # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
+        events = self.es.get('anthracite/post')
+        return events
+
+    def hit_to_object(self, hit):
+        rowid = hit['_id']
+        hit = hit['_source']
+        # python ISO 8601 format to unix
+        unix = time.mktime(datetime.datetime.strptime(hit['post_date'], "%Y-%m-%dT%H:%M:%S").timetuple())  # no Z at the end when using compose-submit
+        unix = int(unix)
+        return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
+
+    def get_events(self):
+        # retuns a list of event objects
+        events = []
+        hits = self.es.get('anthracite/post/_search')
+        for event_hit in hits['hits']['hits']:
+            event_obj = self.hit_to_object(event_hit)
+            events.append(event_obj)
+        return events
+
+    def get_event(self, rowid):
+        # http://localhost:9200/dieterfoobarbaz/post/PZ1su5w5Stmln_c2Kc4B2g
+        event_hit = self.es.get('anthracite/post/%s' % rowid)
+        event_obj = self.hit_to_object(event_hit)
+        return event_obj
+
+    def get_tags(self):
+        # get all different tags
+        # curl -X POST "http://localhost:9200/anthracite/_search?pretty=true&size=0" -d '{  "query" : {"query_string" : {"query" : "*"}}, "facets":{"tags" : { "terms" : {"field" : "tags"} }}}"'
+        tags = self.es.post('anthracite/_search?size=0', data={
+            'query': {
+                'query_string': {
+                    'query': '*'
+                }
+            },
+            'facets': {
+                'tags': {
+                    'terms': {
+                        'field': 'tags'
+                    }
+                }
+            }
+        })
+        tags = tags['facets']['tags']['terms']
+        tags = [t['term'] for t in tags]
+        return tags
+
+    def get_events_range(self):
+        self.cursor.execute("""select time from events order by time desc limit 1""")
+        high = self.cursor.fetchone()[0]
+        self.cursor.execute("""select time from events order by time asc limit 1""")
+        low = self.cursor.fetchone()[0]
+        return (low, high)
+
+    def get_events_count(self):
+        count = 0
+        events = self.es.get('anthracite/post/_search')
+        count = events['hits']['total']
+        return count
+
+    def get_outage_events(self):
+        # TODO sanity checking (order of detected, resolved tags, etc)
+        events = self.es.get('anthracite/post', data={'tag like outage=_%'})
         event_objects = []
         for (i, event) in enumerate(events):
             event_object = Event(timestamp=event[1], desc=event[2], tags=self.event_get_tags(event[0]), rowid=event[0])

@@ -24,7 +24,7 @@ some use cases:
 * anthracite-compose-submit.sh to interactively compose and submit events from the CLI.
 * anthracite-submit-github.sh to send messages with git log from a code checkout
 * anthracite-tcp-receiver.py is the TCP receiver (only supports single-line events!)
-* an sqlite database is automatically created, it suffices.
+* you can either use sqlite or ElasticSearch as backend.
 
 
 ## Methods of submitting events ##
@@ -47,9 +47,26 @@ some use cases:
 ## Dependencies ##
 
 * python2
-* python2-pysqlite
+* python2-pysqlite (if using the sqlite backend)
+* elasticsearch (if using the elasticsearch backend)
 * twisted (only needed for the TCP receiver, which you probably don't want - http receiver is better)
 
+## Choosing a backend ##
+
+* sqlite backend is the most tested one, but deprecated
+* elasticsearch backend is the future, because:
+ * close integration/compatibility with logstash
+ * extensive searching/querying options
+ * extensible schema: the standard event format is already quite useful, but different companies have different requirements.
+   it's easy to add custom fields and attributes by just modifying the forms: ES doesn't even care.
+
+### Handy ElasticSearch commands ###
+
+empty database/start from scratch:
+```
+curl -X DELETE "http://localhost:9200/anthracite"
+restart anthracite-web
+```
 
 ## Installation ##
 
@@ -59,13 +76,28 @@ Install dependencies, and just get a code checkout and initialize all git submod
 git clone --recursive https://github.com/Dieterbe/anthracite.git
 ```
 
+* For Sqlite, the database and schema will automatically be created by anthracite-web.
+* for Elasticsearch, just download and run it (anthracite-web will do the rest) like so:
+
+```
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.6.tar.gz
+tar xzf elasticsearch-0.20.6.tar.gz
+rm -rf elasticsearch-0.20.6.tar.gz
+```
+# TODO : unique cluster name?
+
+
 ## Deployment ##
 
 Start the web application and point your browser to http://0.0.0.0:8081/
 
 ```
-cd <path_to_anthracite>
-./anthracite-web.py
+<path_to_anthracite>/anthracite-web.py
+```
+
+optional:
+```
+<path_to_elasticsearch>/bin/elasticsearch
 ```
 
 ## About "relevant events" ##

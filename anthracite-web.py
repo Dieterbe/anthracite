@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
-from backend import Backend, Event, Reportpoint
+from backend import get_backend, Event, Reportpoint
 import json
 import os
 
@@ -61,7 +61,7 @@ def sqlite():
     return static_file("anthracite.db", root=".", mimetype='application/octet-stream')
 
 
-@route('/events/delete/<event_id:int>')
+@route('/events/delete/<event_id>')
 def delete(event_id):
     try:
         backend.delete_event(event_id)
@@ -71,7 +71,7 @@ def delete(event_id):
     # TODO redirect back to original page
 
 
-@route('/events/edit/<event_id:int>')
+@route('/events/edit/<event_id>')
 def edit(event_id):
     try:
         event = backend.get_event(event_id)
@@ -81,7 +81,7 @@ def edit(event_id):
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)])
 
 
-@route('/events/edit/<event_id:int>', method='POST')
+@route('/events/edit/<event_id>', method='POST')
 def edit_post(event_id):
     try:
         import time
@@ -238,8 +238,7 @@ app_dir = os.path.dirname(__file__)
 if app_dir:
     os.chdir(app_dir)
 
-backend = Backend("anthracite.db")
-
 import config
+backend = get_backend(config.backend)
 debug(True)
 run(reloader=True, host=config.listen_host, port=config.listen_port)
