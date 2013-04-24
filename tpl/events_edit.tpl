@@ -9,8 +9,6 @@
       <fieldset>
         <label>Date-Time (enter manually, use the picker, or populate from a unix timestamp)</label>
   <div id="event_datetime" class="input-append date">
-    % from datetime import datetime
-    % time_str = datetime.fromtimestamp(event.timestamp).strftime('%m/%d/%Y %H:%M:%S %p')
     <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="event_datetime"></input>
     <span class="add-on">
       <i data-time-icon="icon-time" data-date-icon="icon-calendar">
@@ -40,6 +38,6 @@
       pick12HourFormat: true
       });
     var picker = $('#event_datetime').data('datetimepicker');
-    picker.setDate(new Date({{event.timestamp}} * 1000));
+    picker.setLocalDate(new Date({{event.timestamp}} * 1000));
   });
 </script>

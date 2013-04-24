@@ -74,13 +74,20 @@ def edit(event_id):
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)], page='table')
 
 
+def local_datepick_to_unix_timestamp(datepick):
+    '''
+    in: something like 12/31/2012 10:25:35 PM, which is local time.
+    out: unix timestamp
+    '''
+    import time
+    import datetime
+    return int(time.mktime(datetime.datetime.strptime(datepick, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+
+
 @route('/events/edit/<event_id>', method='POST')
 def edit_post(event_id):
     try:
-        import time
-        import datetime
-        # we receive something like 12/31/1969 10:25:35 PM
-        ts = int(time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
@@ -102,10 +109,7 @@ def add_get():
 @route('/events/add', method='POST')
 def add_post():
     try:
-        import time
-        import datetime
-        # we receive something like 12/31/1969 10:25:35 PM
-        ts = int(time.mktime(datetime.datetime.strptime(request.forms.event_datetime, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
@@ -136,8 +140,7 @@ def add_post_script():
 @route('/report')
 def report():
     import time
-    import datetime
-    start = int(time.mktime(datetime.datetime.strptime(config.opsreport_start, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+    start = local_datepick_to_unix_timestamp(config.opsreport_start)
     return page(page='report', body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))))
 
 

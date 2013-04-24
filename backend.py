@@ -1,6 +1,7 @@
 from types import IntType, StringType, UnicodeType
 import time
 import datetime
+import calendar
 
 
 class Event():
@@ -260,18 +261,16 @@ class BackendES():
             'tags': event.tags,
             'desc': event.desc
         }
-        # timestamp?
 
     def unix_timestamp_to_iso8601(self, unix_timestamp):
-        return datetime.datetime.fromtimestamp(unix_timestamp).isoformat()
+        return datetime.datetime.utcfromtimestamp(unix_timestamp).isoformat()
 
     def iso8601_to_unix_timestamp(self, iso8601):
         '''
             elasticsearch returns something like 2013-03-20T20:41:16
 
         '''
-        unix = time.mktime(datetime.datetime.strptime(iso8601, "%Y-%m-%dT%H:%M:%S").timetuple())
-        unix = int(unix)
+        unix = calendar.timegm(datetime.datetime.strptime(iso8601, "%Y-%m-%dT%H:%M:%S").timetuple())
         return unix
 
     def hit_to_object(self, hit):
