@@ -213,6 +213,7 @@ class BackendES():
         sys.path.append("%s/%s" % (os.getcwd(), 'requests'))
         sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
         import rawes
+        import requests
         from rawes.elastic_exception import ElasticException
         # pyflakes doesn't like globals()['ElasticException'] = ElasticException  so:
         self.ElasticException = ElasticException
@@ -246,6 +247,10 @@ class BackendES():
                 pass
             else:
                 raise
+        except requests.exceptions.ConnectionError as e:
+            import sys
+            sys.stderr.write("Could not connect to ElasticSearch: %s" % e)
+            sys.exit(2)
 
     def object_to_dict(self, event):
         iso = self.unix_timestamp_to_iso8601(event.timestamp)
