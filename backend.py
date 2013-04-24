@@ -143,13 +143,6 @@ class Backend():
         unix = self.iso8601_to_unix_timestamp(hit['date'])
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], event_id=event_id)
 
-    def hit_to_list(self, hit):
-        # list like (event_id str, timestamp int, desc str, tags [])
-        event_id = hit['_id']
-        hit = hit['_source']
-        unix = self.iso8601_to_unix_timestamp(hit['date'])
-        return [event_id, unix, hit['desc'], hit['tags']]
-
     def add_event(self, event):
         self.es.post('anthracite/event', data=self.object_to_dict(event))
 
@@ -182,12 +175,20 @@ class Backend():
             ]
         })
 
-    def get_event_rows(self):
-        # retuns a list of lists like (event_id str, timestamp int, desc str, tags [])
+    def get_events_raw(self):
+        '''
+        return format that's optimized for elasticsearch
+        '''
         hits = self.es_get_events()
-        return [self.hit_to_list(event_hit) for event_hit in hits['hits']['hits']]
+        events = hits['hits']['hits']
+        for (i, event) in enumerate(events):
+            event_id = event['_id']
+            events[i] = event['_source']
+            events[i]['id'] = event_id
+            events[i]['date'] = self.iso8601_to_unix_timestamp(events[i]['date'])
+        return events
 
-    def get_events(self):
+    def get_events_objects(self):
         # retuns a list of event objects
         hits = self.es_get_events()
         return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']]

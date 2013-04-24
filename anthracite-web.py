@@ -12,7 +12,7 @@ def main():
 
 @route('/events')
 def table():
-    return page(body=template('tpl/events_table', events=backend.get_events()), page='table')
+    return page(body=template('tpl/events_table', events=backend.get_events_objects()), page='table')
 
 
 @route('/events/timeline')
@@ -25,7 +25,11 @@ def timeline():
 
 @route('/events/json')
 def events_json():
-    return {"events": [{"id": record[0], "time": record[1], "desc": record[2], "tags": record[3]} for record in backend.get_event_rows()]}
+    '''
+    much like http://localhost:9200/anthracite/event/_search?q=*:*&pretty=true
+    but: displays only the actual events, not index etc, they are sorted, and uses unix timestamps
+    '''
+    return {"events": backend.get_events_raw()}
 
 
 @route('/events/csv')
@@ -35,8 +39,8 @@ def events_csv():
     '''
     response.content_type = 'text/plain'
     events = []
-    for r in backend.get_event_rows():
-        event = ','.join([str(r[0]), str(r[1]), r[2][:r[2].find('\n')], ' '.join(r[3])])
+    for event in backend.get_events_raw():
+        event = ','.join([event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])])
         events.append(event)
     return "\n".join(events)
 
@@ -51,16 +55,16 @@ def events_jsonp():
 @route('/events/xml')
 def xml():
     response.content_type = 'application/xml'
-    return template('tpl/events_xml', events=backend.get_event_rows())
+    return template('tpl/events_xml', events=backend.get_events_raw())
 
 
 @route('/events/delete/<event_id>')
 def delete(event_id):
     try:
         backend.delete_event(event_id)
-        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was deleted from the database'], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was deleted from the database'], page='table')
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not delete event', e)], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not delete event', e)], page='table')
     # TODO redirect back to original page
 
 
@@ -70,7 +74,7 @@ def edit(event_id):
         event = backend.get_event(event_id)
         return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit')
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not load event', e)], page='table')
 
 
 def local_datepick_to_unix_timestamp(datepick):
@@ -91,12 +95,12 @@ def edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not recreate event from received information', e)], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not recreate event from received information', e)], page='table')
     try:
         backend.edit_event(event)
-        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was updated'], page='table')
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not update event', e)], page='table')
+        return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not update event', e)], page='table')
 
 
 @route('/events/add', method='GET')
