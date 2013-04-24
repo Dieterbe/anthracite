@@ -178,6 +178,7 @@ class BackendSqlite3():
         return [row[0] for row in self.cursor.fetchall()]
 
     def get_events_range(self):
+        # highest and lowest time as unix timestamp
         self.assure_db()
         self.cursor.execute("""select time from events order by time desc limit 1""")
         high = self.cursor.fetchone()[0]
@@ -279,6 +280,13 @@ class BackendES():
         unix = self.iso8601_to_unix_timestamp(hit['post_date'])
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
 
+    def hit_to_list(self, hit):
+        # list like (rowid int, timestamp int, desc str, tags [])
+        rowid = hit['_id']
+        hit = hit['_source']
+        unix = self.iso8601_to_unix_timestamp(hit['post_date'])
+        return [rowid, unix, hit['desc'], hit['tags']]
+
     def add_event(self, event):
         self.es.post('anthracite/post', data=self.object_to_dict(event))
 
@@ -296,7 +304,11 @@ class BackendES():
 
     def get_event_rows(self):
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
-        events = self.es.get('anthracite/post')
+        events = []
+        hits = self.es.get('anthracite/post/_search')
+        for event_hit in hits['hits']['hits']:
+            event_obj = self.hit_to_list(event_hit)
+            events.append(event_obj)
         return events
 
     def get_events(self):
@@ -336,10 +348,40 @@ class BackendES():
         return tags
 
     def get_events_range(self):
-        self.cursor.execute("""select time from events order by time desc limit 1""")
-        high = self.cursor.fetchone()[0]
-        self.cursor.execute("""select time from events order by time asc limit 1""")
-        low = self.cursor.fetchone()[0]
+        low = self.es.post('anthracite/_search?size=1', data={
+            "query": {
+                "field": {
+                    "post_date": {
+                        "query": "*"
+                    }
+                }
+            },
+            "sort": [
+                {
+                    "post_date": {
+                        "order": "asc"
+                    }
+                }
+            ]
+        })
+        high = self.es.post('anthracite/_search?size=1', data={
+            "query": {
+                "field": {
+                    "post_date": {
+                        "query": "*"
+                    }
+                }
+            },
+            "sort": [
+                {
+                    "post_date": {
+                        "order": "desc"
+                    }
+                }
+            ]
+        })
+        low = self.iso8601_to_unix_timestamp(low['hits']['hits'][0]['_source']['post_date'])
+        high = self.iso8601_to_unix_timestamp(high['hits']['hits'][0]['_source']['post_date'])
         return (low, high)
 
     def get_events_count(self):
@@ -350,9 +392,20 @@ class BackendES():
 
     def get_outage_events(self):
         # TODO sanity checking (order of detected, resolved tags, etc)
-        events = self.es.get('anthracite/post', data={'tag like outage=_%'})
-        event_objects = []
-        for (i, event) in enumerate(events):
-            event_object = Event(timestamp=event[1], desc=event[2], tags=self.event_get_tags(event[0]), rowid=event[0])
-            event_objects.append(event_object)
-        return event_objects
+        hits = self.es.get('anthracite/post/_search', data={
+            'query': {
+                'query_string': {
+                    'query': 'tag like outage=_%'
+                }
+            },
+            "sort": [
+                {
+                    "post_date": {"order": "asc"}
+                }
+            ]
+        })
+        events = []
+        for event_hit in hits['hits']['hits']:
+            event_obj = self.hit_to_object(event_hit)
+            events.append(event_obj)
+        return events
