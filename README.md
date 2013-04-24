@@ -52,10 +52,9 @@ some use cases:
 
 ### Handy ElasticSearch commands ###
 
-empty database/start from scratch:
+empty database/start from scratch (requires anthracite-web restart)
 ```
 curl -X DELETE "http://localhost:9200/anthracite"
-restart anthracite-web
 ```
 
 ## Installation ##
