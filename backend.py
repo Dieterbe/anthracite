@@ -255,6 +255,14 @@ class BackendES():
         }
         # timestamp?
 
+    def hit_to_object(self, hit):
+        rowid = hit['_id']
+        hit = hit['_source']
+        # python ISO 8601 format to unix
+        unix = time.mktime(datetime.datetime.strptime(hit['post_date'], "%Y-%m-%dT%H:%M:%S").timetuple())  # no Z at the end when using compose-submit
+        unix = int(unix)
+        return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
+
     def add_event(self, event):
         """
         can raise sqlite3 exceptions and any other exception means something's wrong with the data
@@ -277,14 +285,6 @@ class BackendES():
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
         events = self.es.get('anthracite/post')
         return events
-
-    def hit_to_object(self, hit):
-        rowid = hit['_id']
-        hit = hit['_source']
-        # python ISO 8601 format to unix
-        unix = time.mktime(datetime.datetime.strptime(hit['post_date'], "%Y-%m-%dT%H:%M:%S").timetuple())  # no Z at the end when using compose-submit
-        unix = int(unix)
-        return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
 
     def get_events(self):
         # retuns a list of event objects
