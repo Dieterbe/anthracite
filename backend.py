@@ -359,11 +359,15 @@ class BackendES():
             "sort": [
                 {
                     "post_date": {
-                        "order": "asc"
+                        "order": "asc",
+                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
         })
+        # if there's not a single record in the database:
+        if not len(low['hits']['hits']):
+            return (0, time.time())
         high = self.es.post('anthracite/_search?size=1', data={
             "query": {
                 "field": {
@@ -375,7 +379,8 @@ class BackendES():
             "sort": [
                 {
                     "post_date": {
-                        "order": "desc"
+                        "order": "desc",
+                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
@@ -400,7 +405,10 @@ class BackendES():
             },
             "sort": [
                 {
-                    "post_date": {"order": "asc"}
+                    "post_date": {
+                        "order": "asc",
+                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                    }
                 }
             ]
         })
