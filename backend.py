@@ -300,7 +300,7 @@ class BackendES():
                 raise
 
     def edit_event(self, event):
-        self.es.post('anthracite/post/%s/_update' % event.rowid, data={'doc':self.object_to_dict(event)})
+        self.es.post('anthracite/post/%s/_update' % event.rowid, data={'doc': self.object_to_dict(event)})
 
     def get_event_rows(self):
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
