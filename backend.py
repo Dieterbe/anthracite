@@ -246,8 +246,7 @@ class BackendES():
                 raise
 
     def object_to_dict(self, event):
-        # python unix timestamp to ISO 8601 format, i.e. something like '2012-8-27T09:30:03Z' for elasticsearch
-        iso = datetime.datetime.fromtimestamp(event.timestamp).isoformat()
+        iso = self.unix_timestamp_to_iso8601(event.timestamp)
         return {
             'post_date': iso,
             'tags': event.tags,
@@ -255,12 +254,22 @@ class BackendES():
         }
         # timestamp?
 
+    def unix_timestamp_to_iso8601(self, unix_timestamp):
+        return datetime.datetime.fromtimestamp(unix_timestamp).isoformat()
+
+    def iso8601_to_unix_timestamp(self, iso8601):
+        '''
+            elasticsearch returns something like 2013-03-20T20:41:16
+
+        '''
+        unix = time.mktime(datetime.datetime.strptime(iso8601, "%Y-%m-%dT%H:%M:%S").timetuple())
+        unix = int(unix)
+        return unix
+
     def hit_to_object(self, hit):
         rowid = hit['_id']
         hit = hit['_source']
-        # python ISO 8601 format to unix
-        unix = time.mktime(datetime.datetime.strptime(hit['post_date'], "%Y-%m-%dT%H:%M:%S").timetuple())  # no Z at the end when using compose-submit
-        unix = int(unix)
+        unix = self.iso8601_to_unix_timestamp(hit['post_date'])
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
 
     def add_event(self, event):
