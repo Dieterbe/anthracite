@@ -1,4 +1,7 @@
 from types import IntType, StringType, UnicodeType
+import time
+import datetime
+
 
 class Event():
     '''
@@ -204,8 +207,6 @@ class BackendSqlite3():
 class BackendES():
 
     def __init__(self):
-        globals()['time'] = __import__('time')
-        globals()['datetime'] = __import__('datetime')
         import sys
         import os
         sys.path.append("%s/%s" % (os.getcwd(), 'python-dateutil'))
@@ -213,7 +214,8 @@ class BackendES():
         sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
         import rawes
         from rawes.elastic_exception import ElasticException
-        globals()['ElasticException'] = ElasticException
+        # pyflakes doesn't like globals()['ElasticException'] = ElasticException  so:
+        self.ElasticException = ElasticException
         self.es = rawes.Elastic('localhost:9200', except_on_error=True)
         # make sure the index exists
         try:
@@ -278,7 +280,7 @@ class BackendES():
     def delete_event(self, event_id):
         try:
             self.es.delete('anthracite/post/%s' % event_id)
-        except ElasticException as e:
+        except self.ElasticException as e:
             if 'found' in e.result and not e.result['found']:
                 raise Exception("Document %s can't be found" % event_id)
             else:
