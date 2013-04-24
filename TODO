@@ -1,0 +1,2 @@
+* updates in ES not visible right away. (i.e. after edit returning to table shows outdated version)
+* timeline is in UTC time instead of local
