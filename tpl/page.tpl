@@ -1,3 +1,4 @@
+% setdefault('page', '')
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -85,12 +86,6 @@
         </div>
       </div>
     </div>
-
-		%# if page == key:
-        %#      <li class="active"><a href="/{{key}}">{{title}}</a></li>
-		%# else:
-        %#      <li><a href="/{{key}}">{{title}}</a></li>
-		%#end
 
     <div class="container-fluid">
       <div class="row-fluid">

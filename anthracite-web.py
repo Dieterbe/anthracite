@@ -58,9 +58,9 @@ def xml():
 def delete(event_id):
     try:
         backend.delete_event(event_id)
-        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was deleted from the database'])
+        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was deleted from the database'], page = 'table')
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not delete event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not delete event', e)], page = 'table')
     # TODO redirect back to original page
 
 
@@ -68,10 +68,10 @@ def delete(event_id):
 def edit(event_id):
     try:
         event = backend.get_event(event_id)
-        return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags(), page='edit'))
+        return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page = 'edit')
     except Exception, e:
         raise
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)], page = 'table')
 
 
 @route('/events/edit/<event_id>', method='POST')
@@ -85,13 +85,13 @@ def edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
     except Exception, e:
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not recreate event from received information', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not recreate event from received information', e)], page = 'table')
     try:
         backend.edit_event(event)
-        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'])
+        return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'], page = 'table')
     except Exception, e:
         raise
-        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not update event', e)])
+        return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not update event', e)], page = 'table')
 
 
 @route('/events/add', method='GET')
@@ -110,12 +110,12 @@ def add_post():
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
     except Exception, e:
-        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)], page = 'add')
     try:
         backend.add_event(event)
-        return page(body=template('tpl/events_add', tags=backend.get_tags()), successes=['The new event was added into the database'])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), successes=['The new event was added into the database'], page = 'add')
     except Exception, e:
-        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not save new event', e)])
+        return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not save new event', e)], page = 'add')
 
 
 @route('/events/add/script', method='POST')
