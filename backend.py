@@ -302,23 +302,32 @@ class BackendES():
     def edit_event(self, event):
         self.es.post('anthracite/post/%s/_update' % event.rowid, data={'doc': self.object_to_dict(event)})
 
+    def es_get_events(self):
+        return self.es.get('anthracite/post/_search', data={
+            "query": {
+                "query_string": {
+                    "query": "*"
+                }
+            },
+            "sort": [
+                {
+                    "post_date": {
+                        "order": "desc",
+                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                    }
+                }
+            ]
+        })
+
     def get_event_rows(self):
         # retuns a list of lists like (rowid int, timestamp int, desc str, tags [])
-        events = []
-        hits = self.es.get('anthracite/post/_search')
-        for event_hit in hits['hits']['hits']:
-            event_obj = self.hit_to_list(event_hit)
-            events.append(event_obj)
-        return events
+        hits = self.es_get_events()
+        return [self.hit_to_list(event_hit) for event_hit in hits['hits']['hits']]
 
     def get_events(self):
         # retuns a list of event objects
-        events = []
-        hits = self.es.get('anthracite/post/_search')
-        for event_hit in hits['hits']['hits']:
-            event_obj = self.hit_to_object(event_hit)
-            events.append(event_obj)
-        return events
+        hits = self.es_get_events()
+        return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']]
 
     def get_event(self, rowid):
         # http://localhost:9200/dieterfoobarbaz/post/PZ1su5w5Stmln_c2Kc4B2g
