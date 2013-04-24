@@ -70,7 +70,6 @@ def edit(event_id):
         event = backend.get_event(event_id)
         return page(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit')
     except Exception, e:
-        raise
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not load event', e)], page='table')
 
 
@@ -97,7 +96,6 @@ def edit_post(event_id):
         backend.edit_event(event)
         return page(body=template('tpl/events_table', events=backend.get_events()), successes=['The event was updated'], page='table')
     except Exception, e:
-        raise
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not update event', e)], page='table')
 
 
