@@ -107,10 +107,18 @@ def add_get():
 @route('/events/add', method='POST')
 def add_post():
     try:
-        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+        tags = request.forms.getall('event_tags_recommended')
         # (select2 tags form field uses comma)
-        tags = request.forms.event_tags.split(',')
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags)
+        tags.extend(request.forms.event_tags.split(','))
+        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+        desc = request.forms.event_desc
+        del request.forms['event_desc']
+        del request.forms['event_timestamp']
+        del request.forms['event_datetime']
+        del request.forms['event_tags']
+        del request.forms['event_tags_recommended']
+        extra_fields = dict(request.forms.items())  # we know that extra fields only have 1 value.
+        event = Event(timestamp=ts, desc=desc, tags=tags, extra_fields=extra_fields)
     except Exception, e:
         return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)], page='add')
     try:

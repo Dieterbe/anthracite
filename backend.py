@@ -12,7 +12,7 @@ class Event():
     event_id is optional, it's the elasticsearch _id field
     '''
 
-    def __init__(self, timestamp=None, desc=None, tags=[], event_id=None):
+    def __init__(self, timestamp=None, desc=None, tags=[], event_id=None, extra_fields={}):
         assert type(timestamp) is IntType, "timestamp must be an integer: %r" % timestamp
         assert type(desc) in (StringType, UnicodeType), "desc must be a non-empty string: %r" % desc
         assert desc, "desc must be a non-empty string: %r" % desc
@@ -20,6 +20,7 @@ class Event():
         self.desc = desc
         self.tags = tags  # just a list of strings
         self.event_id = event_id
+        self.extra_fields = extra_fields
 
     def __str__(self):
         pretty_desc = self.desc
@@ -117,11 +118,13 @@ class Backend():
 
     def object_to_dict(self, event):
         iso = self.unix_timestamp_to_iso8601(event.timestamp)
-        return {
+        data = {
             'date': iso,
             'tags': event.tags,
             'desc': event.desc
         }
+        data.update(event.extra_fields)
+        return data
 
     def unix_timestamp_to_iso8601(self, unix_timestamp):
         return datetime.datetime.utcfromtimestamp(unix_timestamp).isoformat()

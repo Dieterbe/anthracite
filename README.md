@@ -49,8 +49,18 @@ some use cases:
 * java >=1.6 (if using the elasticsearch backend)
 
 
+## Extensible schema to suit your business ##
 
-### Handy ElasticSearch commands ###
+_standard event_ has:
+* date
+* description
+* 0-N arbitrary tags (words or 'key=value' tags)
+
+this works fine in a lot of cases, but many environments require enhancements to this schema.
+it's easy to add custom fields and attributes by just modifying the forms: ES doesn't even care.
+TODO explain options in config.py and effect on opsreport
+
+## Handy ElasticSearch commands ##
 
 empty database/start from scratch (requires anthracite-web restart)
 ```
@@ -106,6 +116,9 @@ You can use tags like `author=<person>` but this usually doesn't give any benefi
 ## Operational metrics report ##
 
 ![Screenshot](https://raw.github.com/Dieterbe/anthracite/master/screenshots/screenshot-opsreport.png)
+
+new: use the optional outage field for a key (in default config) + start/detected/recovered tag
+
 
 The event format and its tags are very loose.  However, you can use specific tags to enable the ops reporting:
 
