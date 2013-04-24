@@ -264,9 +264,6 @@ class BackendES():
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
 
     def add_event(self, event):
-        """
-        can raise sqlite3 exceptions and any other exception means something's wrong with the data
-        """
         self.es.post('anthracite/post', data=self.object_to_dict(event))
 
     def delete_event(self, event_id):
