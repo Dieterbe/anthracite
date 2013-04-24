@@ -35,8 +35,8 @@
             %end
     </td>
     <td>
-        <a href="/events/edit/{{event.rowid}}"><i class="icon-pencil"></i></a>
-        <a href="#" event_id="{{event.rowid}}" class="delete-link"><i class="icon-remove"></i></a>
+        <a href="/events/edit/{{event.event_id}}"><i class="icon-pencil"></i></a>
+        <a href="#" event_id="{{event.event_id}}" class="delete-link"><i class="icon-remove"></i></a>
     </td>
   </tr>
 %end

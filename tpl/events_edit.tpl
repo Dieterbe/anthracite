@@ -5,7 +5,7 @@
 
 <div class="hero-unit">
 <h3>Edit an event</h3>
-    <form action="/events/edit/{{event.rowid}}" method="POST">
+    <form action="/events/edit/{{event.event_id}}" method="POST">
       <fieldset>
         <label>Date-Time (enter manually, use the picker, or populate from a unix timestamp)</label>
   <div id="event_datetime" class="input-append date">

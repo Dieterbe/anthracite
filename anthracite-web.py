@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
-from backend import get_backend, Event, Reportpoint
+from backend import Backend, Event, Reportpoint
 import json
 import os
 
@@ -89,7 +89,7 @@ def edit_post(event_id):
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, rowid=event_id)
+        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
     except Exception, e:
         return page(body=template('tpl/events_table', events=backend.get_events()), errors=[('Could not recreate event from received information', e)], page='table')
     try:
@@ -233,6 +233,6 @@ if app_dir:
     os.chdir(app_dir)
 
 import config
-backend = get_backend(config.backend)
+backend = Backend()
 debug(True)
 run(reloader=True, host=config.listen_host, port=config.listen_port)

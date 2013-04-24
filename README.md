@@ -23,7 +23,7 @@ some use cases:
 * anthracite-web.py is the web app (interface for humans, and HTTP POST event receiver)
 * anthracite-compose-submit.sh to interactively compose and submit events from the CLI.
 * anthracite-submit-github.sh to send messages with git log from a code checkout
-* you can either use sqlite or ElasticSearch as backend.
+* ElasticSearch is used as database.
 
 
 ## Methods of submitting events ##
@@ -45,18 +45,10 @@ some use cases:
 ## Dependencies ##
 
 * python2
-* python2-pysqlite (if using the sqlite backend)
-* elasticsearch (if using the elasticsearch backend)
+* elasticsearch
 * java >=1.6 (if using the elasticsearch backend)
 
-## Choosing a backend ##
 
-* sqlite backend is the most tested one, but deprecated
-* elasticsearch backend is the future, because:
- * close integration/compatibility with logstash
- * extensive searching/querying options
- * extensible schema: the standard event format is already quite useful, but different companies have different requirements.
-   it's easy to add custom fields and attributes by just modifying the forms: ES doesn't even care.
 
 ### Handy ElasticSearch commands ###
 
@@ -74,15 +66,16 @@ Install dependencies, and just get a code checkout and initialize all git submod
 git clone --recursive https://github.com/Dieterbe/anthracite.git
 ```
 
-* For Sqlite, the database and schema will automatically be created by anthracite-web.
-* for Elasticsearch, just download and run it (anthracite-web will do the rest) like so:
+* for Elasticsearch:
 
 ```
 wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.6.tar.gz
 tar xzf elasticsearch-0.20.6.tar.gz
 rm -rf elasticsearch-0.20.6.tar.gz
 ```
-# TODO : unique cluster name?
+TODO : unique cluster name?
+(No need for any configuration, schema setup, etc, anthracite-web takes care of that)
+
 
 
 ## Deployment ##
@@ -91,10 +84,6 @@ Start the web application and point your browser to http://0.0.0.0:8081/
 
 ```
 <path_to_anthracite>/anthracite-web.py
-```
-
-optional:
-```
 <path_to_elasticsearch>/bin/elasticsearch
 ```
 

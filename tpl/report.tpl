@@ -105,7 +105,7 @@
 <tr class="{{css_class}}">
     <td>{{datetime.fromtimestamp(r.event.timestamp).strftime('%Y-%m-%d %H:%M:%S')}}</td>
     <td>{{!outage}}</td>
-    <td><a href="/events/view/{{r.event.rowid}}">{{event_str}}</a></td>
+    <td><a href="/events/view/{{r.event.event_id}}">{{event_str}}</a></td>
     <td>{{int(r.ttf/86400)}}/{{int(r.mttf/86400)}}/{{int(r.tttf/86400)}}</td>
     <td>{{r.ttd/60}}/{{r.mttd/60}}/{{r.tttd/60}}</td>
     <td>{{r.ttr/60}}/{{r.mttr/60}}/{{r.tttr/60}}</td>
