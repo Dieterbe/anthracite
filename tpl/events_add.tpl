@@ -9,7 +9,7 @@
 <h3>Add an event</h3>
     <form action="/events/add" method="POST">
       <fieldset>
-        <label>Date-Time (enter manually, use the picker, or populate from a unix timestamp)</label>
+        <label><b>Date-Time</b> (use the picker, enter manually, or populate from a unix timestamp)</label>
   <div id="event_datetime" class="input-append date">
     <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="event_datetime"></input>
     <span class="add-on">
@@ -18,7 +18,7 @@
     </span>
   </div>
         <input type="text" size="10" maxlength="10" id="event_timestamp" name="event_timestamp" placeholder="unix timestamp"/>
-        <label>Description</label>
+        <label><b>Description</b></label>
         <textarea rows="10" name="event_desc">
         </textarea>
         % if len(recommended_tags):
