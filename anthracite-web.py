@@ -54,13 +54,6 @@ def xml():
     return template('tpl/events_xml', events=backend.get_event_rows())
 
 
-@route('/events/sqlite')
-def sqlite():
-    # TODO: root is not good when run from other dir
-    # for some reason python's mimetype module can't autoguess this
-    return static_file("anthracite.db", root=".", mimetype='application/octet-stream')
-
-
 @route('/events/delete/<event_id>')
 def delete(event_id):
     try:
