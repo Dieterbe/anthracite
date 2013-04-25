@@ -120,7 +120,14 @@ def add_post():
         del request.forms['event_datetime']
         del request.forms['event_tags']
         del request.forms['event_tags_recommended']
-        extra_fields = dict(request.forms.items())  # we know that extra fields only have 1 value.
+        # after all these deletes, only the extra fields remain.
+        # we know that each field key has only one value, so we can convert
+        # bottle's multidict into a dict.  also, if no value was specified,
+        # remove the key, to avoid storing it needlessly.
+        extra_fields = {}
+        for (k, v) in request.forms.items():
+            if v:
+                extra_fields[k] = v
         event = Event(timestamp=ts, desc=desc, tags=tags, extra_fields=extra_fields)
     except Exception, e:
         return page(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)], page='add')
