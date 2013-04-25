@@ -17,10 +17,9 @@ def table():
 
 @route('/events/timeline')
 def timeline():
-    rows = backend.get_event_rows()
     (range_low, range_high) = backend.get_events_range()
 
-    return page(body=template('tpl/events_timeline', rows=rows, range_low=range_low, range_high=range_high), page='timeline')
+    return page(body=template('tpl/events_timeline', range_low=range_low, range_high=range_high), page='timeline')
 
 
 @route('/events/json')
