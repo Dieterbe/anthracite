@@ -1,6 +1,7 @@
-* show extra fields in json en table view
+* show optional fields in table view (or maybe a button to go to detailed view)
 * port operational report to use new outage spec
 * updates in ES not visible right away. (i.e. after edit returning to table shows outdated version)
-* timeline is in UTC time instead of local
+* fix time display in timeline (must be local time)
 * look into logstash integration points
 * better search/querying
+* elasticsearch backups
