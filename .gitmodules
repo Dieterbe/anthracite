@@ -1,6 +1,7 @@
 [submodule "assets/timeserieswidget"]
 	path = assets/timeserieswidget
 	url = https://github.com/Dieterbe/timeserieswidget.git
+	pushurl = git@github.com:Dieterbe/timeserieswidget.git
 [submodule "rawes"]
 	path = rawes
 	url = git://github.com/humangeo/rawes.git
