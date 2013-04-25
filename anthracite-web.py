@@ -3,6 +3,7 @@ from bottle import route, run, debug, template, request, static_file, error, res
 from backend import Backend, Event, Reportpoint
 import json
 import os
+import time
 
 
 @route('/')
@@ -61,10 +62,10 @@ def xml():
 def delete(event_id):
     try:
         backend.delete_event(event_id)
+        time.sleep(1)
         return page(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was deleted from the database'], page='table')
     except Exception, e:
         return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not delete event', e)], page='table')
-    # TODO redirect back to original page
 
 
 @route('/events/edit/<event_id>')
@@ -97,6 +98,7 @@ def edit_post(event_id):
         return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not recreate event from received information', e)], page='table')
     try:
         backend.edit_event(event)
+        time.sleep(1)
         return page(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was updated'], page='table')
     except Exception, e:
         return page(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not update event', e)], page='table')
