@@ -230,7 +230,7 @@ class BackendES():
             # tokenized terms.
             self.es.post('anthracite', data={
                 "mappings": {
-                    "post": {
+                    "event": {
                         "_source": {
                             "enabled": True
                         },
@@ -257,7 +257,7 @@ class BackendES():
     def object_to_dict(self, event):
         iso = self.unix_timestamp_to_iso8601(event.timestamp)
         return {
-            'post_date': iso,
+            'date': iso,
             'tags': event.tags,
             'desc': event.desc
         }
@@ -276,22 +276,22 @@ class BackendES():
     def hit_to_object(self, hit):
         rowid = hit['_id']
         hit = hit['_source']
-        unix = self.iso8601_to_unix_timestamp(hit['post_date'])
+        unix = self.iso8601_to_unix_timestamp(hit['date'])
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], rowid=rowid)
 
     def hit_to_list(self, hit):
         # list like (rowid int, timestamp int, desc str, tags [])
         rowid = hit['_id']
         hit = hit['_source']
-        unix = self.iso8601_to_unix_timestamp(hit['post_date'])
+        unix = self.iso8601_to_unix_timestamp(hit['date'])
         return [rowid, unix, hit['desc'], hit['tags']]
 
     def add_event(self, event):
-        self.es.post('anthracite/post', data=self.object_to_dict(event))
+        self.es.post('anthracite/event', data=self.object_to_dict(event))
 
     def delete_event(self, event_id):
         try:
-            self.es.delete('anthracite/post/%s' % event_id)
+            self.es.delete('anthracite/event/%s' % event_id)
         except self.ElasticException as e:
             if 'found' in e.result and not e.result['found']:
                 raise Exception("Document %s can't be found" % event_id)
@@ -299,10 +299,10 @@ class BackendES():
                 raise
 
     def edit_event(self, event):
-        self.es.post('anthracite/post/%s/_update' % event.rowid, data={'doc': self.object_to_dict(event)})
+        self.es.post('anthracite/event/%s/_update' % event.rowid, data={'doc': self.object_to_dict(event)})
 
     def es_get_events(self):
-        return self.es.get('anthracite/post/_search', data={
+        return self.es.get('anthracite/event/_search?size=1000', data={
             "query": {
                 "query_string": {
                     "query": "*"
@@ -310,9 +310,9 @@ class BackendES():
             },
             "sort": [
                 {
-                    "post_date": {
+                    "date": {
                         "order": "desc",
-                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                        "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
@@ -329,8 +329,8 @@ class BackendES():
         return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']]
 
     def get_event(self, rowid):
-        # http://localhost:9200/dieterfoobarbaz/post/PZ1su5w5Stmln_c2Kc4B2g
-        event_hit = self.es.get('anthracite/post/%s' % rowid)
+        # http://localhost:9200/dieterfoobarbaz/event/PZ1su5w5Stmln_c2Kc4B2g
+        event_hit = self.es.get('anthracite/event/%s' % rowid)
         event_obj = self.hit_to_object(event_hit)
         return event_obj
 
@@ -359,16 +359,16 @@ class BackendES():
         low = self.es.post('anthracite/_search?size=1', data={
             "query": {
                 "field": {
-                    "post_date": {
+                    "date": {
                         "query": "*"
                     }
                 }
             },
             "sort": [
                 {
-                    "post_date": {
+                    "date": {
                         "order": "asc",
-                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                        "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
@@ -379,33 +379,33 @@ class BackendES():
         high = self.es.post('anthracite/_search?size=1', data={
             "query": {
                 "field": {
-                    "post_date": {
+                    "date": {
                         "query": "*"
                     }
                 }
             },
             "sort": [
                 {
-                    "post_date": {
+                    "date": {
                         "order": "desc",
-                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                        "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
         })
-        low = self.iso8601_to_unix_timestamp(low['hits']['hits'][0]['_source']['post_date'])
-        high = self.iso8601_to_unix_timestamp(high['hits']['hits'][0]['_source']['post_date'])
+        low = self.iso8601_to_unix_timestamp(low['hits']['hits'][0]['_source']['date'])
+        high = self.iso8601_to_unix_timestamp(high['hits']['hits'][0]['_source']['date'])
         return (low, high)
 
     def get_events_count(self):
         count = 0
-        events = self.es.get('anthracite/post/_search')
+        events = self.es.get('anthracite/event/_search')
         count = events['hits']['total']
         return count
 
     def get_outage_events(self):
         # TODO sanity checking (order of detected, resolved tags, etc)
-        hits = self.es.get('anthracite/post/_search', data={
+        hits = self.es.get('anthracite/event/_search', data={
             'query': {
                 'query_string': {
                     'query': 'tag like outage=_%'
@@ -413,9 +413,9 @@ class BackendES():
             },
             "sort": [
                 {
-                    "post_date": {
+                    "date": {
                         "order": "asc",
-                        "ignore_unmapped": True  # avoid 'No mapping found for [post_date] in order to sort on' when we don't have data yet
+                        "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
                     }
                 }
             ]
