@@ -47,6 +47,7 @@ some use cases:
 * python2
 * python2-pysqlite (if using the sqlite backend)
 * elasticsearch (if using the elasticsearch backend)
+* java >=1.6 (if using the elasticsearch backend)
 
 ## Choosing a backend ##
 
