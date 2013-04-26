@@ -25,7 +25,7 @@
             <label>Commonly used/recommended tags</label>
             % for (tag, desc) in recommended_tags:
                 <label class="checkbox">
-                <input type="checkbox" name="event_tags_recommended" value="{{tag}}" checked="checked">
+                <input type="checkbox" name="event_tags_recommended" value="{{tag}}"> <!-- checked="checked"> -->
                 <span style="display: inline-block; width: 150px;">{{tag}}</span><i>{{desc}}</i>
                 </label>
             % end
