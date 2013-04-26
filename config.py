@@ -12,15 +12,18 @@ recommended_tags = [
     ('SiteActivity', 'i.e. famous person joins vimeo and brings his following'),
     ('Promotion', 'partnerships/events/ad sales'),
     ('External', 'factor we dont control (google algorithm, FB sharing, ISP problems, ...)'),
+]
+engineering_tags = [
     ('logins', 'engineering change to logins'),
     ('registration', 'engineering change to registration'),
     ('conversion', 'engineering change to conversion'),
     ('plays', 'engineering change to plays'),
     ('uploads', 'engineering change to uploads')
+]
+recommended_tags.extend(engineering_tags)
     #('start', 'start of an outage, campaign, ..'),
     #('detected', 'detected an issue(outage'),
     #('resolved', 'resolved an outage')
-]
 
 # use this to add optional fields to your event documents:
 # i.e. you can create events that have the field set, and ones that don't. and

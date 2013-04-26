@@ -33,15 +33,28 @@ def events_json():
 
 
 @route('/events/csv')
-def events_csv():
+@route('/events/csv/')
+@route('/events/csv/<plugin>')
+def events_csv(plugin=''):
     '''
     returns the first line of every event
     '''
     response.content_type = 'text/plain'
+
+    def formatter(config, event):
+        return [event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])]
+    if plugin:
+        try:
+            p = __import__('plugins.%s' % plugin, globals(), locals(), ['formatter'])
+            formatter = p.formatter
+        except Exception, e:
+            return "Could not load plugin '%s': %s" % (plugin, e)
+
     events = []
     for event in backend.get_events_raw():
-        event = ','.join([event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])])
-        events.append(event)
+        formatted = formatter(config, event)
+        if formatted is not None:
+            events.append(','.join(formatted))
     return "\n".join(events)
 
 

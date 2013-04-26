@@ -60,6 +60,14 @@ this works fine in a lot of cases, but many environments require enhancements to
 it's easy to add custom fields and attributes by just modifying the forms: ES doesn't even care.
 TODO explain options in config.py and effect on opsreport
 
+
+## Custom CSV reports ##
+create a file like `plugins/foo.py` and you can request `/events/csv/foo`
+it must contain a `formatter` function which receives the config object (containing your entire config),
+and a raw event (dictionary).   Based on this, emit a list of values, which will be turned into a line of the returned as CSV data.
+If you return `None`, that event/row will be skipped.
+See the example
+
 ## Handy ElasticSearch commands ##
 
 empty database/start from scratch (requires anthracite-web restart)
