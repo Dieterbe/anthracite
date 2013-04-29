@@ -14,6 +14,7 @@ def main():
 
 
 @route('/events')
+@route('/events/table')
 def table():
     return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table')
 
