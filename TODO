@@ -7,3 +7,8 @@
 * look into logstash integration points
 * better search/querying
 * elasticsearch backups
+* form support for "optional key:value fields", so that we can discourage key=val tags. add support in generic add form, and the *.sh scripts
+(not in marketing form, maybe in engineering/anal forms too). maybe we can always automatically turn 'key=value' tags into fields.
+* better reorganize links: 
+  * move json/xml/... to separate menu, they don't need to be so explicit, people rarely need these links.
+  * some menu items from plugins should integrate with other menu items (i.e. /events/add/foo should be just below /events/add)
