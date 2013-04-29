@@ -2,6 +2,8 @@ from types import IntType, StringType, UnicodeType
 import time
 import datetime
 import calendar
+import os
+import sys
 
 
 class Event():
@@ -71,8 +73,6 @@ class Reportpoint():
 class Backend():
 
     def __init__(self):
-        import sys
-        import os
         sys.path.append("%s/%s" % (os.getcwd(), 'python-dateutil'))
         sys.path.append("%s/%s" % (os.getcwd(), 'requests'))
         sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
@@ -112,7 +112,6 @@ class Backend():
             else:
                 raise
         except requests.exceptions.ConnectionError as e:
-            import sys
             sys.stderr.write("Could not connect to ElasticSearch: %s" % e)
             sys.exit(2)
 
@@ -290,3 +289,42 @@ class Backend():
             event_obj = self.hit_to_object(event_hit)
             events.append(event_obj)
         return events
+
+
+class PluginError(Exception):
+
+    def __init__(self, plugin, msg, underlying_error):
+        self.plugin = plugin
+        self.msg = msg
+        self.underlying_error = underlying_error
+
+    def __str__(self):
+        return "%s -> %s (%s)" % (self.plugin, self.msg, self.underlying_error)
+
+
+def load_plugins(plugins_to_load):
+    '''
+    loads all the plugins sub-modules
+    returns encountered errors, doesn't raise them because
+    whoever calls this function defines how any errors are
+    handled. meanwhile, loading must continue
+    '''
+    from plugins import Plugin
+    from inspect import isclass
+    import plugins
+    errors = []
+    extra_urls = {}
+    plugins_dir = os.path.dirname(plugins.__file__)
+    wd = os.getcwd()
+    os.chdir(plugins_dir)
+    for module in plugins_to_load:
+        try:
+            print "importing plugin '%s'" % module
+            imp = __import__('plugins.' + module, {}, {}, ['*'])
+            extra_urls[module] = imp.urls
+        except Exception, e:
+            errors.append(PluginError(module, "Failed to add plugin '%s'" % module, e))
+            continue
+
+    os.chdir(wd)
+    return (extra_urls, errors)

@@ -102,6 +102,12 @@
               <li><a href="/events/jsonp">jsonp</a></li>
               <li><a href="/events/csv">csv</a></li>
               <li><a href="/events/xml">xml</a></li>
+              % for (plugin, urls) in extra_urls.items():
+                  <li class="nav-header">{{plugin}} plugin</li>
+                  % for (path, desc) in urls:
+                      <li><a href="{{path}}">{{desc}}</a></li>
+                  %end
+            %end
             </ul>
           </div><!--/.well -->
             % if page == 'report':

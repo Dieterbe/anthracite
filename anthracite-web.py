@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response
-from backend import Backend, Event, Reportpoint
+from backend import Backend, Event, Reportpoint, load_plugins
 import json
 import os
 import time
+import sys
 from view import page
 
 
@@ -34,28 +35,15 @@ def events_json():
 
 
 @route('/events/csv')
-@route('/events/csv/')
-@route('/events/csv/<plugin>')
-def events_csv(plugin=''):
+def events_csv():
     '''
     returns the first line of every event
     '''
     response.content_type = 'text/plain'
-
-    def formatter(config, event):
-        return [event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])]
-    if plugin:
-        try:
-            p = __import__('plugins.%s' % plugin, globals(), locals(), ['formatter'])
-            formatter = p.formatter
-        except Exception, e:
-            return "Could not load plugin '%s': %s" % (plugin, e)
-
     events = []
     for event in backend.get_events_raw():
-        formatted = formatter(config, event)
-        if formatted is not None:
-            events.append(','.join(formatted))
+        formatted = [event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])]
+        events.append(','.join(formatted))
     return "\n".join(events)
 
 
@@ -265,5 +253,12 @@ if app_dir:
 
 import config
 backend = Backend()
+state = {}
+(extra_urls, errors) = load_plugins(config.plugins)
+state['extra_urls'] = extra_urls
+if errors:
+    for e in errors:
+        sys.stderr.write(str(e))
+    sys.exit(2)
 debug(True)
 run(reloader=True, host=config.listen_host, port=config.listen_port)
