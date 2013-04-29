@@ -124,7 +124,11 @@ def add_post():
         del request.forms['event_timestamp']
         del request.forms['event_datetime']
         del request.forms['event_tags']
-        del request.forms['event_tags_recommended']
+        try:
+            del request.forms['event_tags_recommended']
+        except KeyError:
+            # apparently if none of them are selected, the key won't exist
+            pass
         # after all these deletes, only the extra fields remain.
         # we know that each field key has only one value, so we can convert
         # bottle's multidict into a dict.  also, if no value was specified,
