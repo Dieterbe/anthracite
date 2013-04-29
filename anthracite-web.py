@@ -109,7 +109,8 @@ def edit_post(event_id):
 
 @route('/events/add', method='GET')
 def add_get():
-    return p(body=template('tpl/events_add', tags=backend.get_tags()), page='add')
+    return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
+                           helptext=config.helptext, recommended_tags=config.recommended_tags), page='add')
 
 
 @route('/events/add', method='POST')
@@ -139,12 +140,18 @@ def add_post():
                 extra_fields[k] = v
         event = Event(timestamp=ts, desc=desc, tags=tags, extra_fields=extra_fields)
     except Exception, e:
-        return p(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not create new event', e)], page='add')
+        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
+                               helptext=config.helptext, recommended_tags=config.recommended_tags),
+                 errors=[('Could not create new event', e)], page='add')
     try:
         backend.add_event(event)
-        return p(body=template('tpl/events_add', tags=backend.get_tags()), successes=['The new event was added into the database'], page='add')
+        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
+                               helptext=config.helptext, recommended_tags=config.recommended_tags),
+                 successes=['The new event was added into the database'], page='add')
     except Exception, e:
-        return p(body=template('tpl/events_add', tags=backend.get_tags()), errors=[('Could not save new event', e)], page='add')
+        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
+                               helptext=config.helptext, recommended_tags=config.recommended_tags),
+                 errors=[('Could not save new event', e)], page='add')
 
 
 @route('/events/add/script', method='POST')
@@ -259,8 +266,7 @@ if app_dir:
 import config
 backend = Backend()
 state = {}
-(extra_urls, errors) = load_plugins(config.plugins)
-state['extra_urls'] = extra_urls
+(state, errors) = load_plugins(config.plugins)
 if errors:
     for e in errors:
         sys.stderr.write(str(e))

@@ -2,7 +2,7 @@ from bottle import route, response, template
 from backend import Backend
 from view import page_light
 
-urls = [
+add_urls = [
     ('/events/csv/vimeo_analytics', 'csv'),
     ('/events/table/vimeo_analytics', 'table')
 ]

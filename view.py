@@ -5,7 +5,8 @@ def page(config, backend, state, **kwargs):
     # accepts lists of warnings, errors, infos, successes for which we'll show
     # blocks
     kwargs['events_count'] = backend.get_events_count()
-    kwargs['extra_urls'] = state['extra_urls']
+    kwargs['add_urls'] = state['add_urls']
+    kwargs['remove_urls'] = state['remove_urls']
     return template('tpl/page', kwargs)
 
 

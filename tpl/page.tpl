@@ -92,9 +92,13 @@
         <div class="span3">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li><a name="main" href="/">main</a></li>
-              <li><a name="add" href="/events/add">add event</a></li>
-              <li><a name="report" href="/report">operational report</a></li>
+                % urls = [('main', '/', 'main'), ('add', '/events/add', 'add event'), ('report', '/report', 'operational report')]
+                % # with remove_urls you don't control everything (yet):
+                % for (name, href, visual) in urls:
+                    % if href not in remove_urls:
+              <li><a name="{{name}}" href="{{href}}">{{visual}}</a></li>
+                    % end
+                % end
               <li class="nav-header">Event views</li>
               <li><a name="table" href="/events">table</a></li>
               <li><a name="timeline" href="/events/timeline">timeline</a></li>
@@ -102,7 +106,7 @@
               <li><a href="/events/jsonp">jsonp</a></li>
               <li><a href="/events/csv">csv</a></li>
               <li><a href="/events/xml">xml</a></li>
-              % for (plugin, urls) in extra_urls.items():
+              % for (plugin, urls) in add_urls.items():
                   <li class="nav-header">{{plugin}} plugin</li>
                   % for (path, desc) in urls:
                       <li><a href="{{path}}">{{desc}}</a></li>

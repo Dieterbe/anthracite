@@ -14,7 +14,7 @@ class Event():
     event_id is optional, it's the elasticsearch _id field
     '''
 
-    def __init__(self, timestamp=None, desc=None, tags=[], event_id=None, extra_fields={}):
+    def __init__(self, timestamp=None, desc=None, tags=[], event_id=None, extra_attributes={}):
         assert type(timestamp) is IntType, "timestamp must be an integer: %r" % timestamp
         assert type(desc) in (StringType, UnicodeType), "desc must be a non-empty string: %r" % desc
         assert desc, "desc must be a non-empty string: %r" % desc
@@ -22,7 +22,7 @@ class Event():
         self.desc = desc
         self.tags = tags  # just a list of strings
         self.event_id = event_id
-        self.extra_fields = extra_fields
+        self.extra_attributes = extra_attributes
 
     def __str__(self):
         pretty_desc = self.desc
@@ -122,7 +122,7 @@ class Backend():
             'tags': event.tags,
             'desc': event.desc
         }
-        data.update(event.extra_fields)
+        data.update(event.extra_attributes)
         return data
 
     def unix_timestamp_to_iso8601(self, unix_timestamp):
@@ -309,11 +309,10 @@ def load_plugins(plugins_to_load):
     whoever calls this function defines how any errors are
     handled. meanwhile, loading must continue
     '''
-    from plugins import Plugin
-    from inspect import isclass
     import plugins
     errors = []
-    extra_urls = {}
+    add_urls = {}
+    remove_urls = []
     plugins_dir = os.path.dirname(plugins.__file__)
     wd = os.getcwd()
     os.chdir(plugins_dir)
@@ -321,10 +320,22 @@ def load_plugins(plugins_to_load):
         try:
             print "importing plugin '%s'" % module
             imp = __import__('plugins.' + module, {}, {}, ['*'])
-            extra_urls[module] = imp.urls
+            try:
+                add_urls[module] = imp.add_urls
+            except Exception:
+                pass
+            try:
+                remove_urls.extend(imp.remove_urls)
+            except Exception:
+                pass
         except Exception, e:
             errors.append(PluginError(module, "Failed to add plugin '%s'" % module, e))
             continue
 
     os.chdir(wd)
-    return (extra_urls, errors)
+    state = {
+        'add_urls': add_urls,
+        'remove_urls': remove_urls
+    }
+    __builtins__['state'] = state  # make accessible for all imported plugins
+    return (state, errors)

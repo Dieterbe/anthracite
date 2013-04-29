@@ -6,30 +6,19 @@ timezone = "America/New_York"
 # list of tuples: first value of the tuple is a tag that you recommend/make
 # extra visible on the forms, and 2nd value is a user friendly explanation.
 recommended_tags = [
-    ('Marketing', 'campaign launches/changes, strategy changes, ..'),
-    ('TrackingError', 'problem with Google Analytics tracking'),
-    ('Product', 'feature launches/changes'),
-    ('SiteActivity', 'i.e. famous person joins vimeo and brings his following'),
-    ('Promotion', 'partnerships/events/ad sales'),
-    ('External', 'factor we dont control (google algorithm, FB sharing, ISP problems, ...)'),
 ]
-engineering_tags = [
-    ('logins', 'engineering change to logins'),
-    ('registration', 'engineering change to registration'),
-    ('conversion', 'engineering change to conversion'),
-    ('plays', 'engineering change to plays'),
-    ('uploads', 'engineering change to uploads')
-]
-recommended_tags.extend(engineering_tags)
-    #('start', 'start of an outage, campaign, ..'),
-    #('detected', 'detected an issue(outage'),
-    #('resolved', 'resolved an outage')
 
-# use this to add optional fields to your event documents:
+# Flexible schema:
+# use this to add (optional) attributes to your event documents.
+# forms will adjust themselves and the events will be stored accordingly.
 # i.e. you can create events that have the field set, and ones that don't. and
 # you can add it later if you have to.
-
-optional_fields = [
-    ('outage', 'key to uniquely identify particular outages'),
-    ('expected_result', 'text to describe expected result for this change')
+from model import Attribute
+extra_attributes = [
+    Attribute('outage_key', 'Outage key')
 ]
+# "help" text to appear on forms
+helptext = {
+    'outage_key': 'key to uniquely identify particular outages'
+}
+
