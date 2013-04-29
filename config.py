@@ -22,3 +22,6 @@ helptext = {
     'outage_key': 'key to uniquely identify particular outages'
 }
 
+plugins = []
+# you can try the vimeo plugins to get an idea:
+#plugins = ['vimeo_analytics', 'vimeo_add_forms']
