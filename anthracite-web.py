@@ -41,21 +41,46 @@ def track_history():
     session.save()
 
 
+# based on convention:
+def url_to_fn_name(url):
+    if url == '/':
+        fn_name = 'main'
+    else:
+        # /foo/bar/baz -> foo_bar_baz
+        fn_name = url[1:].replace('/', '_')
+    return globals()[fn_name]
+
+
+def render_last_page(pages_to_ignore=[], **kwargs):
+    last_page = '/'  # fallback
+    while len(session['history']):
+        candidate = session['history'].pop()
+        good_candidate = True
+        for page_to_ignore in pages_to_ignore:
+            if candidate.startswith(page_to_ignore):
+                good_candidate = False
+        if good_candidate:
+            last_page = candidate
+            break
+    print "calling last rendered page:", last_page, kwargs
+    return url_to_fn_name(last_page)(**kwargs)
+
+
 @route('/')
-def main():
-    return p(body=template('tpl/index'), page='main')
+def main(**kwargs):
+    return p(body=template('tpl/index'), page='main', **kwargs)
 
 
 @route('/events/table')
-def events_table():
-    return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table')
+def events_table(**kwargs):
+    return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table', **kwargs)
 
 
 @route('/events/timeline')
-def events_timeline():
+def events_timeline(**kwargs):
     (range_low, range_high) = backend.get_events_range()
 
-    return p(body=template('tpl/events_timeline', range_low=range_low, range_high=range_high), page='timeline')
+    return p(body=template('tpl/events_timeline', range_low=range_low, range_high=range_high), page='timeline', **kwargs)
 
 
 @route('/events/json')
@@ -98,18 +123,18 @@ def events_delete(event_id):
     try:
         backend.delete_event(event_id)
         time.sleep(1)
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was deleted from the database'], page='table')
     except Exception, e:
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not delete event', e)], page='table')
+        return render_last_page(['/events/delete/'], errors=[('Could not delete event', e)])
+    return render_last_page(['/events/delete/'], successes=['The event was deleted from the database'])
 
 
 @route('/events/edit/<event_id>')
-def events_edit(event_id):
+def events_edit(event_id, **kwargs):
     try:
         event = backend.get_event(event_id)
-        return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit')
     except Exception, e:
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not load event', e)], page='table')
+        return render_last_page(['/events/edit/'], errors=[('Could not load event', e)])
+    return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit', **kwargs)
 
 
 def local_datepick_to_unix_timestamp(datepick):
@@ -130,19 +155,19 @@ def events_edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
     except Exception, e:
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not recreate event from received information', e)], page='table')
+        return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information', e)])
     try:
         backend.edit_event(event)
         time.sleep(1)
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), successes=['The event was updated'], page='table')
     except Exception, e:
-        return p(body=template('tpl/events_table', events=backend.get_events_objects()), errors=[('Could not update event', e)], page='table')
+        return render_last_page(['/events/edit/'], errors=[('Could not update event', e)])
+    return render_last_page(['/events/edit/'], successes=['The event was updated'])
 
 
 @route('/events/add', method='GET')
-def events_add():
+def events_add(**kwargs):
     return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
-                           helptext=config.helptext, recommended_tags=config.recommended_tags), page='add')
+                           helptext=config.helptext, recommended_tags=config.recommended_tags), page='add', **kwargs)
 
 
 def add_post_handler_default(request, config):
@@ -202,13 +227,11 @@ def events_add_post(handler='default'):
                  errors=[('Could not create new event', e)], page='add')
     try:
         backend.add_event(event)
-        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
-                               helptext=config.helptext, recommended_tags=config.recommended_tags),
-                 successes=['The new event was added into the database'], page='add')
     except Exception, e:
         return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
                                helptext=config.helptext, recommended_tags=config.recommended_tags),
                  errors=[('Could not save new event', e)], page='add')
+    return render_last_page(['/events/add', '/events/add/%' % handler], successes=['The new event was added into the database'])
 
 
 @route('/events/add/script', method='POST')
@@ -227,10 +250,10 @@ def events_add_script():
 
 
 @route('/report')
-def report():
+def report(**kwargs):
     import time
     start = local_datepick_to_unix_timestamp(config.opsreport_start)
-    return p(page='report', body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))))
+    return p(page='report', body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))), **kwargs)
 
 
 def get_report_data(start, until):
@@ -309,8 +332,8 @@ def static(path):
 
 
 @error(404)
-def error404(code):
-    return p(body=template('tpl/error', title='404 page not found', msg='The requested page was not found'))
+def error404(code, **kwargs):
+    return p(body=template('tpl/error', title='404 page not found', msg='The requested page was not found'), **kwargs)
 
 
 def p(**kwargs):
