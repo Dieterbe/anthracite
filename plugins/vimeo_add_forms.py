@@ -14,21 +14,24 @@ remove_urls = ['/events/add']
 def add_engineering_get():
     import config
     backend = Backend()
-    return page(config, backend, state, body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=attributes['engineering'],
-                                                      helptext=helptext['engineering'], recommended_tags=[], timestamp_feeder=True), page='add_engineering')
+    return page(config, backend, state,
+                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['engineering'], event_type='engineering',
+                              helptext=helptext['engineering'], recommended_tags=[], timestamp_feeder=True), page='add_engineering')
 
 
 @route('/events/add/marketing', method='GET')
 def add_marketing_get():
     import config
     backend = Backend()
-    return page(config, backend, state, body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=attributes['marketing'],
-                                                      helptext=helptext['marketing'], recommended_tags=[]), page='add_marketing')
+    return page(config, backend, state,
+                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['marketing'], event_type='marketing',
+                              helptext=helptext['marketing'], recommended_tags=[]), page='add_marketing')
 
 
 @route('/events/add/analytics', method='GET')
 def add_analytics_get():
     import config
     backend = Backend()
-    return page(config, backend, state, body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=attributes['analytics'],
-                                                      helptext=helptext['analytics'], recommended_tags=[], timestamp_feeder=True), page='add_analytics')
+    return page(config, backend, state,
+                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['analytics'], event_type='analytics',
+                              helptext=helptext['analytics'], recommended_tags=[], timestamp_feeder=True), page='add_analytics')

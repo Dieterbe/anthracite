@@ -1,7 +1,8 @@
 % # the following vars must be set: recommended_tags, extra_attributes
-% # optional: timestamp_feeder True, helptext {}
+% # optional: timestamp_feeder True, helptext {}, event_type ''
 % setdefault('timestamp_feeder', False)
 % setdefault('helptext', {})
+% setdefault('event_type', '')
 % if timestamp_feeder:
 %     default_helptext_event_datetime = 'use the picker, enter manually, or populate from a unix timestamp'
 % else:
@@ -19,7 +20,7 @@
     <script src="/assets/select2/select2.js"></script>
 
 <div class="hero-unit">
-<h3>Add an event</h3>
+<h3>Add {{event_type}} event</h3>
     <form action="/events/add" method="POST" class="form-horizontal">
       <fieldset>
 
