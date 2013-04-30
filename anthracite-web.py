@@ -1,11 +1,44 @@
 #!/usr/bin/env python2
-from bottle import route, run, debug, template, request, static_file, error, response
+from bottle import route, run, debug, template, request, static_file, error, response, app, hook
 from backend import Backend, Event, Reportpoint, load_plugins
+from beaker.middleware import SessionMiddleware
 import json
 import os
 import time
 import sys
 from view import page
+from collections import deque
+
+session = None
+
+
+@hook('before_request')
+def track_history():
+    '''
+    maintain a list of the 10 most recent pages loaded per earch particular user
+    '''
+    global session
+    # ignore everything that's not a page being loaded by the user:
+    if request.fullpath.startswith('/assets'):
+        return
+    # loaded in background by report page
+    if request.fullpath.startswith('/report/data'):
+        return
+    session = request.environ.get('beaker.session')
+    session['history'] = session.get('history', deque())
+    # loaded in background by timeline
+    if len(session['history']) and request.fullpath == '/events/xml' and session['history'][len(session['history']) - 1] == '/events/timeline':
+        return
+    # note the url always misses the '#foo' part
+    url = request.fullpath
+    if request.query_string:
+        url += "?%s" % request.query_string
+    if len(session['history']) and url == session['history'][len(session['history']) - 1]:
+        return
+    session['history'].append(url)
+    if len(session['history']) > 10:
+        session['history'].popleft()
+    session.save()
 
 
 @route('/')
@@ -296,5 +329,12 @@ if errors:
     for e in errors:
         sys.stderr.write(str(e))
     sys.exit(2)
+session_opts = {
+    'session.type': 'file',
+    'session.cookie_expires': 300,
+    'session.data_dir': './session_data',
+    'session.auto': True
+}
+app = SessionMiddleware(app(), session_opts)
 debug(True)
-run(reloader=True, host=config.listen_host, port=config.listen_port)
+run(app=app, reloader=True, host=config.listen_host, port=config.listen_port)
