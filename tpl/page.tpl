@@ -100,7 +100,7 @@
                     % end
                 % end
               <li class="nav-header">Event views</li>
-              <li><a name="table" href="/events">table</a></li>
+              <li><a name="table" href="/events/table">table</a></li>
               <li><a name="timeline" href="/events/timeline">timeline</a></li>
               <li><a href="/events/json">json</a></li>
               <li><a href="/events/jsonp">jsonp</a></li>

@@ -46,14 +46,13 @@ def main():
     return p(body=template('tpl/index'), page='main')
 
 
-@route('/events')
 @route('/events/table')
-def table():
+def events_table():
     return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table')
 
 
 @route('/events/timeline')
-def timeline():
+def events_timeline():
     (range_low, range_high) = backend.get_events_range()
 
     return p(body=template('tpl/events_timeline', range_low=range_low, range_high=range_high), page='timeline')
@@ -89,13 +88,13 @@ def events_jsonp():
 
 
 @route('/events/xml')
-def xml():
+def events_xml():
     response.content_type = 'application/xml'
     return template('tpl/events_xml', events=backend.get_events_raw())
 
 
 @route('/events/delete/<event_id>')
-def delete(event_id):
+def events_delete(event_id):
     try:
         backend.delete_event(event_id)
         time.sleep(1)
@@ -105,7 +104,7 @@ def delete(event_id):
 
 
 @route('/events/edit/<event_id>')
-def edit(event_id):
+def events_edit(event_id):
     try:
         event = backend.get_event(event_id)
         return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit')
@@ -124,7 +123,7 @@ def local_datepick_to_unix_timestamp(datepick):
 
 
 @route('/events/edit/<event_id>', method='POST')
-def edit_post(event_id):
+def events_edit_post(event_id):
     try:
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
@@ -141,7 +140,7 @@ def edit_post(event_id):
 
 
 @route('/events/add', method='GET')
-def add_get():
+def events_add():
     return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
                            helptext=config.helptext, recommended_tags=config.recommended_tags), page='add')
 
@@ -194,7 +193,7 @@ def add_post_handler_default(request, config):
 
 @route('/events/add', method='POST')
 @route('/events/add/<handler>', method='POST')
-def add_post(handler='default'):
+def events_add_post(handler='default'):
     try:
         event = globals()['add_post_handler_' + handler](request, config)
     except Exception, e:
@@ -213,7 +212,7 @@ def add_post(handler='default'):
 
 
 @route('/events/add/script', method='POST')
-def add_post_script():
+def events_add_script():
     try:
         event = Event(timestamp=int(request.forms.event_timestamp),
                       desc=request.forms.event_desc,
