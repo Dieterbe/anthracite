@@ -113,32 +113,57 @@ def add_get():
                            helptext=config.helptext, recommended_tags=config.recommended_tags), page='add')
 
 
-@route('/events/add', method='POST')
-def add_post():
+def add_post_handler_default(request, config):
+    tags = request.forms.getall('event_tags_recommended')
+    # (select2 tags form field uses comma)
+    tags.extend(request.forms.event_tags.split(','))
+    ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+    desc = request.forms.event_desc
+    extra_attributes = {}
+    for attribute in config.extra_attributes:
+        if attribute.mandatory:
+            if attribute.key not in request.forms:
+                raise Exception(attribute.key + " not found in submitted data")
+            elif not request.forms[attribute.key]:
+                raise Exception(attribute.key + " is empty.  you have to do better")
+        # if you want to get pedantic, you can check if the received values match predefined options
+        if attribute.key in request.forms and request.forms[attribute.key]:
+            extra_attributes[attribute.key] = request.forms[attribute.key]
+
+    # there may be fields we didn't predict (i.e. from scripts that submit
+    # events programmatically).  let's just store those as additional
+    # attributes.
+    # to start, remove all attributes we know of must exist:
+    for attrib in ['event_desc', 'event_datetime', 'event_tags']:
+        del request.forms[attrib]
+    # this one is optional:
     try:
-        tags = request.forms.getall('event_tags_recommended')
-        # (select2 tags form field uses comma)
-        tags.extend(request.forms.event_tags.split(','))
-        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
-        desc = request.forms.event_desc
-        del request.forms['event_desc']
         del request.forms['event_timestamp']
-        del request.forms['event_datetime']
-        del request.forms['event_tags']
+    except KeyError:
+        pass
+    # some of these keys may not exist.  (i.e. if no field was selected)
+    # proper validation was performed above, so we can ignore missing keys
+    for attrib in [attribute.key for attribute in config.extra_attributes]:
         try:
-            del request.forms['event_tags_recommended']
+            del request.forms[attrib]
         except KeyError:
-            # apparently if none of them are selected, the key won't exist
             pass
-        # after all these deletes, only the extra fields remain.
-        # we know that each field key has only one value, so we can convert
-        # bottle's multidict into a dict.  also, if no value was specified,
-        # remove the key, to avoid storing it needlessly.
-        extra_fields = {}
-        for (k, v) in request.forms.items():
-            if v:
-                extra_fields[k] = v
-        event = Event(timestamp=ts, desc=desc, tags=tags, extra_fields=extra_fields)
+    # after all these deletes, only the extra fields remain. get rid of entries with
+    # empty values, and store them.
+    # (this *should* work for strings and lists...)
+    for key in request.forms.keys():
+        v = request.forms.getall(key)
+        if v:
+            extra_attributes[k] = v
+    event = Event(timestamp=ts, desc=desc, tags=tags, extra_attributes=extra_attributes)
+    return event
+
+
+@route('/events/add', method='POST')
+@route('/events/add/<handler>', method='POST')
+def add_post(handler='default'):
+    try:
+        event = globals()['add_post_handler_' + handler](request, config)
     except Exception, e:
         return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
                                helptext=config.helptext, recommended_tags=config.recommended_tags),
