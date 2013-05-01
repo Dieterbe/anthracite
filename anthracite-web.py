@@ -194,6 +194,7 @@ def add_post_validate_and_parse_extra_attributes(request, config):
         # if you want to get pedantic, you can check if the received values match predefined options
         if attribute.key in request.forms and request.forms[attribute.key]:
             extra_attributes[attribute.key] = request.forms[attribute.key]
+    return extra_attributes
 
 
 def add_post_validate_and_parse_unknown_attributes(request, config):
@@ -220,11 +221,6 @@ def add_post_validate_and_parse_unknown_attributes(request, config):
             unknown_attributes[key] = v
     return unknown_attributes
 
-# make these functions available to plugins:
-__builtin__.add_post_validate_and_parse_base_attributes = add_post_validate_and_parse_base_attributes
-__builtin__.add_post_validate_and_parse_extra_attributes = add_post_validate_and_parse_extra_attributes
-__builtin__.add_post_validate_and_parse_unknown_attributes = add_post_validate_and_parse_unknown_attributes
-
 
 def add_post_handler_default(request, config):
     (ts, desc, tags) = add_post_validate_and_parse_base_attributes(request)
@@ -236,11 +232,22 @@ def add_post_handler_default(request, config):
     return event
 
 
+handlers = {
+    'add_post_handler_default': add_post_handler_default
+}
+
+# make these functions available to plugins:
+__builtin__.add_post_validate_and_parse_base_attributes = add_post_validate_and_parse_base_attributes
+__builtin__.add_post_validate_and_parse_extra_attributes = add_post_validate_and_parse_extra_attributes
+__builtin__.add_post_validate_and_parse_unknown_attributes = add_post_validate_and_parse_unknown_attributes
+__builtin__.add_post_handler_default = add_post_handler_default
+
+
 @route('/events/add', method='POST')
 @route('/events/add/<handler>', method='POST')
 def events_add_post(handler='default'):
     try:
-        event = globals()['add_post_handler_' + handler](request, config)
+        event = handlers['add_post_handler_' + handler](request, config)
     except Exception, e:
         import traceback
         print "Could not create new event because %s: %s. Go back to previous page to retry" % (sys.exc_type, sys.exc_value)
@@ -374,7 +381,8 @@ import config
 config = Config(config)
 backend = Backend()
 state = {}
-(state, errors) = load_plugins(config.plugins)
+(state, errors) = load_plugins(config.plugins, config)
+handlers.update(state['handlers'])
 if errors:
     for e in errors:
         sys.stderr.write(str(e))

@@ -333,6 +333,7 @@ def load_plugins(plugins_to_load, config):
     errors = []
     add_urls = {}
     remove_urls = []
+    handlers = {}  # not namespaced by plugin to keep it easy. include plugin name in name.
     plugins_dir = os.path.dirname(plugins.__file__)
     wd = os.getcwd()
     os.chdir(plugins_dir)
@@ -348,6 +349,10 @@ def load_plugins(plugins_to_load, config):
                 remove_urls.extend(imp.remove_urls)
             except Exception:
                 pass
+            try:
+                handlers.update(imp.handlers)
+            except Exception:
+                pass
         except Exception, e:
             errors.append(PluginError(module, "Failed to add plugin '%s'" % module, e))
             continue
@@ -355,7 +360,8 @@ def load_plugins(plugins_to_load, config):
     os.chdir(wd)
     state = {
         'add_urls': add_urls,
-        'remove_urls': remove_urls
+        'remove_urls': remove_urls,
+        'handlers': handlers
     }
     #  make some vars accessible for all imported plugins
     __builtins__['state'] = state
