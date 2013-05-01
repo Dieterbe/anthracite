@@ -56,17 +56,39 @@ _standard event_ has:
 * description
 * 0-N arbitrary tags (words or 'key=value' tags)
 
-this works fine in a lot of cases, but many environments require enhancements to this schema.
-it's easy to add custom fields and attributes by just modifying the forms: ES doesn't even care.
-TODO explain options in config.py and effect on opsreport
+this works fine in a lot of cases, but many environments require enhancements.
+You can enhance quite a bunch via config.py options.  The forms adapt as needed,
+and the extra fields will be stored like regular fields.
+
+`recommended_tags`: promote the use of specific tags in forms (they still get stored with other tags)
+`extra_attributes`: extend on the default schema by specifying attributes, with these properties:
+
+* key: the field name
+* label: label to use in forms
+* mandatory: does this option need to be filled in on forms or can it be left blank?
+* choices: list of values. or False to enable freeform text input. list with 1 element to enforce a specific value.
+* select_many: whether to allow the user to select N of the choices, or just one.
+
+`helptext`: override/add help messages for specific fields in forms
+`plugins`: enable plugins by filename (should match with what's in the `plugins` folder)
 
 
-## Custom CSV reports ##
-create a file like `plugins/foo.py` and you can request `/events/csv/foo`
-it must contain a `formatter` function which receives the config object (containing your entire config),
-and a raw event (dictionary).   Based on this, emit a list of values, which will be turned into a line of the returned as CSV data.
-If you return `None`, that event/row will be skipped.
-See the example
+## Plugins ##
+
+plugins expose new functionality by providing functions and decorating them with routes to bind them to a http path.
+They can also add handler functions to handle incoming events (i.e. to validate according to a custom schema)
+They provide `add_urls` to specify which urls should get added to the menu,
+`remove_urls` to denote which existing urls they replace/deprecate.
+plugins can have their own template files.
+All options mentioned above (except `plugins`) can be specified by plugins, i.e. you can have plugins
+that promote certain tags, change the schema in a certain way, make certain fields mandatory, etc.
+
+Anthracite comes with 2 plugins that we use at Vimeo, and that serve as expmales for you:
+
+* vimeo_analytics : tabular and csv outputs for events relevant to our analytics team.
+* vimeo_add_forms : specialized forms with different schema's for different teams, and handlers
+  to validate accordingly
+
 
 ## Handy ElasticSearch commands ##
 
