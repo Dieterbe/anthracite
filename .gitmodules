@@ -11,3 +11,6 @@
 [submodule "python-dateutil"]
 	path = python-dateutil
 	url = git://github.com/paxan/python-dateutil.git
+[submodule "beaker"]
+	path = beaker
+	url = git://github.com/bbangert/beaker.git

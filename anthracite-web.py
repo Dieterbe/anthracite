@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response, app, hook
 from backend import Backend, Event, Reportpoint, load_plugins, Config
-from beaker.middleware import SessionMiddleware
 import json
 import os
 import time
@@ -9,6 +8,8 @@ import sys
 from view import page
 from collections import deque
 import __builtin__
+sys.path.append('%s/beaker' % os.path.dirname(os.path.realpath(__file__)))
+from beaker.middleware import SessionMiddleware
 
 session = None
 
