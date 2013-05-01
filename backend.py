@@ -14,8 +14,14 @@ class Config(dict):
     so we convert it into a dict... but then we loose the nice attrib access again.
     so this class gives an object that supports both config.key and config.copy() basically
     '''
-    def __init__(self, module):
-        for k, v in module.__dict__.items():
+    def __init__(self, module_or_dict):
+        try:
+            # it's a module
+            d = module_or_dict.__dict__
+        except:
+            # it's a dict:
+            d = module_or_dict
+        for k, v in d.items():
             if not k.startswith('__'):
                 self[k] = v
 
@@ -24,6 +30,9 @@ class Config(dict):
 
     def __setattr__(self, attr, value):
         self[attr] = value
+
+    def copy(self):
+        return Config(self)
 
 
 class Event():
