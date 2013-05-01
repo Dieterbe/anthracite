@@ -169,7 +169,11 @@ class Backend():
         event_id = hit['_id']
         hit = hit['_source']
         unix = self.iso8601_to_unix_timestamp(hit['date'])
-        return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], event_id=event_id)
+        extra_attributes= {}
+        for (k, v) in hit.items():
+            if k not in ('desc', 'tags', 'date'):
+                extra_attributes[k] = v
+        return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], event_id=event_id, extra_attributes=extra_attributes)
 
     def add_event(self, event):
         self.es.post('anthracite/event', data=self.object_to_dict(event))

@@ -33,6 +33,17 @@
                 %end
                 <span class="label label-{{tag_class}}">{{tag}}</span>
             %end
+        % for k, v in event.extra_attributes.items():
+            <br/><span class="text-info">{{k}}</span>:
+            &nbsp;&nbsp;
+            % if type(v) is list:
+                % for val in v:
+                    <span class="label">{{val}}</span>
+                % end
+            % else:
+                {{v}}
+            %end
+        %end
     </td>
     <td>
         <a href="/events/edit/{{event.event_id}}"><i class="icon-pencil"></i></a>
