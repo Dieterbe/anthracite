@@ -195,7 +195,12 @@ def add_post_validate_and_parse_extra_attributes(request, config):
                 raise Exception(attribute.key + " is empty.  you have to do better")
         # if you want to get pedantic, you can check if the received values match predefined options
         if attribute.key in request.forms and request.forms[attribute.key]:
-            extra_attributes[attribute.key] = request.forms[attribute.key]
+            # for select boxes, we'll receive a POST key/value for each (so
+            # same key for each value), which bottle turns into list of vals
+            val = request.forms.getall(attribute.key)
+            if len(val) == 1:
+                val = val[0]
+            extra_attributes[attribute.key] = val
     return extra_attributes
 
 
@@ -218,9 +223,11 @@ def add_post_validate_and_parse_unknown_attributes(request, config):
     # empty values, and store them.
     # (this *should* work for strings and lists...)
     for key in request.forms.keys():
-        v = request.forms.getall(key)
-        if v:
-            unknown_attributes[key] = v
+        val = request.forms.getall(key)
+        if val:
+            if len(val) == 1:
+                val = val[0]
+            unknown_attributes[key] = val
     return unknown_attributes
 
 
