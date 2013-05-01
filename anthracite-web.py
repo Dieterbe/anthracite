@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response, app, hook
-from backend import Backend, Event, Reportpoint, load_plugins
+from backend import Backend, Event, Reportpoint, load_plugins, Config
 from beaker.middleware import SessionMiddleware
 import json
 import os
@@ -371,6 +371,7 @@ if app_dir:
     os.chdir(app_dir)
 
 import config
+config = Config(config)
 backend = Backend()
 state = {}
 (state, errors) = load_plugins(config.plugins)

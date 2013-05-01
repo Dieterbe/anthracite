@@ -6,6 +6,26 @@ import os
 import sys
 
 
+class Config(dict):
+    '''
+    based on http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python
+    create a config object based on an imported module.
+    with the module, you have nice config.key attrib access, but you can't config.copy() it
+    so we convert it into a dict... but then we loose the nice attrib access again.
+    so this class gives an object that supports both config.key and config.copy() basically
+    '''
+    def __init__(self, module):
+        for k, v in module.__dict__.items():
+            if not k.startswith('__'):
+                self[k] = v
+
+    def __getattr__(self, attr):
+        return self[attr]
+
+    def __setattr__(self, attr, value):
+        self[attr] = value
+
+
 class Event():
     '''
     timestamp must be a unix timestamp (int)
@@ -302,7 +322,7 @@ class PluginError(Exception):
         return "%s -> %s (%s)" % (self.plugin, self.msg, self.underlying_error)
 
 
-def load_plugins(plugins_to_load):
+def load_plugins(plugins_to_load, config):
     '''
     loads all the plugins sub-modules
     returns encountered errors, doesn't raise them because
@@ -337,5 +357,7 @@ def load_plugins(plugins_to_load):
         'add_urls': add_urls,
         'remove_urls': remove_urls
     }
-    __builtins__['state'] = state  # make accessible for all imported plugins
+    #  make some vars accessible for all imported plugins
+    __builtins__['state'] = state
+    __builtins__['config'] = config
     return (state, errors)
