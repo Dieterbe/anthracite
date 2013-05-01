@@ -1,8 +1,9 @@
 % # the following vars must be set: recommended_tags, extra_attributes
-% # optional: timestamp_feeder True, helptext {}, event_type ''
+% # optional: timestamp_feeder True, helptext {}, event_type '', handler ''
 % setdefault('timestamp_feeder', False)
 % setdefault('helptext', {})
 % setdefault('event_type', '')
+% setdefault('handler', '')
 % if timestamp_feeder:
 %     default_helptext_event_datetime = 'use the picker, enter manually, or populate from a unix timestamp'
 % else:
@@ -21,7 +22,12 @@
 
 <div class="hero-unit">
 <h3>Add {{event_type}} event</h3>
-    <form action="/events/add" method="POST" class="form-horizontal">
+    % if handler:
+        % action = '/events/add/%s' % handler
+    % else:
+        % action = '/events/add'
+    % end
+    <form action="{{action}}" method="POST" class="form-horizontal">
       <fieldset>
 
     <div class="control-group">
