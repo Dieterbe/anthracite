@@ -73,6 +73,15 @@ def main(**kwargs):
     return p(body=template('tpl/index'), page='main', **kwargs)
 
 
+@route('/events/view/<event_id>')
+def events_view(event_id, **kwargs):
+    try:
+        event = backend.get_event(event_id)
+    except Exception, e:
+        return render_last_page(['/events/view/'], errors=[('Could not load event', e)])
+    return p(body=template('tpl/events_view', event=event), page='view', **kwargs)
+
+
 @route('/events/table')
 def events_table(**kwargs):
     return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table', **kwargs)

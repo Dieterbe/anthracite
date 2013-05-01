@@ -1,8 +1,8 @@
+<h3>View event {{event.event_id}}</h3>
 %import datetime
 %format = '%Y-%m-%d %H:%M:%S'
 <table class="table table-striped table-condensed" 
 <tr><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
-%for event in events:
     %row_class = ''
     %if event.outage is not None:
         %row_class = 'error'
@@ -46,12 +46,10 @@
         %end
     </td>
     <td>
-        <a href="/events/view/{{event.event_id}}"><i class="icon-zoom-in"></i></a>
         <a href="/events/edit/{{event.event_id}}"><i class="icon-pencil"></i></a>
         <a href="#" event_id="{{event.event_id}}" class="delete-link"><i class="icon-remove"></i></a>
     </td>
   </tr>
-%end
 <script>
     $('.delete-link').on("click", function(e) {
         bootbox.confirm("Are you sure you want to delete this event?", function(result) {
