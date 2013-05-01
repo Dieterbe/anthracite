@@ -8,6 +8,7 @@ import time
 import sys
 from view import page
 from collections import deque
+import __builtin__
 
 session = None
 
@@ -170,12 +171,19 @@ def events_add(**kwargs):
                            helptext=config.helptext, recommended_tags=config.recommended_tags), page='add', **kwargs)
 
 
-def add_post_handler_default(request, config):
+def add_post_validate_and_parse_base_attributes(request):
+    # local_datepick_to_unix_timestamp will raise exceptions if input is bad
+    ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+    desc = request.forms.event_desc
+    if not desc:
+        raise Exception("description must not be empty")
     tags = request.forms.getall('event_tags_recommended')
     # (select2 tags form field uses comma)
     tags.extend(request.forms.event_tags.split(','))
-    ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
-    desc = request.forms.event_desc
+    return (ts, desc, tags)
+
+
+def add_post_validate_and_parse_extra_attributes(request, config):
     extra_attributes = {}
     for attribute in config.extra_attributes:
         if attribute.mandatory:
@@ -187,31 +195,43 @@ def add_post_handler_default(request, config):
         if attribute.key in request.forms and request.forms[attribute.key]:
             extra_attributes[attribute.key] = request.forms[attribute.key]
 
+
+def add_post_validate_and_parse_unknown_attributes(request, config):
     # there may be fields we didn't predict (i.e. from scripts that submit
     # events programmatically).  let's just store those as additional
-    # attributes.
-    # to start, remove all attributes we know of must exist:
-    for attrib in ['event_desc', 'event_datetime', 'event_tags']:
-        del request.forms[attrib]
-    # this one is optional:
-    try:
-        del request.forms['event_timestamp']
-    except KeyError:
-        pass
-    # some of these keys may not exist.  (i.e. if no field was selected)
-    # proper validation was performed above, so we can ignore missing keys
-    for attrib in [attribute.key for attribute in config.extra_attributes]:
+    # attributes.  so let's remove all attributes we already handled.
+    # some attribs are optional, but we can ignore KeyErrors
+    # because validation already happened
+    # note also that if no checkbox is selected, that key doesn't exist
+    standard_attribs = ['event_desc', 'event_datetime', 'event_timestamp', 'event_tags']
+    extra_attribs = [attribute.key for attribute in config.extra_attributes]
+    unknown_attributes = {}
+    for attrib in (standard_attribs + extra_attribs):
         try:
             del request.forms[attrib]
         except KeyError:
             pass
-    # after all these deletes, only the extra fields remain. get rid of entries with
+    # only the extra fields remain. get rid of entries with
     # empty values, and store them.
     # (this *should* work for strings and lists...)
     for key in request.forms.keys():
         v = request.forms.getall(key)
         if v:
-            extra_attributes[k] = v
+            unknown_attributes[key] = v
+    return unknown_attributes
+
+# make these functions available to plugins:
+__builtin__.add_post_validate_and_parse_base_attributes = add_post_validate_and_parse_base_attributes
+__builtin__.add_post_validate_and_parse_extra_attributes = add_post_validate_and_parse_extra_attributes
+__builtin__.add_post_validate_and_parse_unknown_attributes = add_post_validate_and_parse_unknown_attributes
+
+
+def add_post_handler_default(request, config):
+    (ts, desc, tags) = add_post_validate_and_parse_base_attributes(request)
+    extra_attributes = add_post_validate_and_parse_extra_attributes(request, config)
+    unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
+    extra_attributes.update(unknown_attributes)
+
     event = Event(timestamp=ts, desc=desc, tags=tags, extra_attributes=extra_attributes)
     return event
 
@@ -222,16 +242,23 @@ def events_add_post(handler='default'):
     try:
         event = globals()['add_post_handler_' + handler](request, config)
     except Exception, e:
-        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
-                               helptext=config.helptext, recommended_tags=config.recommended_tags),
-                 errors=[('Could not create new event', e)], page='add')
+        import traceback
+        print "Could not create new event because %s: %s" % (sys.exc_type, sys.exc_value)
+        print 'Stacktrace:'
+        traceback.print_tb(sys.exc_traceback)
+        # TODO: if user came from a /events/add/<foo> page, customized for specific
+        # use case, we should bring him/her back.
+        # option 1: figure out the original args used to compile the template
+        # (seems a bit messy to track that), but add error and form contents
+        # option 2: http redirect to request.fullpath, use session for contents of form and errors
+        # so that new pageload can use both.  this seems pretty feasible.
+        # go to main page for now..
+        return main(errors=[('Could not create new event', e)])
     try:
         backend.add_event(event)
     except Exception, e:
-        return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
-                               helptext=config.helptext, recommended_tags=config.recommended_tags),
-                 errors=[('Could not save new event', e)], page='add')
-    return render_last_page(['/events/add', '/events/add/%' % handler], successes=['The new event was added into the database'])
+        return main(errors=[('Could not save new event', e)])
+    return render_last_page(['/events/add', '/events/add/%s' % handler], successes=['The new event was added into the database'])
 
 
 @route('/events/add/script', method='POST')
