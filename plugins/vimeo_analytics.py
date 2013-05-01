@@ -9,7 +9,11 @@ add_urls = [
 
 
 def events_vimeo_analytics():
-    import config
+   #
+   # we should be aware that engineering events get submitted through various
+   # means (incl scripts), so if category is not set, but expected FX is, we
+   # count those as engineering
+
     backend = Backend()
     recommended_tags = set([t[0] for t in config.recommended_tags])
     events = []
@@ -41,5 +45,4 @@ def events_csv_vimeo_analytics():
 
 @route('/events/table/vimeo_analytics')
 def events_table_vimeo_analytics():
-    import config
     return page_light(config, Backend(), {}, body=template('plugins/vimeo_analytics_table', events=events_vimeo_analytics()))
