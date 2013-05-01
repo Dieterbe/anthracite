@@ -152,6 +152,7 @@ def local_datepick_to_unix_timestamp(datepick):
 @route('/events/edit/<event_id>', method='POST')
 def events_edit_post(event_id):
     try:
+        # TODO: do the same validation here as in add
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
