@@ -156,12 +156,12 @@ def events_edit_post(event_id):
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
     except Exception, e:
-        return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information', e)])
+        return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information. Go back to previous page to retry', e)])
     try:
         backend.edit_event(event)
         time.sleep(1)
     except Exception, e:
-        return render_last_page(['/events/edit/'], errors=[('Could not update event', e)])
+        return render_last_page(['/events/edit/'], errors=[('Could not update event. Go back to previous page to retry', e)])
     return render_last_page(['/events/edit/'], successes=['The event was updated'])
 
 
@@ -243,7 +243,7 @@ def events_add_post(handler='default'):
         event = globals()['add_post_handler_' + handler](request, config)
     except Exception, e:
         import traceback
-        print "Could not create new event because %s: %s" % (sys.exc_type, sys.exc_value)
+        print "Could not create new event because %s: %s. Go back to previous page to retry" % (sys.exc_type, sys.exc_value)
         print 'Stacktrace:'
         traceback.print_tb(sys.exc_traceback)
         # TODO: if user came from a /events/add/<foo> page, customized for specific
@@ -253,11 +253,11 @@ def events_add_post(handler='default'):
         # option 2: http redirect to request.fullpath, use session for contents of form and errors
         # so that new pageload can use both.  this seems pretty feasible.
         # go to main page for now..
-        return main(errors=[('Could not create new event', e)])
+        return main(errors=[('Could not create new event. Go back to previous page to retry', e)])
     try:
         backend.add_event(event)
     except Exception, e:
-        return main(errors=[('Could not save new event', e)])
+        return main(errors=[('Could not save new event. Go back to previous page to retry', e)])
     return render_last_page(['/events/add', '/events/add/%s' % handler], successes=['The new event was added into the database'])
 
 
@@ -268,12 +268,12 @@ def events_add_script():
                       desc=request.forms.event_desc,
                       tags=request.forms.event_tags.split())
     except Exception, e:
-        return 'Could not create new event: %s' % e
+        return 'Could not create new event: %s. Go back to previous page to retry' % e
     try:
         backend.add_event(event)
         return 'The new event was added into the database'
     except Exception, e:
-        return 'Could not save new event: %s' % e
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
 
 
 @route('/report')
