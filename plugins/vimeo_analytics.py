@@ -3,8 +3,8 @@ from backend import Backend
 from view import page_light
 
 add_urls = [
-    ('/events/csv/vimeo_analytics', 'csv'),
-    ('/events/table/vimeo_analytics', 'table')
+    ('/events/csv/vimeo_analytics', 'csv analytics'),
+    ('/events/table/vimeo_analytics', 'table analytics')
 ]
 
 
