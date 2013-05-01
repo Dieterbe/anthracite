@@ -272,6 +272,7 @@ def events_add_post(handler='default'):
         return main(errors=[('Could not create new event. Go back to previous page to retry', e)])
     try:
         backend.add_event(event)
+        time.sleep(1)
     except Exception, e:
         return main(errors=[('Could not save new event. Go back to previous page to retry', e)])
     return render_last_page(['/events/add', '/events/add/%s' % handler], successes=['The new event was added into the database'])
