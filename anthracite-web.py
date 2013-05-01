@@ -58,8 +58,8 @@ def render_last_page(pages_to_ignore=[], **kwargs):
     while len(session['history']):
         candidate = session['history'].pop()
         good_candidate = True
-        for page_to_ignore in pages_to_ignore:
-            if candidate.startswith(page_to_ignore):
+        for page_to_ignore in ['/events/delete/'] + pages_to_ignore:
+            if page_to_ignore in candidate:
                 good_candidate = False
         if good_candidate:
             last_page = candidate
@@ -126,8 +126,8 @@ def events_delete(event_id):
         backend.delete_event(event_id)
         time.sleep(1)
     except Exception, e:
-        return render_last_page(['/events/delete/'], errors=[('Could not delete event', e)])
-    return render_last_page(['/events/delete/'], successes=['The event was deleted from the database'])
+        return render_last_page([event_id], errors=[('Could not delete event', e)])
+    return render_last_page([event_id], successes=['The event was deleted from the database'])
 
 
 @route('/events/edit/<event_id>')
