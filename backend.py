@@ -191,13 +191,15 @@ class Backend():
     def edit_event(self, event):
         self.es.post('anthracite/event/%s/_update' % event.event_id, data={'doc': self.object_to_dict(event)})
 
-    def es_get_events(self):
-        return self.es.get('anthracite/event/_search?size=1000', data={
-            "query": {
+    def es_get_events(self, query = None):
+        if query is None:
+            query = {
                 "query_string": {
                     "query": "*"
                 }
-            },
+            }
+        return self.es.get('anthracite/event/_search?size=1000', data={
+            "query": query,
             "sort": [
                 {
                     "date": {
@@ -208,11 +210,11 @@ class Backend():
             ]
         })
 
-    def get_events_raw(self):
+    def get_events_raw(self, query=None):
         '''
         return format that's optimized for elasticsearch
         '''
-        hits = self.es_get_events()
+        hits = self.es_get_events(query)
         events = hits['hits']['hits']
         for (i, event) in enumerate(events):
             event_id = event['_id']
