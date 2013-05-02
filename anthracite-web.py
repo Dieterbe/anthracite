@@ -44,13 +44,21 @@ def track_history():
 
 
 # based on convention:
-def url_to_fn_name(url):
+def url_to_fn_args(url):
+    args = []
     if url == '/':
         fn_name = 'main'
     else:
+        # filter out parameters:
+        urls_with_event_id = ['/events/view/', '/events/edit/', '/events/delete/']
+        for u in urls_with_event_id:
+            if url.startswith(u):
+                args.append(url.replace(u, ''))
+                url = u[:-1]
+                break
         # /foo/bar/baz -> foo_bar_baz
         fn_name = url[1:].replace('/', '_')
-    return globals()[fn_name]
+    return (globals()[fn_name], args)
 
 
 def render_last_page(pages_to_ignore=[], **kwargs):
@@ -64,8 +72,9 @@ def render_last_page(pages_to_ignore=[], **kwargs):
         if good_candidate:
             last_page = candidate
             break
-    print "calling last rendered page:", last_page, kwargs
-    return url_to_fn_name(last_page)(**kwargs)
+    fn, args = url_to_fn_args(last_page)
+    print "calling last rendered page:", last_page, args, kwargs
+    return fn(*args, **kwargs)
 
 
 @route('/')
