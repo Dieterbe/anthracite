@@ -294,11 +294,14 @@ def events_add_script():
                       desc=request.forms.event_desc,
                       tags=request.forms.event_tags.split())
     except Exception, e:
-        return 'Could not create new event: %s. Go back to previous page to retry' % e
+        response.status = 400
+        return 'Could not create new event: %s' % e
     try:
-        backend.add_event(event)
-        return 'The new event was added into the database'
+        event_id = backend.add_event(event)
+        response.status = 201
+        return 'ok event_id=%s\n' % event_id
     except Exception, e:
+        response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
 
 

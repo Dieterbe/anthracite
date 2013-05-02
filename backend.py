@@ -176,7 +176,8 @@ class Backend():
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], event_id=event_id, extra_attributes=extra_attributes)
 
     def add_event(self, event):
-        self.es.post('anthracite/event', data=self.object_to_dict(event))
+        ret = self.es.post('anthracite/event', data=self.object_to_dict(event))
+        return ret['_id']
 
     def delete_event(self, event_id):
         try:

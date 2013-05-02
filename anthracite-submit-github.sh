@@ -51,8 +51,9 @@ function submit () {
     cd "$checkout_dir" || die_error "could not cd into $checkout_dir"
     print_event_desc > $event_desc_file || die_error "could not write to event desc file $event_desc_file"
     output=$(curl -s -S -F "event_timestamp=$event_timestamp" -F "event_tags=$event_tags" -F "event_desc=<$event_desc_file" http://$anthracite_host:$anthracite_port/events/add/script)
-    if grep -q 'The new event was added' <<< "$output"; then
-        echo "$output"
+    if grep -q 'ok event_id=' <<< "$output"; then
+        event_id=$(sed 's/^ok event_id=//' <<< "$output")
+        echo "ok http://$anthracite_host:$anthracite_port/events/view/$event_id"
         rm $event_desc_file || die_error "Could not delete event_desc file $event_desc_file"
         exit
     else
