@@ -15,22 +15,24 @@ def events_vimeo_analytics():
    # count those as engineering
 
     backend = Backend()
-    recommended_tags = set([t[0] for t in config.recommended_tags])
     events = []
-    for event in backend.get_events_raw():
+    query = {
+        "field": {
+            "category": {
+                "query": "*"
+            }
+        }
+    }
+
+    for event in backend.get_events_raw(query):
         desc = event['desc'].replace('\n', '  ')
-        expected_result = event.get('expected_result', '')
-        characterizing_tags = set(event['tags']).intersection(recommended_tags)
-        for k in characterizing_tags:
-            if k in config.engineering_tags:
-                characterizing_tags.remove(k)
-                characterizing_tags.add('engineering')
-        if not characterizing_tags:
-            return None
-        category = '-'.join(sorted(characterizing_tags))
-        tags = ' '.join(sorted(set(event['tags']).difference(characterizing_tags)))
-        formatted = [event['id'], str(event['date']), desc, tags, category, expected_result]
-        events.append(formatted)
+        tags = '-'.join(event['tags'])
+        expected_effect = event.get('expected_effect', '')
+        if type(expected_effect) is list:
+            expected_effect = '-'.join(expected_effect)
+        known_effect = event.get('known_effect', '')
+        event = [event['id'], event['date'], desc, tags, event['category'], expected_effect, known_effect]
+        events.append(event)
     return events
 
 
@@ -40,7 +42,12 @@ def events_csv_vimeo_analytics():
     desc is the entire desc, with '\n' replaced with '  '. this output doesn't attempt to shorten the desc string.
     '''
     response.content_type = 'text/plain'
-    return "\n".join([','.join(event) for event in events_vimeo_analytics()])
+
+    def line_yielder(events):
+        for event in events:
+            yield ','.join([str(field).replace(',', '') for field in event])
+
+    return "\n".join(line_yielder(events_vimeo_analytics()))
 
 
 @route('/events/table/vimeo_analytics')

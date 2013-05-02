@@ -2,15 +2,17 @@
 <body>
 %import datetime
 %format = '%Y-%m-%d %H:%M:%S'
+
 <table class="table table-striped table-condensed">
-<tr><th>Date-Time</th><th>Description</th><th>Tags</th><th>Expected result</th><th>Operations</th></tr>
+<tr><th>Date-Time</th><th>Description</th><th>Tags</th><th>Category</th><th>Expected effect</th><th>Known effect</th><th>Operations</th></tr>
 %for event in events:
   <tr>
-    %#datetime.datetime.fromtimestamp(event[1]).strftime(format)
-    <td>{{event[1]}}</td>
+    <td>{{datetime.datetime.fromtimestamp(event[1]).strftime(format)}}</td>
     <td>{{!event[2]}}</td>
     <td>{{event[3]}}</td>
     <td>{{event[4]}}</td>
+    <td>{{event[5]}}</td>
+    <td>{{event[6]}}</td>
     <td>
         <a href="/events/edit/{{event[0]}}"><i class="icon-pencil"></i></a>
         <a href="#" event_id="{{event[0]}}" class="delete-link"><i class="icon-remove"></i></a>
