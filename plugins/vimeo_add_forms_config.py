@@ -26,7 +26,13 @@ extra_attributes = {
                   True),
         Attribute('category', 'Analytics category', True,
                   ['tracking_error', 'product', 'site_activity', 'promotion', 'external', 'engineering', 'marketing'])
-    ] + default_extra_attributes
+    ] + default_extra_attributes,
+    'product': [
+        Attribute('expected_effect', 'Expected effect', True,
+                  ['logins', 'registrations', 'conversion', 'conversion mix', 'plays', 'uploads', 'retention', 'winback/returning', 'offsite engage', 'site traffic', 'none'],
+                  True),
+        Attribute('category', 'Analytics category', True, ['product'])
+    ]
 # TODO show this in help text labels again
 #     ('Marketing', 'campaign launches/changes, strategy changes, ..'),
 #     ('TrackingError', 'problem with Google Analytics tracking'),
@@ -48,6 +54,9 @@ helptext = {
         'event_owner': 'Go-to person for more info'
     },
     'analytics': dict({
+        'expected_outcome': 'Check all that apply'
+    }.items() + default_helptext.items()),
+    'product': dict({
         'expected_outcome': 'Check all that apply'
     }.items() + default_helptext.items())
 }
