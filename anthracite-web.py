@@ -84,7 +84,11 @@ def render_last_page(pages_to_ignore=[], **kwargs):
     while len(session['history']):
         candidate = session['history'].pop()
         good_candidate = True
-        for page_to_ignore in ['/events/delete/'] + pages_to_ignore:
+        # never go back to anything that performs an action
+        actions = ['/events/delete/']
+        # ... or anything that can't display error/success mesages:
+        no_msg = ['/events/csv', '/events/json', '/events/jsonp', '/events/xml']
+        for page_to_ignore in actions + no_msg + pages_to_ignore:
             if page_to_ignore in candidate:
                 good_candidate = False
         if good_candidate:
