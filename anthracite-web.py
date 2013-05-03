@@ -5,6 +5,7 @@ import json
 import os
 import time
 import sys
+import types
 from view import page
 from collections import deque
 import __builtin__
@@ -12,6 +13,23 @@ sys.path.append('%s/beaker' % os.path.dirname(os.path.realpath(__file__)))
 from beaker.middleware import SessionMiddleware
 
 session = None
+
+
+def call_func(fn_name, *args, **kwargs):
+    '''
+    since plugin's functions are not in the global scope, you can
+    use this wrapper to call a function, whether it's in global
+    scope or in one of the plugins
+    '''
+    if fn_name in globals():
+        return globals()[fn_name](*args, **kwargs)
+    else:
+        for loaded_plugin in state['loaded_plugins']:
+            for attrib_key in dir(loaded_plugin):
+                attrib = loaded_plugin.__dict__.get(attrib_key)
+                if isinstance(attrib, types.FunctionType):
+                    if attrib.__name__ == fn_name:
+                        return attrib(*args, **kwargs)
 
 
 @hook('before_request')
@@ -58,7 +76,7 @@ def url_to_fn_args(url):
                 break
         # /foo/bar/baz -> foo_bar_baz
         fn_name = url[1:].replace('/', '_')
-    return (globals()[fn_name], args)
+    return (fn_name, args)
 
 
 def render_last_page(pages_to_ignore=[], **kwargs):
@@ -74,7 +92,7 @@ def render_last_page(pages_to_ignore=[], **kwargs):
             break
     fn, args = url_to_fn_args(last_page)
     print "calling last rendered page:", last_page, args, kwargs
-    return fn(*args, **kwargs)
+    return call_func(fn, *args, **kwargs)
 
 
 @route('/')
@@ -259,10 +277,6 @@ def add_post_handler_default(request, config):
     return event
 
 
-handlers = {
-    'add_post_handler_default': add_post_handler_default
-}
-
 # make these functions available to plugins:
 __builtin__.add_post_validate_and_parse_base_attributes = add_post_validate_and_parse_base_attributes
 __builtin__.add_post_validate_and_parse_extra_attributes = add_post_validate_and_parse_extra_attributes
@@ -274,7 +288,7 @@ __builtin__.add_post_handler_default = add_post_handler_default
 @route('/events/add/<handler>', method='POST')
 def events_add_post(handler='default'):
     try:
-        event = handlers['add_post_handler_' + handler](request, config)
+        event = call_func('add_post_handler_' + handler, request, config)
     except Exception, e:
         import traceback
         print "Could not create new event because %s: %s. Go back to previous page to retry" % (sys.exc_type, sys.exc_value)
@@ -413,7 +427,6 @@ config = Config(config)
 backend = Backend()
 state = {}
 (state, errors) = load_plugins(config.plugins, config)
-handlers.update(state['handlers'])
 if errors:
     for e in errors:
         sys.stderr.write(str(e))

@@ -51,5 +51,5 @@ def events_csv_vimeo_analytics():
 
 
 @route('/events/table/vimeo_analytics')
-def events_table_vimeo_analytics():
-    return page_light(config, Backend(), {}, body=template('plugins/vimeo_analytics_table', events=events_vimeo_analytics()))
+def events_table_vimeo_analytics(**kwargs):
+    return page_light(config, Backend(), {}, body=template('plugins/vimeo_analytics_table', events=events_vimeo_analytics()), **kwargs)
