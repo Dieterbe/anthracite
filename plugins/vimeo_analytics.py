@@ -25,7 +25,7 @@ def events_vimeo_analytics():
     }
 
     for event in backend.get_events_raw(query):
-        desc = event['desc'].replace('\n', '  ')
+        desc = event['desc'].replace("\n", '  ').replace("\r", ' ').strip()
         tags = '-'.join(event['tags'])
         expected_effect = event.get('expected_effect', '')
         if type(expected_effect) is list:

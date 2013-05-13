@@ -142,7 +142,8 @@ def events_csv():
     response.content_type = 'text/plain'
     events = []
     for event in backend.get_events_raw():
-        formatted = [event['id'], str(event['date']), event['desc'][:event['desc'].find('\n')], ' '.join(event['tags'])]
+        desc = event['desc'].replace("\n", '  ').replace("\r", ' ').strip()
+        formatted = [event['id'], str(event['date']), desc, ' '.join(event['tags'])]
         events.append(','.join(formatted))
     return "\n".join(events)
 
