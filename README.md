@@ -181,6 +181,5 @@ The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametri
 * plugins for puppet, chef to automatically submit their relevant events (or logstash filter to create anthracite events from logs)
 * auto-update events on web interface to make semi-realtime
 * on graphs in dashboards, show timeframs from start to end, and start to "cause found", to "resolved" etc.
-* a way to prevent id's from incrementing on every read in sql (read cache?)
 * concurrent webserver to make sure all http requests can get served
 * better MTBF
