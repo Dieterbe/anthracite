@@ -136,7 +136,8 @@ class Backend():
             })
             print "created new ElasticSearch Index"
         except ElasticException as e:
-            if e.result['error'] == 'IndexAlreadyExistsException[[anthracite] Already exists]':
+            import re
+            if re.search('IndexAlreadyExistsException.* Already exists]', e.result['error']):
                 pass
             else:
                 raise

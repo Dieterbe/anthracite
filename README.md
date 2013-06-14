@@ -114,9 +114,9 @@ wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearc
 tar xzf elasticsearch-0.20.6.tar.gz
 rm -rf elasticsearch-0.20.6.tar.gz
 ```
-TODO : unique cluster name?
-(No need for any configuration, schema setup, etc, anthracite-web takes care of that)
-
+set the `cluster.name` property in elasticsearch-0.20.6/config/elasticsearch.yml to something unique, like "<company>-anthracite".
+This avoids ES accidentally joining other running ES instances on the same network and forming an undesired replicating cluster.
+No need for any further configuration, schema setup, etc, anthracite-web takes care of that.
 
 
 ## Deployment ##
