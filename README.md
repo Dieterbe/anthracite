@@ -28,11 +28,14 @@ some use cases:
 
 ## Methods of submitting events ##
 
-* HTTP POST receiver in the web app (so you can use something like curl, see source of anthracite-compose-submit.sh)
+* HTTP POST receiver in the web app (so you can use something like curl)
 * manually, in the web interface
 * manually, with the `anthracite-compose-submit.sh` CLI script
 * `anthracite-submit-github.sh` goes into a code checkout, generates a nice message with the commits/author info from a given
   commit range, and submits it, along with a given list of tags
+
+See the integration-examples directory for shell scripts (which also demonstrate how to use curl) and a 
+python function.
 
 
 ## Integration ##
