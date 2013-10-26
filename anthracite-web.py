@@ -131,6 +131,10 @@ def events_json():
     much like http://localhost:9200/anthracite/event/_search?q=*:*&pretty=true
     but: displays only the actual events, not index etc, they are sorted, and uses unix timestamps
     '''
+    response.set_header("Access-Control-Allow-Origin", "*")
+    response.set_header("Access-Control-Allow-Credentials", "true")
+    response.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST")
+    response.set_header("Access-Control-Allow-Headers", "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
     return {"events": backend.get_events_raw()}
 
 
