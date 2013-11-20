@@ -4,13 +4,13 @@
 	pushurl = git@github.com:vimeo/timeserieswidget.git
 [submodule "rawes"]
 	path = rawes
-	url = git://github.com/humangeo/rawes.git
+	url = https://github.com/humangeo/rawes.git
 [submodule "requests"]
 	path = requests
-	url = git://github.com/kennethreitz/requests.git
+	url = https://github.com/kennethreitz/requests.git
 [submodule "python-dateutil"]
 	path = python-dateutil
-	url = git://github.com/paxan/python-dateutil.git
+	url = https://github.com/paxan/python-dateutil.git
 [submodule "beaker"]
 	path = beaker
-	url = git://github.com/bbangert/beaker.git
+	url = https://github.com/bbangert/beaker.git
