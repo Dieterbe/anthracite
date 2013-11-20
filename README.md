@@ -112,12 +112,8 @@ git clone --recursive https://github.com/Dieterbe/anthracite.git
 
 * for Elasticsearch:
 
-```
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.6.tar.gz
-tar xzf elasticsearch-0.20.6.tar.gz
-rm -rf elasticsearch-0.20.6.tar.gz
-```
-set the `cluster.name` property in elasticsearch-0.20.6/config/elasticsearch.yml to something unique, like "<company>-anthracite".
+super easy, see [elasticsearch docs](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup.html)   
+just set a unique cluster name, like "<company>-anthracite".
 This avoids ES accidentally joining other running ES instances on the same network and forming an undesired replicating cluster.
 No need for any further configuration, schema setup, etc, anthracite-web takes care of that.
 
