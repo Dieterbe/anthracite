@@ -70,6 +70,9 @@
     onLoad();
     onResize();
     </script>
+    <p>
+        Experimental timeline feature, work in progress.
+    </p>
 <div onload="onLoad();" onresize="onResize();">
       <div id="tl" class="timeline-default" style="height: 300px;"></div>
       <div class="footnotes">
