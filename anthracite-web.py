@@ -213,7 +213,7 @@ def events_edit_post(event_id):
 
 
 @route('/events/add', method='GET')
-@route('/events/add/<timestamp_from_url>', method='GET')
+@route('/events/add/ts=<timestamp_from_url>', method='GET')
 def events_add(**kwargs):
     return p(body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=config.extra_attributes,
                            helptext=config.helptext, recommended_tags=config.recommended_tags, **kwargs), page='add', **kwargs)

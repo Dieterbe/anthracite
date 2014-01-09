@@ -13,38 +13,72 @@ remove_urls = ['/events/add']
 
 
 @route('/events/add/engineering', method='GET')
+@route('/events/add/engineering/ts=<timestamp_from_url>', method='GET')
 def add_engineering_get(**kwargs):
     backend = Backend()
     return page(config, backend, state,
-                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['engineering'], event_type='engineering',
-                              helptext=helptext['engineering'], recommended_tags=[], handler='vimeo_engineering', timestamp_feeder=True),
+                body=template(
+                    'tpl/events_add',
+                    tags=backend.get_tags(),
+                    extra_attributes=extra_attributes['engineering'],
+                    event_type='engineering',
+                    helptext=helptext['engineering'],
+                    recommended_tags=[],
+                    handler='vimeo_engineering',
+                    timestamp_feeder=True,
+                    **kwargs),
                 page='add_engineering', **kwargs)
 
 
 @route('/events/add/marketing', method='GET')
+@route('/events/add/marketing/ts=<timestamp_from_url>', method='GET')
 def add_marketing_get(**kwargs):
     backend = Backend()
     return page(config, backend, state,
-                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['marketing'], event_type='marketing',
-                              helptext=helptext['marketing'], recommended_tags=[], handler='vimeo_marketing'),
+                body=template(
+                    'tpl/events_add',
+                    tags=backend.get_tags(),
+                    extra_attributes=extra_attributes['marketing'],
+                    event_type='marketing',
+                    helptext=helptext['marketing'],
+                    recommended_tags=[],
+                    handler='vimeo_marketing',
+                    **kwargs),
                 page='add_marketing', **kwargs)
 
 
 @route('/events/add/product', method='GET')
+@route('/events/add/product/ts=<timestamp_from_url>', method='GET')
 def add_product_get(**kwargs):
     backend = Backend()
     return page(config, backend, state,
-                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['product'], event_type='product',
-                              helptext=helptext['product'], recommended_tags=[], handler='vimeo_product'),
+                body=template(
+                    'tpl/events_add',
+                    tags=backend.get_tags(),
+                    extra_attributes=extra_attributes['product'],
+                    event_type='product',
+                    helptext=helptext['product'],
+                    recommended_tags=[],
+                    handler='vimeo_product',
+                    **kwargs),
                 page='add_product', **kwargs)
 
 
 @route('/events/add/analytics', method='GET')
+@route('/events/add/analytics/ts=<timestamp_from_url>', method='GET')
 def add_analytics_get(**kwargs):
     backend = Backend()
     return page(config, backend, state,
-                body=template('tpl/events_add', tags=backend.get_tags(), extra_attributes=extra_attributes['analytics'], event_type='analytics',
-                              helptext=helptext['analytics'], recommended_tags=[], handler='vimeo_analytics', timestamp_feeder=True),
+                body=template(
+                    'tpl/events_add',
+                    tags=backend.get_tags(),
+                    extra_attributes=extra_attributes['analytics'],
+                    event_type='analytics',
+                    helptext=helptext['analytics'],
+                    recommended_tags=[],
+                    handler='vimeo_analytics',
+                    timestamp_feeder=True,
+                    **kwargs),
                 page='add_analytics', **kwargs)
 
 
