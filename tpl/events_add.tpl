@@ -14,6 +14,7 @@
 % }
 % default_helptext.update(helptext)
 % helptext = default_helptext
+% setdefault('timestamp_from_url', '')
 
     <link rel="stylesheet" type="text/css" media="screen" href="/assets/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
     <script type="text/javascript" src="/assets/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"> </script>
@@ -135,10 +136,16 @@
       language: 'en',
       pick12HourFormat: true
     });
-    $('#event_timestamp').change(function() {
-        var myDate = new Date($(this).val() * 1000);
+    var set_date = function(ts) {
+        var myDate = new Date(ts * 1000);
         var picker = $('#event_datetime').data('datetimepicker');
         picker.setLocalDate(myDate);
+    }
+    if ('{{timestamp_from_url}}' != '') {
+        set_date({{timestamp_from_url}});
+    }
+    $('#event_timestamp').change(function() {
+        set_date($(this).val());
     });
   });
 </script>
