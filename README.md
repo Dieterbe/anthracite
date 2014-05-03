@@ -41,7 +41,8 @@ python function.
 ## Integration ##
 
 * [Timeserieswidget](https://github.com/Dieterbe/timeserieswidget) shows graphite graphs with anthracite's events
-* The [Graph-Explorer graphite dashboard](https://github.com/Dieterbe/graph-explorer) uses that.
+* The [Graph-Explorer graphite dashboard](https://github.com/Dieterbe/graph-explorer) uses that.  You can search for events using ES/Lucene's
+  powerfull fulltext search, and you can also add new events by clicking on graphs where anomalies appear.
 
 ![Screenshot2](https://raw.github.com/Dieterbe/anthracite/master/screenshots/flot-annotated-event.png)
 
