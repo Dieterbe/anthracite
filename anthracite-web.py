@@ -434,7 +434,7 @@ if app_dir:
 
 import config
 config = Config(config)
-backend = Backend()
+backend = Backend(config)
 state = {}
 (state, errors) = load_plugins(config.plugins, config)
 if errors:

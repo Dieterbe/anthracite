@@ -101,7 +101,7 @@ class Reportpoint():
 
 class Backend():
 
-    def __init__(self):
+    def __init__(self, config=None):
         sys.path.append("%s/%s" % (os.getcwd(), 'python-dateutil'))
         sys.path.append("%s/%s" % (os.getcwd(), 'requests'))
         sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
@@ -110,7 +110,8 @@ class Backend():
         from rawes.elastic_exception import ElasticException
         # pyflakes doesn't like globals()['ElasticException'] = ElasticException  so:
         self.ElasticException = ElasticException
-        self.es = rawes.Elastic('localhost:9200', except_on_error=True)
+        self.config = config
+        self.es = rawes.Elastic(config.es_url, except_on_error=True)
         # make sure the index exists
         try:
             # to explain the custom mapping:
@@ -119,7 +120,7 @@ class Backend():
             # * tags are not analyzed so that when we want to get a list of all
             # tags (a facet search) it returns the original tags, not the
             # tokenized terms.
-            self.es.post('anthracite', data={
+            self.es.post(config.es_index, data={
                 "mappings": {
                     "event": {
                         "_source": {
@@ -177,12 +178,12 @@ class Backend():
         return Event(timestamp=unix, desc=hit['desc'], tags=hit['tags'], event_id=event_id, extra_attributes=extra_attributes)
 
     def add_event(self, event):
-        ret = self.es.post('anthracite/event', data=self.object_to_dict(event))
+        ret = self.es.post('%s/event' % self.config.es_index, data=self.object_to_dict(event))
         return ret['_id']
 
     def delete_event(self, event_id):
         try:
-            self.es.delete('anthracite/event/%s' % event_id)
+            self.es.delete('%s/event/%s' % (self.config.es_index, event_id))
         except self.ElasticException as e:
             if 'found' in e.result and not e.result['found']:
                 raise Exception("Document %s can't be found" % event_id)
@@ -190,7 +191,7 @@ class Backend():
                 raise
 
     def edit_event(self, event):
-        self.es.post('anthracite/event/%s/_update' % event.event_id, data={'doc': self.object_to_dict(event)})
+        self.es.post('%s/event/%s/_update' % (self.config.es_index, event.event_id), data={'doc': self.object_to_dict(event)})
 
     def es_get_events(self, query = None):
         if query is None:
@@ -199,7 +200,7 @@ class Backend():
                     "query": "*"
                 }
             }
-        return self.es.get('anthracite/event/_search?size=1000', data={
+        return self.es.get('%s/event/_search?size=1000' % self.config.es_index, data={
             "query": query,
             "sort": [
                 {
@@ -231,14 +232,14 @@ class Backend():
 
     def get_event(self, event_id):
         # http://localhost:9200/dieterfoobarbaz/event/PZ1su5w5Stmln_c2Kc4B2g
-        event_hit = self.es.get('anthracite/event/%s' % event_id)
+        event_hit = self.es.get('%s/event/%s' % (self.config.es_index, event_id))
         event_obj = self.hit_to_object(event_hit)
         return event_obj
 
     def get_tags(self):
         # get all different tags
         # curl -X POST "http://localhost:9200/anthracite/_search?pretty=true&size=0" -d '{  "query" : {"query_string" : {"query" : "*"}}, "facets":{"tags" : { "terms" : {"field" : "tags"} }}}"'
-        tags = self.es.post('anthracite/_search?size=0', data={
+        tags = self.es.post('%s/_search?size=0' % self.config.es_index, data={
             'query': {
                 'query_string': {
                     'query': '*'
@@ -257,7 +258,7 @@ class Backend():
         return tags
 
     def get_events_range(self):
-        low = self.es.post('anthracite/_search?size=1', data={
+        low = self.es.post('%s/_search?size=1' % self.config.es_index, data={
             "query": {
                 "field": {
                     "date": {
@@ -277,7 +278,7 @@ class Backend():
         # if there's not a single record in the database:
         if not len(low['hits']['hits']):
             return (0, time.time())
-        high = self.es.post('anthracite/_search?size=1', data={
+        high = self.es.post('%s/_search?size=1' % self.config.es_index, data={
             "query": {
                 "field": {
                     "date": {
@@ -300,13 +301,13 @@ class Backend():
 
     def get_events_count(self):
         count = 0
-        events = self.es.get('anthracite/event/_search')
+        events = self.es.get('%s/event/_search' % self.config.es_index)
         count = events['hits']['total']
         return count
 
     def get_outage_events(self):
         # TODO sanity checking (order of detected, resolved tags, etc)
-        hits = self.es.get('anthracite/event/_search', data={
+        hits = self.es.get('%s/event/_search' % self.config.es_index, data={
             'query': {
                 'query_string': {
                     'query': 'tag like outage=_%'
