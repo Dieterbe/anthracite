@@ -260,11 +260,8 @@ class Backend():
     def get_events_range(self):
         low = self.es.post('%s/_search?size=1' % self.config.es_index, data={
             "query": {
-                "field": {
-                    "date": {
-                        "query": "*"
-                    }
-                }
+		"match_all": {
+		}
             },
             "sort": [
                 {
@@ -280,11 +277,8 @@ class Backend():
             return (0, time.time())
         high = self.es.post('%s/_search?size=1' % self.config.es_index, data={
             "query": {
-                "field": {
-                    "date": {
-                        "query": "*"
-                    }
-                }
+		"match_all": {
+		}
             },
             "sort": [
                 {
