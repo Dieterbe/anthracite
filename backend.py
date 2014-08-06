@@ -110,6 +110,9 @@ class Backend():
         from rawes.elastic_exception import ElasticException
         # pyflakes doesn't like globals()['ElasticException'] = ElasticException  so:
         self.ElasticException = ElasticException
+        if config is None:
+            import config
+            config = Config(config)
         self.config = config
         self.es = rawes.Elastic(config.es_url, except_on_error=True)
         # make sure the index exists
