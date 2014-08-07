@@ -17,10 +17,9 @@ def events_vimeo_analytics():
     backend = Backend()
     events = []
     query = {
-        "field": {
-            "category": {
-                "query": "*"
-            }
+        "query_string": {
+            "fields": ["category"],
+            "query": "*"
         }
     }
 
