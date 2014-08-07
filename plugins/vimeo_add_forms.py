@@ -15,7 +15,7 @@ remove_urls = ['/events/add']
 @route('/events/add/engineering', method='GET')
 @route('/events/add/engineering/ts=<timestamp_from_url>', method='GET')
 def add_engineering_get(**kwargs):
-    backend = Backend(config)
+    backend = Backend()
     return page(config, backend, state,
                 body=template(
                     'tpl/events_add',
@@ -33,7 +33,7 @@ def add_engineering_get(**kwargs):
 @route('/events/add/marketing', method='GET')
 @route('/events/add/marketing/ts=<timestamp_from_url>', method='GET')
 def add_marketing_get(**kwargs):
-    backend = Backend(config)
+    backend = Backend()
     return page(config, backend, state,
                 body=template(
                     'tpl/events_add',
@@ -50,7 +50,7 @@ def add_marketing_get(**kwargs):
 @route('/events/add/product', method='GET')
 @route('/events/add/product/ts=<timestamp_from_url>', method='GET')
 def add_product_get(**kwargs):
-    backend = Backend(config)
+    backend = Backend()
     return page(config, backend, state,
                 body=template(
                     'tpl/events_add',
@@ -67,7 +67,7 @@ def add_product_get(**kwargs):
 @route('/events/add/analytics', method='GET')
 @route('/events/add/analytics/ts=<timestamp_from_url>', method='GET')
 def add_analytics_get(**kwargs):
-    backend = Backend(config)
+    backend = Backend()
     return page(config, backend, state,
                 body=template(
                     'tpl/events_add',
