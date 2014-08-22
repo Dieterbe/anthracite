@@ -323,15 +323,9 @@ def events_add_post(handler='default'):
 @route('/events/add/script', method='POST')
 def events_add_script():
     try:
-        # extra_attributes should be a dict when instantiating an Event
-        ea_keys = request.forms.extra_attributes_keys.split()
-        ea_vals = request.forms.extra_attributes_values.split()
-        extra_attributes = dict(zip(ea_keys, ea_vals))
-
         event = Event(timestamp=int(request.forms.event_timestamp),
                       desc=request.forms.event_desc,
-                      tags=request.forms.event_tags.split(),
-                      extra_attributes=extra_attributes)
+                      tags=request.forms.event_tags.split())
     except Exception, e:
         response.status = 400
         return 'Could not create new event: %s' % e
