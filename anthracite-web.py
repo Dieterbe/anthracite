@@ -323,9 +323,11 @@ def events_add_post(handler='default'):
 @route('/events/add/script', method='POST')
 def events_add_script():
     try:
+        extra_attributes = add_post_validate_and_parse_extra_attributes(request, config)
         event = Event(timestamp=int(request.forms.event_timestamp),
                       desc=request.forms.event_desc,
-                      tags=request.forms.event_tags.split())
+                      tags=request.forms.event_tags.split(),
+                      extra_attributes=extra_attributes)
     except Exception, e:
         response.status = 400
         return 'Could not create new event: %s' % e
