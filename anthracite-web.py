@@ -211,6 +211,44 @@ def events_edit_post(event_id):
         return render_last_page(['/events/edit/'], errors=[('Could not update event. Go back to previous page to retry', e)])
     return render_last_page(['/events/edit/'], successes=['The event was updated'])
 
+# experimental
+@route('/events/edit/<event_id>/script', method='POST')
+def events_edit_post_script(event_id):
+    try:
+        event = backend.get_event(event_id)
+        #ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+        ts = request.forms.event_timestamp
+        desc = event.desc 
+        tags = event.tags
+        extra_attributes = event.extra_attributes
+
+        del request.forms['event_timestamp']
+        updated_attributes = {}
+
+        for key in request.forms.keys():
+            val = request.forms.getall(key)
+            if val:
+                if len(val) == 1:
+                    val = val[0]
+            updated_attributes[key] = val            
+
+        extra_attributes.update(updated_attributes)
+        event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+
+    # these exceptions don't print anything to the screen.  I should fix that...
+    except Exception, e:
+        return 'Could not edit event: %s. Go back to previous page to retry' % e
+
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        print 'ok'
+        return 'ok event_id=%s\n' % event_id
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
 
 @route('/events/add', method='GET')
 @route('/events/add/ts=<timestamp_from_url>', method='GET')
