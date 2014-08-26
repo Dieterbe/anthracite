@@ -133,7 +133,9 @@ class Backend():
                             "tags": {
                                 "type": "string",
                                 "index": "not_analyzed"
-                            }
+                            },
+                        "file": {"type": "string",
+                                 "index": "not_analyzed"}
                         }
                     }
                 }
