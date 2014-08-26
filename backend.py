@@ -134,8 +134,8 @@ class Backend():
                                 "type": "string",
                                 "index": "not_analyzed"
                             },
-                        "file": {"type": "string",
-                                 "index": "not_analyzed"}
+                        "DWDataSource": {"type": "string",
+                                         "index": "not_analyzed"}
                         }
                     }
                 }
