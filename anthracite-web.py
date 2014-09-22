@@ -201,7 +201,8 @@ def events_edit_post(event_id):
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
+        extra_attributes = request.forms.extra_attributes
+        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information. Go back to previous page to retry', e)])
     try:
