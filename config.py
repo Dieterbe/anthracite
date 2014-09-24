@@ -18,10 +18,14 @@ recommended_tags = [
 from model import Attribute
 extra_attributes = [
     Attribute('outage_key', 'Outage key'),
-     Attribute('owner', 'Owner'),
+    Attribute('owner', 'Owner'),
     Attribute('file', 'Late File'),
     Attribute('status', 'Open or Closed', mandatory=True, choices=['open', 'closed']),
-    Attribute('days_late', 'Number of Days Late')
+    Attribute('days_late', 'Number of Days Late'),
+    Attribute('SampleDate', 'Data Quality Sample'),
+    Attribute('DataPoint', 'Data Point code'),
+    Attribute('Change', 'Data Quality Change')
+
 ]
 # "help" text to appear on forms
 helptext = {
