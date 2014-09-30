@@ -363,8 +363,8 @@ def events_add_post(handler='default'):
 def events_add_script():
     try:
         extra_attributes = add_post_validate_and_parse_extra_attributes(request, config)
-        unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
-        extra_attributes.update(unknown_attributes)
+        #unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
+        #extra_attributes.update(unknown_attributes)
         event = Event(timestamp=int(request.forms.event_timestamp),
                       desc=request.forms.event_desc,
                       tags=request.forms.event_tags.split(),
