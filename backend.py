@@ -43,10 +43,13 @@ class Event():
     event_id is optional, it's the elasticsearch _id field
     '''
 
+
     def __init__(self, timestamp=None, desc=None, tags=[], event_id=None, extra_attributes={}):
+
         assert type(timestamp) is IntType, "timestamp must be an integer: %r" % timestamp
         assert type(desc) in (StringType, UnicodeType), "desc must be a non-empty string: %r" % desc
         assert desc, "desc must be a non-empty string: %r" % desc
+
         self.timestamp = timestamp
         self.desc = desc
         self.tags = tags  # just a list of strings

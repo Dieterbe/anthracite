@@ -271,6 +271,9 @@ def add_post_validate_and_parse_base_attributes(request):
 
 
 def add_post_validate_and_parse_extra_attributes(request, config):
+    for key in request.forms:
+        print key
+
     extra_attributes = {}
     for attribute in config.extra_attributes:
         if attribute.mandatory:
@@ -336,6 +339,7 @@ __builtin__.add_post_handler_default = add_post_handler_default
 @route('/events/add', method='POST')
 @route('/events/add/<handler>', method='POST')
 def events_add_post(handler='default'):
+    print 'IM IN HERE'
     try:
         event = call_func('add_post_handler_' + handler, request, config)
     except Exception, e:
@@ -362,12 +366,19 @@ def events_add_post(handler='default'):
 @route('/events/add/script', method='POST')
 def events_add_script():
     try:
+        # explicitly do the work of add_post_verify_and_parse_base_attributes
+        ts = int(request.forms.event_timestamp)
+        desc = request.forms.event_desc
+        tags = request.forms.event_tags.split()
+
+        # get extra and unknown attributes
         extra_attributes = add_post_validate_and_parse_extra_attributes(request, config)
-        #unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
-        #extra_attributes.update(unknown_attributes)
-        event = Event(timestamp=int(request.forms.event_timestamp),
-                      desc=request.forms.event_desc,
-                      tags=request.forms.event_tags.split(),
+        unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
+        extra_attributes.update(unknown_attributes)
+
+        event = Event(timestamp=ts,
+                      desc=desc,
+                      tags=tags,
                       extra_attributes=extra_attributes)
     except Exception, e:
         response.status = 400
