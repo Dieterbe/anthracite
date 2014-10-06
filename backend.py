@@ -138,7 +138,9 @@ class Backend():
                                 "index": "not_analyzed"
                             },
                         "DWDataSource": {"type": "string",
-                                         "index": "not_analyzed"}
+                                         "index": "not_analyzed"},
+                        "data_point": {"type": "string",
+                                       "index": "not_analyzed"}
                         }
                     }
                 }

@@ -246,10 +246,10 @@ def events_edit_post_script(event_id):
         tags = event.tags
         extra_attributes = event.extra_attributes
 
+
         # get rid of the base attributes that get sent in an edit request
         del request.forms['event_timestamp']
         del request.forms['event_desc']
-        del request.forms['event_tags']
 
         # populate list of attributes to update from the remaining keys in the request
         updated_attributes = {}
