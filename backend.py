@@ -201,6 +201,7 @@ class Backend():
     def edit_event(self, event):
         self.es.post('%s/event/%s/_update' % (self.config.es_index, event.event_id), data={'doc': self.object_to_dict(event)})
 
+
     def es_get_events(self, query = None):
         if query is None:
             query = {

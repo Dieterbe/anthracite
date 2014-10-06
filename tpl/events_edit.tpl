@@ -3,6 +3,7 @@
     <link href="/assets/select2/select2.css" rel="stylesheet"/>
     <script src="/assets/select2/select2.js"></script>
 
+
 <div class="hero-unit">
 <h3>Edit an event</h3>
     <form action="/events/edit/{{event.event_id}}" method="POST">
@@ -20,8 +21,35 @@
         </textarea>
         <label>Tags (use space to separate)</label>
         <input type="text" size="10" style="width:300px" id="event_tags" name="event_tags" value="{{!','.join(event.tags)}}"/>
+        <label>Status</label>
+
+          <!-- change this to make current status the default -->
+          <select name="status" id="status">
+              <option value="open" selected>Open</option>
+              <option value="closed">Closed</option>
+              <option value="ignore">Ignore</option>
+          </select>
+
+          <!-- show the Ignore N days field if status is set to ignore -->
+          <div class="hide" id="ignore">
+          <label>Number of Days to Ignore</label>
+          <input type="text" size="10" name="ignore"/>
+
+          </div>
+
+
         <br/><button type="submit" class="btn">Submit</button>
       </fieldset>
+
+      <!-- http://stackoverflow.com/questions/8646907/hide-a-form-based-on-the-selected-option-in-drop-down-menu?rq=1 -->
+      <script>
+          $('#status').on('change', function() {
+            var val = $(this).val();
+            $('#ignore').hide();
+            $('#' + val).show();
+        });
+      </script>
+
     <script>
         $(document).ready(function() { $("#event_tags").select2({
           tags:{{![u.encode() for u in tags]}},

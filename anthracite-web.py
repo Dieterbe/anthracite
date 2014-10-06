@@ -179,6 +179,8 @@ def events_delete(event_id):
 def events_edit(event_id, **kwargs):
     try:
         event = backend.get_event(event_id)
+        print 'THESE ARE EXTR ATTRS'
+        print event.extra_attributes['status']
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not load event', e)])
     return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit', **kwargs)
@@ -194,15 +196,36 @@ def local_datepick_to_unix_timestamp(datepick):
     return int(time.mktime(datetime.datetime.strptime(datepick, "%m/%d/%Y %I:%M:%S %p").timetuple()))
 
 
+# how does this function get called?
 @route('/events/edit/<event_id>', method='POST')
 def events_edit_post(event_id):
+    print 'INSIDE EVENTS_EDIT_POST'
+    print request.forms.keys()
     try:
         # TODO: do the same validation here as in add
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
-        extra_attributes = request.forms.extra_attributes
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+        desc = request.forms.event_desc
+
+        # everything else that was sent in this request is an extra attribute
+
+        # get rid of the 3 standard fields
+        del request.forms['event_datetime']
+        del request.forms['event_tags']
+        del request.forms['event_desc']
+
+        #populate extra attributes that need changing
+        extra_attributes = {}
+        for key in request.forms:
+            extra_attributes[key] = request.forms[key]
+
+        # if status changes from ignore to something else, put garbage in the ignore tag
+        if 'status' in request.forms:
+            if request.forms['status'] != 'ignore':
+                extra_attributes['ignore'] = 'NA'
+
+        event = Event(timestamp=ts, desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information. Go back to previous page to retry', e)])
     try:
@@ -223,7 +246,12 @@ def events_edit_post_script(event_id):
         tags = event.tags
         extra_attributes = event.extra_attributes
 
+        # get rid of the base attributes that get sent in an edit request
         del request.forms['event_timestamp']
+        del request.forms['event_desc']
+        del request.forms['event_tags']
+
+        # populate list of attributes to update from the remaining keys in the request
         updated_attributes = {}
 
         for key in request.forms.keys():
