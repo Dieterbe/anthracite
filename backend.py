@@ -140,7 +140,9 @@ class Backend():
                         "DWDataSource": {"type": "string",
                                          "index": "not_analyzed"},
                         "data_point": {"type": "string",
-                                       "index": "not_analyzed"}
+                                       "index": "not_analyzed"},
+                        "sql_query": {"type": "string",
+                                      "index": "not_analyzed"}
                         }
                     }
                 }
