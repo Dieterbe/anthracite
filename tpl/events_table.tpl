@@ -1,18 +1,58 @@
 %import datetime
 %format = '%Y-%m-%d %H:%M:%S'
 
+<div class="row">
+    <br>
 
-<div class="filter-tags">
-% for owner in set([x.extra_attributes['owner'] for x in events]):
-    <label>
-         <input type="checkbox" rel="{{owner}}"/>
-         {{owner}}
-     </label>
-% end
+    <div class="col-md-6">
+        <h4>Filter by User</h4>
+        <div class="filter-user">
+            % for owner in set([x.extra_attributes['owner'] for x in events]):
+            % if ";" not in owner:
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" rel="{{owner}}"/>
+                {{owner}}
+            </label>
+            </div>
+            % end
+            % end
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Filter by Status</h4>
+        <div class="filter-status">
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" rel="open"/>
+                Open
+            </label>
+            </div>
+
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" rel="ignore"/>
+                Ignore
+            </label>
+            </div>
+
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" rel="closed"/>
+                Closed
+            </label>
+            </div>
+        </div>
+    </div>
 </div>
 
 
-<ul class="nav nav-tabs" data-tabs="tabs">
+<br>
+
+<ul class="nav nav-pills" data-tabs="tabs">
     <li class="active"><a href="#LateFiles" data-toggle="tab">Late Files</a></li>
     <li><a href="#DataQualityCheck" data-toggle="tab">Data Quality</a></li>
 </ul>
@@ -25,11 +65,13 @@
 
 <div class="tab-pane fade {{active_tab}}" id="{{tab}}">
 
-<table class="table table-striped table-condensed">
+<table class="table table-hover table-condensed">
 <tr><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
+    <tbody>
     %for i, event in enumerate(events):
         % event_type = event.tags[0]
             % owner = event.extra_attributes['owner']
+            % status = event.extra_attributes['status']
             %row_class = ''
             %if event.outage is not None:
                 %row_class = 'error'
@@ -42,7 +84,7 @@
 
   % if event_type == tab:
   <!-- make this class="hide" if it's not equal to the value in the javascript-->
-  <tr class="{{owner}}">
+  <tr class="{{owner}} {{status}}">
     <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
     <td>
         {{!event.desc}}
@@ -82,6 +124,7 @@
     </td>
   </tr>
    %end
+  </tbody>
    %end
 
 </table>
@@ -91,8 +134,6 @@
 % end
 
 </div>
-
-
 
 
 
@@ -112,11 +153,11 @@
 
 <!-- http://stackoverflow.com/questions/5430254/jquery-selecting-table-rows-with-checkbox -->
 <script>
-var updateRows = function()
+var updateRows1 = function()
 {
     // Get ones to show
     var toShow = [];
-    $('div.filter-tags input[type=checkbox]:checked').each(function(){
+    $('div.filter-user input[type=checkbox]:checked').each(function(){
         var box = $(this);
         toShow.push('.' + box.attr('rel'));
     });
@@ -128,9 +169,31 @@ var updateRows = function()
         row.toggle( row.is(toShow) );
     });
 };
-$('div.filter-tags input[type=checkbox]').click(updateRows);
-updateRows();
+$('div.filter-user input[type=checkbox]').click(updateRows1);
+updateRows1();
 </script>
+
+<script>
+var updateRows2 = function()
+{
+    // Get ones to show
+    var toShow = [];
+    $('div.filter-status input[type=checkbox]:checked').each(function(){
+        var box = $(this);
+        toShow.push('.' + box.attr('rel'));
+    });
+    toShow = toShow.join(', ');
+
+    // Filter rows
+    $('table > tbody > tr ').each(function() {
+        var row = $(this);
+        row.toggle( row.is(toShow) );
+    });
+};
+$('div.filter-status input[type=checkbox]').click(updateRows2);
+updateRows2();
+</script>
+
 
 <script>
 jQuery(document).ready(function ($) {
