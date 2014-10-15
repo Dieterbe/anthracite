@@ -37,6 +37,11 @@
 
           </div>
 
+          <div class="hide" id="closed">
+          <label>Resolution</label>
+          <input type="text" size="50" name="resolution"/>
+          </div>
+
 
         <br/><button type="submit" class="btn">Submit</button>
       </fieldset>
@@ -46,6 +51,7 @@
           $('#status').on('change', function() {
             var val = $(this).val();
             $('#ignore').hide();
+            $('#closed').hide();
             $('#' + val).show();
         });
       </script>
