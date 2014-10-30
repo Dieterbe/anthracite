@@ -11,7 +11,7 @@
             % if ";" not in owner:
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
-                <input type="checkbox" rel="{{owner.replace(' ', '-'}}"/>
+                <input type="checkbox" rel="{{owner.replace(' ', '-')}}"/>
                 {{owner}}
             </label>
             </div>
