@@ -142,6 +142,8 @@ class Backend():
                         "data_point": {"type": "string",
                                        "index": "not_analyzed"},
                         "sql_query": {"type": "string",
+                                      "index": "not_analyzed"},
+                        "owner": {"type": "string",
                                       "index": "not_analyzed"}
                         }
                     }
