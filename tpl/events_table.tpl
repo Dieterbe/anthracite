@@ -11,7 +11,7 @@
             % if ";" not in owner:
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
-                <input type="checkbox" rel="{{owner}}"/>
+                <input type="checkbox" rel="{{owner.replace(' ', '-'}}"/>
                 {{owner}}
             </label>
             </div>
@@ -70,7 +70,7 @@
     <tbody>
     %for i, event in enumerate(events):
         % event_type = event.tags[0]
-            % owner = event.extra_attributes['owner']
+            % owner = event.extra_attributes['owner'].replace(' ', '-')
             % status = event.extra_attributes['status']
             %row_class = ''
             %if event.outage is not None:
