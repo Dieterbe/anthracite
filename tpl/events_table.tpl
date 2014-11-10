@@ -106,6 +106,7 @@
         <br/>
         <br>
         % comments = ''
+        % resolution = ''
             % for tag in event.tags:
                 %tag_classes_eq = {'resolved': 'success', 'detected': 'warning', 'start': 'important', 'outage=': 'inverse'}
                 %tag_classes_startswith = {'outage=': 'inverse'}
