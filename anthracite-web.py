@@ -95,6 +95,7 @@ def render_last_page(pages_to_ignore=[], **kwargs):
             last_page = candidate
             break
     fn, args = url_to_fn_args(last_page)
+    print 'args', args
     print "calling last rendered page:", last_page, args, kwargs
     return call_func(fn, *args, **kwargs)
 
@@ -241,15 +242,18 @@ def events_edit_post_script(event_id):
     try:
         event = backend.get_event(event_id)
         #ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
-        ts = request.forms.event_timestamp
+        ts = int(time.time())
         desc = event.desc 
         tags = event.tags
         extra_attributes = event.extra_attributes
 
-
         # get rid of the base attributes that get sent in an edit request
         del request.forms['event_timestamp']
         del request.forms['event_desc']
+
+        # this one comes from client-side requests
+        if 'event_id' in request.forms:
+            del request.forms['event_id']
 
         # populate list of attributes to update from the remaining keys in the request
         updated_attributes = {}
@@ -260,9 +264,11 @@ def events_edit_post_script(event_id):
                 if len(val) == 1:
                     val = val[0]
             updated_attributes[key] = val            
-
+        print updated_attributes
         extra_attributes.update(updated_attributes)
+        print extra_attributes
         event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+        print 'IT WORKED'
 
     # these exceptions don't print anything to the screen.  I should fix that...
     except Exception, e:
@@ -273,7 +279,8 @@ def events_edit_post_script(event_id):
         time.sleep(1)
         response.status = 201
         print 'ok'
-        return 'ok event_id=%s\n' % event_id
+        #return 'ok event_id=%s\n' % event_id
+        return render_last_page(['/events/edit/'], successes=['The event was updated'])
     except Exception, e:
         response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
