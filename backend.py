@@ -211,11 +211,22 @@ class Backend():
     def es_get_events(self, query = None):
         if query is None:
             query = {
-                "query_string": {
-                    "query": "*"
+                    "filtered" : {
+                        "query" : {
+                            "match_all" : {}
+                    },
+                    "filter": {
+                    "term": {
+                        "valid": 1
+                        }
+                    }
+
                 }
             }
-        return self.es.get('%s/event/_search?size=10000' % self.config.es_index, data={
+
+
+
+        return self.es.get('%s/event/_search?size=1000' % self.config.es_index, data={
             "query": query,
             "sort": [
                 {

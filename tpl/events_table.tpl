@@ -123,6 +123,10 @@
                 %end
                 <span class="label label-{{tag_class}}">{{tag}}</span>
             %end
+
+        <!-- don't show valid flag -->
+        % del event.extra_attributes['valid']
+
         % for k, v in event.extra_attributes.items():
             <br/><span class="text-info">{{k}}</span>:
             &nbsp;&nbsp;

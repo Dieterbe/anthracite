@@ -250,6 +250,7 @@ def events_edit_post_script(event_id):
         # get rid of the base attributes that get sent in an edit request
         del request.forms['event_timestamp']
         del request.forms['event_desc']
+        del request.forms['event_tags']
 
         # this one comes from client-side requests
         if 'event_id' in request.forms:
