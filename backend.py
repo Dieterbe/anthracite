@@ -144,7 +144,9 @@ class Backend():
                         "sql_query": {"type": "string",
                                       "index": "not_analyzed"},
                         "owner": {"type": "string",
-                                      "index": "not_analyzed"}
+                                      "index": "not_analyzed"},
+                        "desc": {"type": "string"},
+                                      "index": "not_analyzed"
                         }
                     }
                 }
