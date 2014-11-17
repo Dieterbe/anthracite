@@ -226,7 +226,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
       <button id="ignore-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
     </form>
@@ -260,7 +260,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
       <button id="reassign-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
     </form>
@@ -288,7 +288,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
       <button id="comment-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
     </form>
