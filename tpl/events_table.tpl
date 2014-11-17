@@ -177,15 +177,13 @@
  <!-- Close Modal -->
 
   <div id="modal-close" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
+    <form id="modal-form-close" method="post">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
       <h3 id="closeLabel">Enter resolution</h3>
     </div>
 
     <div class="modal-body">
-     <form id="modal-form-close" method="post">
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
@@ -195,30 +193,26 @@
       <input type="hidden" name="status"  value="closed">
       <input type="hidden" name="event_id" id="close-event_id" value="">
       <input type="text" name="resolution"  value="">
-
-     </form>
     </div>
 
     <div class="modal-footer">
-      <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-      <button id="close-submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button id="close-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
-    </div>
-    </div>
+    </form>
     </div>
 
 <!-- Ignore Modal -->
 
   <div id="modal-ignore" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
+    <form id="modal-form-ignore" method="post">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
       <h3 id="ignoreLabel">Ignore for how many days?</h3>
     </div>
 
     <div class="modal-body">
-     <form id="modal-form-ignore" method="post">
+
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
@@ -229,29 +223,25 @@
       <input type="hidden" name="event_id" id="ignore-event_id" value="">
       <input type="text" name="ignore"  value="">
 
-     </form>
     </div>
 
     <div class="modal-footer">
       <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-      <button id="ignore-submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+      <button id="ignore-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
-    </div>
-    </div>
+    </form>
     </div>
 
 <!-- Reassign Modal -->
 
   <div id="modal-reassign" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
+    <form id="modal-form-reassign" method="post">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
       <h3 id="reassignLabel">Reassign to whom?</h3>
     </div>
 
     <div class="modal-body">
-     <form id="modal-form-reassign" method="post">
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
@@ -267,31 +257,25 @@
           % end
       </select>
 
-     </form>
-
-
     </div>
 
     <div class="modal-footer">
       <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-      <button id="reassign-submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+      <button id="reassign-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
-    </div>
-    </div>
+    </form>
     </div>
 
 <!-- Comment Modal -->
 
   <div id="modal-comment" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
+    <form id="modal-form-comment" method="post">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
       <h3 id="editLabel">Record Comments</h3>
     </div>
 
     <div class="modal-body">
-     <form id="modal-form-comment" method="post">
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
@@ -300,25 +284,20 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="event_id" id="comment-event_id" value="">
       <input type="text" name="comments" size="500" value="">
-     </form>
-
 
     </div>
 
     <div class="modal-footer">
       <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-      <button id="comment-submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+      <button id="comment-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
-    </div>
-    </div>
+    </form>
     </div>
 
 
 <!-- submit JS for close modal -->
 <script>
-$(function(){
-$('button#close-submit').on('click', function(e){
-      e.preventDefault();
+$('#modal-form-close').on('submit', function(e){
       var eventID = $('#close-event_id').val();
       $.ajax({
               url: '/events/edit/' + eventID + '/script',
@@ -328,10 +307,9 @@ $('button#close-submit').on('click', function(e){
                   alert('something went wrong')
               }
          });
-    $('#modal-close').dialog('close');
+    $('#modal-close').modal('hide');
      return false;
     });
-});
 </script>
 
 <!-- get Event ID for close modal -->
@@ -351,9 +329,7 @@ $('button#close-submit').on('click', function(e){
 
 <!-- submit JS for ignore modal -->
 <script>
-$(function(){
-$('button#ignore-submit').on('click', function(e){
-      e.preventDefault();
+$('#modal-form-ignore').on('submit', function(e){
       var eventID = $('#ignore-event_id').val();
       $.ajax({
               url: '/events/edit/' + eventID + '/script',
@@ -363,10 +339,9 @@ $('button#ignore-submit').on('click', function(e){
                   alert('something went wrong')
               }
          });
-    $('#modal-ignore').dialog('close');
+    $('#modal-ignore').modal('hide');
      return false;
     });
-});
 </script>
 
 <!-- get Event ID for ignore modal -->
@@ -385,9 +360,7 @@ $('button#ignore-submit').on('click', function(e){
 
 <!-- submit JS for reassign modal -->
 <script>
-$(function(){
-$('button#reassign-submit').on('click', function(e){
-      e.preventDefault();
+$('#modal-form-reassign').on('submit', function(e){
       var eventID = $('#reassign-event_id').val();
       $.ajax({
               url: '/events/edit/' + eventID + '/script',
@@ -397,10 +370,9 @@ $('button#reassign-submit').on('click', function(e){
                   alert('something went wrong')
               }
          });
-    $('#modal-reassign').dialog('close');
+    $('#modal-reassign').modal('hide');
      return false;
     });
-});
 </script>
 
 <!-- get Event ID for reassign modal -->
@@ -418,9 +390,7 @@ $('button#reassign-submit').on('click', function(e){
 
 <!-- submit JS for comment modal -->
 <script>
-$(function(){
-$('button#comment-submit').on('click', function(e){
-      e.preventDefault();
+$('#modal-form-comment').on('submit', function(e){
       var eventID = $('#comment-event_id').val();
       $.ajax({
               url: '/events/edit/' + eventID + '/script',
@@ -430,13 +400,12 @@ $('button#comment-submit').on('click', function(e){
                   alert('something went wrong')
               }
          });
-    $('#modal-comment').dialog('close');
+    $('#modal-comment').modal('hide');
      return false;
     });
-});
 </script>
 
-<!-- get Event ID for reassign modal -->
+<!-- get Event ID for comment modal -->
 <script>
     $(document).on('click', '.open-modal-comment', function(e){
         e.preventDefault();
