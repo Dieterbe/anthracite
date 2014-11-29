@@ -447,6 +447,7 @@ session_opts = {
     'session.data_dir': './session_data',
     'session.auto': True
 }
-app = SessionMiddleware(app(), session_opts)
-debug(True)
-run(app=app, reloader=True, host=config.listen_host, port=config.listen_port)
+application = app = SessionMiddleware(app(), session_opts)
+if __name__ == '__main__':
+    debug(True)
+    run(app=app, reloader=True, host=config.listen_host, port=config.listen_port)
