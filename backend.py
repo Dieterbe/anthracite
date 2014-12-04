@@ -219,7 +219,7 @@ class Backend():
                     },
                     "filter": {
                     "term": {
-                        "valid": 1
+                        "valid": "1"
                         }
                     }
 
