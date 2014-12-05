@@ -323,7 +323,23 @@ class Backend():
 
     def get_events_count(self):
         count = 0
-        events = self.es.get('%s/event/_search' % self.config.es_index)
+        query = {
+                    "filtered" : {
+                        "query" : {
+                            "match_all" : {}
+                    },
+                    "filter": {
+                    "term": {
+                        "valid": "1"
+                        }
+                    }
+
+                }
+            }
+
+
+        #events = self.es.get('%s/event/_search' % self.config.es_index)
+        events = self.es.get('%s/event/_search?size=5000' % self.config.es_index, data={"query": query}
         count = events['hits']['total']
         return count
 
