@@ -337,9 +337,14 @@ class Backend():
                 }
             }
 
-
         #events = self.es.get('%s/event/_search' % self.config.es_index)
-        events = self.es.get('%s/event/_search?size=5000' % self.config.es_index, data={"query": query})
+        events = self.es.get('%s/event/_search?size=5000' % self.config.es_index,
+                             data={"query": query,
+                             "sort": [{
+                             "date": {
+                             "order": "desc",
+                             "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
+                             }}]})
         count = events['hits']['total']
         return count
 
