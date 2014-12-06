@@ -13,6 +13,14 @@
         %end
     %end
   <tr class="{{row_class}}">
+    <td>
+        <div class="btn-group-vertical">
+        <a data-id="{{event.event_id}}" href="#modal-ignore" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
+        <a data-id="{{event.event_id}}" href="#modal-reassign" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
+        <a data-id="{{event.event_id}}" href="#modal-close" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
+        <a data-id="{{event.event_id}}" href="#modal-comment" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a>
+        </div>
+    </td>
     <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
     <td>
         {{!event.desc}}
@@ -50,6 +58,134 @@
         <a href="#" event_id="{{event.event_id}}" class="delete-link"><i class="icon-remove"></i></a>
     </td>
   </tr>
+
+
+<!-- Ignore Modal -->
+
+  <div id="modal-ignore" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-ignore" method="post" action="/events/edit/{{event.event_id}}/script">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="ignoreLabel">Ignore for how many days?</h3>
+    </div>
+
+    <div class="modal-body">
+
+
+      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+      <!-- now for the attributes that matter -->
+      <input type="hidden" name="status"  value="ignore">
+      <input type="hidden" name="event_id" id="ignore-event_id" value="">
+      <input type="text" name="ignore"  value="">
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button id="ignore-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+    </div>
+
+<!-- Close Modal -->
+
+  <div id="modal-close" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-close" method="post" action="/events/edit/{{event.event_id}}/script">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="closeLabel">Enter resolution</h3>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+      <!-- now for the attributes that matter -->
+      <input type="hidden" name="status"  value="closed">
+      <input type="hidden" name="event_id" id="close-event_id" value="">
+      <input type="text" name="resolution"  value="">
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button id="close-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+    </div>
+
+<!-- Reassign Modal -->
+
+  <div id="modal-reassign" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-reassign" method="post" action="/events/edit/{{event.event_id}}/script">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="reassignLabel">Reassign to whom?</h3>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+      <!-- can't dynamically populate this in here since we don't have access to all events-->
+      <input type="hidden" name="event_id" id="reassign-event_id" value="">
+      <select name="owner" id="owner">
+          <option value="Archit Jain">Archit Jain</option>
+          <option value="Ben Dundee">Ben Dundee</option>
+          <option value="Joachim Hubele">Joachime Hubele</option>
+          <option value="John Jardel">John Jardel</option>
+          <option value="Mark Gorman">Mark Gorman</option>
+          <option value="Mark Schwarz">Mark Schwarz</option>
+          <option value="Niral Patel">Niral Patel</option>
+          <option value="Qiong Zeng">Qiong Zeng</option>
+
+      </select>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button id="reassign-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+    </div>
+
+<!-- Comment Modal -->
+
+  <div id="modal-comment" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-comment" method="post" action="/events/edit/{{event.event_id}}/script">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="editLabel">Record Comments</h3>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+      <!-- now for the attributes that matter -->
+      <input type="hidden" name="event_id" id="comment-event_id" value="">
+      <input type="text" name="comments" size="500" value="">
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button id="comment-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+    </div>
+
+
+
 <script>
     $('.delete-link').on("click", function(e) {
         bootbox.confirm("Are you sure you want to delete this event?", function(result) {
