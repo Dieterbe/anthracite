@@ -63,13 +63,14 @@
 <ul class="nav nav-pills" data-tabs="tabs">
     <li class="active"><a href="#LateFiles" data-toggle="tab">Late Files</a></li>
     <li><a href="#DataQualityCheck" data-toggle="tab">Data Quality</a></li>
+    <li><a href="#BuildFailures" data-toggle="tab">Build Failures</a></li>
 </ul>
 
 
 <div class="tab-content">
 
 % active_tab = "in active"
-% for tab in ['LateFiles', 'DataQualityCheck']:
+% for tab in ['LateFiles', 'DataQualityCheck', 'BuildFailures']:
 
 <div class="tab-pane fade {{active_tab}}" id="{{tab}}">
 
@@ -454,7 +455,7 @@ var byUser = [], byStatus = [], byLocation = [];
 			var str = "Include items \n";
 			var selector = '', cselector = '', nselector = '';
 					
-			var $lis = $('table > tbody > tr'),
+			var $lis = $('tabl
 				$checked = $('input:checked');	
 				
 			if ($checked.length) {	
