@@ -136,7 +136,7 @@
                     <span class="label">{{val}}</span>
                 % end
             % else:
-                {{v}}
+                {{!v}}
             %end
             % if k == 'comments':
                % comments = v
@@ -280,7 +280,7 @@
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
-      <input type="hidden" name="event_desc" value="GARBAGE">
+      <input type="hidden" name="event_desc
 
       <!-- now for the attributes that matter -->
       <input type="hidden" name="event_id" id="comment-event_id" value="">

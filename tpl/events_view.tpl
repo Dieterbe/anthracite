@@ -49,7 +49,7 @@
                     <span class="label">{{val}}</span>
                 % end
             % else:
-                {{v}}
+                {{!v}}
             %end
         %end
     </td>
