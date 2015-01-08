@@ -136,7 +136,7 @@
                     <span class="label">{{val}}</span>
                 % end
             % else:
-                {{!v}}
+                <span id="{{event.event_id}}-{{k}}">{{!v}}</span>
             %end
             % if k == 'comments':
                % comments = v
@@ -193,7 +193,7 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="status"  value="closed">
       <input type="hidden" name="event_id" id="close-event_id" value="">
-      <input type="text" name="resolution"  value="">
+      <input type="text" name="resolution"  value="" id="close-form-resolution">
     </div>
 
     <div class="modal-footer">
@@ -222,7 +222,7 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="status"  value="ignore">
       <input type="hidden" name="event_id" id="ignore-event_id" value="">
-      <input type="text" name="ignore"  value="">
+      <input type="text" name="ignore"  value="" id="ignore-form-ndays">
 
     </div>
 
@@ -280,7 +280,7 @@
 
       <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
       <input type="hidden" name="event_timestamp" value="GARBAGE">
-      <input type="hidden" name="event_desc
+      <input type="hidden" name="event_desc" value="GARBAGE">
 
       <!-- now for the attributes that matter -->
       <input type="hidden" name="event_id" id="comment-event_id" value="">
@@ -306,6 +306,10 @@ $('#modal-form-close').on('submit', function(e){
               type: 'POST',
               error: function(data){
                   alert('something went wrong')
+              },
+              success: function(data){
+              $("#" + eventID + "-status").replaceWith(("#" + eventID + "-status", "closed"));
+              $("#" + eventID + "-resolution").replaceWith(("#" + eventID + "-resolution", $('#close-form-resolution').val()));
               }
          });
     $('#modal-close').modal('hide');
@@ -337,7 +341,11 @@ $('#modal-form-ignore').on('submit', function(e){
               data: $('#modal-form-ignore').serialize(),
               type: 'POST',
               error: function(data){
-                  alert('something went wrong')
+                  alert('something went wrong');
+                  },
+              success: function(data){
+              $("#" + eventID + "-status").replaceWith(("#" + eventID + "-status", "ignore"));
+              $("#" + eventID + "-ignore").replaceWith(("#" + eventID + "-ignore", $('#ignore-form-ndays').val()));
               }
          });
     $('#modal-ignore').modal('hide');
@@ -369,6 +377,9 @@ $('#modal-form-reassign').on('submit', function(e){
               type: 'POST',
               error: function(data){
                   alert('something went wrong')
+              },
+              success: function(data){
+              $("#" + eventID + "-owner").replaceWith(("#" + eventID + "-owner", $('#owner').val()));
               }
          });
     $('#modal-reassign').modal('hide');
