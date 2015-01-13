@@ -367,6 +367,7 @@ def get_report_data(start, until):
         age = float(event.timestamp - start)
         ttd = 0
         ttr = 0
+        ttf = 0
         if 'start' in event.tags:
             outages_seen[event.outage] = {'start': event.timestamp}
             ttf = event.timestamp - last_failure
