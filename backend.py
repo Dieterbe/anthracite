@@ -140,7 +140,6 @@ class Backend():
             })
             print "created new ElasticSearch Index"
         except ElasticException as e:
-            import re
             if 'IndexAlreadyExistsException' in e.result['error']:
                 pass
             else:
