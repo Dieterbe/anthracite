@@ -183,3 +183,7 @@ The [ops metametrics slidedeck](http://www.slideshare.net/jallspaw/ops-metametri
 * on graphs in dashboards, show timeframs from start to end, and start to "cause found", to "resolved" etc.
 * concurrent webserver to make sure all http requests can get served
 * better MTBF
+
+## vendored dependencies
+
+* [pyiso8601](https://bitbucket.org/micktwomey/pyiso8601/) -- forklifted 0.1.10 because project is an Hg repo; [LICENSE](https://bitbucket.org/micktwomey/pyiso8601/src/0f02cc55100a1bad23c0ea0bd0f07b8de0e3e3f0/LICENSE?at=0.1.10), [docs](http://pyiso8601.readthedocs.org/en/latest/)
