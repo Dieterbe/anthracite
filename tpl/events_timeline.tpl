@@ -1,4 +1,4 @@
-% from time import strftime, localtime
+% from time import strftime, gmtime
     <script src="/assets/timeline_2.3.0/timeline_js/timeline-api.js" type="text/javascript"></script>
     <script>
       Timeline_ajax_url="/assets/timeline_2.3.0/timeline_ajax/simile-ajax-api.js";
@@ -10,8 +10,8 @@
         function onLoad() {
             var eventSource = new Timeline.DefaultEventSource();
            % # we want something like "Fri Nov 22 1963 00:00:00 GMT-0600"
-        % start = strftime("%a, %b %d %Y %H:%M:%S +0000", localtime(range_low))
-        % end = strftime("%a, %b %d %Y %H:%M:%S +0000", localtime(range_high))
+        % start = strftime("%a, %b %d %Y %H:%M:%S +0000", gmtime(range_low))
+        % end = strftime("%a, %b %d %Y %H:%M:%S +0000", gmtime(range_high))
             var zones = [
                 {   start:    "{{start}}",
                     end:      "{{end}}",

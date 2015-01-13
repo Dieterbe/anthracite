@@ -32,10 +32,10 @@
       <fieldset>
 
     <div class="control-group">
-        <label class="control-label"><b>Date-Time</b></label>
+        <label class="control-label"><b>Date-Time, UTC</b></label>
         <div class="controls">
             <div id="event_datetime" class="input-append date">
-                <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="event_datetime"></input>
+                <input data-format="MM/dd/yyyy hh:mm:ss" type="text" name="event_datetime"></input>
                 <span class="add-on"><i data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
             </div>
             % if timestamp_feeder:
@@ -134,18 +134,15 @@
   $(function() {
     $('#event_datetime').datetimepicker({
       language: 'en',
-      pick12HourFormat: true
+      pick12HourFormat: false
     });
     var set_date = function(ts) {
         var myDate = new Date(ts * 1000);
         var picker = $('#event_datetime').data('datetimepicker');
-        picker.setLocalDate(myDate);
+        picker.setDate(myDate);
     }
     if ('{{timestamp_from_url}}' != '') {
         set_date({{timestamp_from_url}});
     }
-    $('#event_timestamp').change(function() {
-        set_date($(this).val());
-    });
   });
 </script>
