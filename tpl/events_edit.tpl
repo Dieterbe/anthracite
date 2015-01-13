@@ -7,9 +7,9 @@
 <h3>Edit an event</h3>
     <form action="/events/edit/{{event.event_id}}" method="POST">
       <fieldset>
-        <label>Date-Time (enter manually, use the picker, or populate from a unix timestamp)</label>
+        <label>Date-Time, UTC (enter manually, use the picker, or populate from a unix timestamp)</label>
   <div id="event_datetime" class="input-append date">
-    <input data-format="MM/dd/yyyy HH:mm:ss PP" type="text" name="event_datetime"></input>
+    <input data-format="MM/dd/yyyy hh:mm:ss" type="text" name="event_datetime"></input>
     <span class="add-on">
       <i data-time-icon="icon-time" data-date-icon="icon-calendar">
       </i>
@@ -35,9 +35,9 @@
   $(function() {
     $('#event_datetime').datetimepicker({
       language: 'en',
-      pick12HourFormat: true
+      pick12HourFormat: false
       });
     var picker = $('#event_datetime').data('datetimepicker');
-    picker.setLocalDate(new Date({{event.timestamp}} * 1000));
+    picker.setDate(new Date({{event.timestamp}} * 1000));
   });
 </script>

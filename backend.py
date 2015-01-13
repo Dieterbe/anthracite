@@ -4,6 +4,7 @@ import datetime
 import calendar
 import os
 import sys
+import iso8601
 
 
 class Config(dict):
@@ -105,6 +106,7 @@ class Backend():
         sys.path.append("%s/%s" % (os.getcwd(), 'python-dateutil'))
         sys.path.append("%s/%s" % (os.getcwd(), 'requests'))
         sys.path.append("%s/%s" % (os.getcwd(), 'rawes'))
+        sys.path.append("%s/%s" % (os.getcwd(), 'iso8601'))
         import rawes
         import requests
         from rawes.elastic_exception import ElasticException
@@ -140,7 +142,6 @@ class Backend():
             })
             print "created new ElasticSearch Index"
         except ElasticException as e:
-            import re
             if 'IndexAlreadyExistsException' in e.result['error']:
                 pass
             else:
@@ -160,14 +161,15 @@ class Backend():
         return data
 
     def unix_timestamp_to_iso8601(self, unix_timestamp):
-        return datetime.datetime.utcfromtimestamp(unix_timestamp).isoformat()
+        ## provide "Z" as this is definitely a UTC timestamp
+        return datetime.datetime.utcfromtimestamp(unix_timestamp).isoformat() + "Z"
 
-    def iso8601_to_unix_timestamp(self, iso8601):
+    def iso8601_to_unix_timestamp(self, ts):
         '''
-            elasticsearch returns something like 2013-03-20T20:41:16
+            elasticsearch returns something like 2013-03-20T20:41:16Z
 
         '''
-        unix = calendar.timegm(datetime.datetime.strptime(iso8601, "%Y-%m-%dT%H:%M:%S").timetuple())
+        unix = calendar.timegm(iso8601.parse_date(ts).timetuple())
         return unix
 
     def hit_to_object(self, hit):

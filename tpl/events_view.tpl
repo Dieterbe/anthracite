@@ -1,6 +1,6 @@
 <h3>View event {{event.event_id}}</h3>
 %import datetime
-%format = '%Y-%m-%d %H:%M:%S'
+%format = '%Y-%m-%d %H:%M:%SZ'
 <table class="table table-striped table-condensed" 
 <tr><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
     %row_class = ''
@@ -13,7 +13,7 @@
         %end
     %end
   <tr class="{{row_class}}">
-    <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
+    <td>{{datetime.datetime.utcfromtimestamp(event.timestamp).strftime(format)}}</td>
     <td>
         {{!event.desc}}
         <br/>

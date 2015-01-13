@@ -4,6 +4,8 @@ from backend import Backend, Event, Reportpoint, load_plugins, Config
 import json
 import os
 import time
+import calendar
+import datetime
 import sys
 import types
 from view import page
@@ -184,21 +186,19 @@ def events_edit(event_id, **kwargs):
     return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit', **kwargs)
 
 
-def local_datepick_to_unix_timestamp(datepick):
+def utc_datepick_to_unix_timestamp(datepick):
     '''
-    in: something like 12/31/2012 10:25:35 PM, which is local time.
+    in: something like 12/31/2012 22:25:35, which is local time.
     out: unix timestamp
     '''
-    import time
-    import datetime
-    return int(time.mktime(datetime.datetime.strptime(datepick, "%m/%d/%Y %I:%M:%S %p").timetuple()))
+    return int(calendar.timegm(datetime.datetime.strptime(datepick, "%m/%d/%Y %H:%M:%S").timetuple()))
 
 
 @route('/events/edit/<event_id>', method='POST')
 def events_edit_post(event_id):
     try:
         # TODO: do the same validation here as in add
-        ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+        ts = utc_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
         event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
@@ -220,8 +220,8 @@ def events_add(**kwargs):
 
 
 def add_post_validate_and_parse_base_attributes(request):
-    # local_datepick_to_unix_timestamp will raise exceptions if input is bad
-    ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
+    # utc_datepick_to_unix_timestamp will raise exceptions if input is bad
+    ts = utc_datepick_to_unix_timestamp(request.forms.event_datetime)
     desc = request.forms.event_desc
     if not desc:
         raise Exception("description must not be empty")
@@ -341,7 +341,7 @@ def events_add_script():
 @route('/report')
 def report(**kwargs):
     import time
-    start = local_datepick_to_unix_timestamp(config.opsreport_start)
+    start = utc_datepick_to_unix_timestamp(config.opsreport_start)
     return p(page='report', body=template('tpl/report', config=config, reportpoints=get_report_data(start, int(time.time()))), **kwargs)
 
 
