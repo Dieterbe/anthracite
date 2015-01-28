@@ -193,7 +193,7 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="status"  value="closed">
       <input type="hidden" name="event_id" id="close-event_id" value="">
-      <input type="text" name="resolution"  value="" id="close-form-resolution">
+      <input type="text" name="resolution"  value="" id="close-form-resolution" required>
     </div>
 
     <div class="modal-footer">
@@ -222,7 +222,7 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="status"  value="ignore">
       <input type="hidden" name="event_id" id="ignore-event_id" value="">
-      <input type="text" name="ignore"  value="" id="ignore-form-ndays">
+      <input type="number" min="1" max="365"  name="ignore"  value="" id="ignore-form-ndays">
 
     </div>
 
