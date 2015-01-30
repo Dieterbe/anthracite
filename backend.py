@@ -145,10 +145,10 @@ class Backend():
                                       "index": "not_analyzed"},
                         "owner": {"type": "string",
                                       "index": "not_analyzed"},
-                        "desc": {"type": "string"},
-                                      "index": "not_analyzed",
-                        "FileName": {"type": "string"},
-                                      "index": "not_analyzed"
+                        "desc": {"type": "string",
+                                      "index": "not_analyzed"},
+                        "FileName": {"type": "string",
+                                      "index": "not_analyzed"}
                         }
                     }
                 }
