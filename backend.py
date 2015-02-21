@@ -130,7 +130,7 @@ class Backend():
                 "mappings": {
                     "event": {
                         "_source": {
-                            "enabled": true
+                            "enabled": True
                         },
                         "properties": {
                             "tags": {
