@@ -130,25 +130,156 @@ class Backend():
                 "mappings": {
                     "event": {
                         "_source": {
-                            "enabled": True
+                            "enabled": true
                         },
                         "properties": {
                             "tags": {
                                 "type": "string",
                                 "index": "not_analyzed"
                             },
-                        "DWDataSource": {"type": "string",
-                                         "index": "not_analyzed"},
-                        "data_point": {"type": "string",
-                                       "index": "not_analyzed"},
-                        "sql_query": {"type": "string",
-                                      "index": "not_analyzed"},
-                        "owner": {"type": "string",
-                                      "index": "not_analyzed"},
-                        "desc": {"type": "string",
-                                      "index": "not_analyzed"},
-                        "FileName": {"type": "string",
-                                      "index": "not_analyzed"}
+                            "DWDataSource": {
+                                "type": "multi_field",
+                                "fields": {
+                                    "DWDataSource" : {
+                                        "type": "string",
+                                        "index" : "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                }
+                            },
+                            "data_point": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "data_point": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "sql_query": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "sql_query": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "owner": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "owner": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "desc": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "desc": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "FileName": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "FileName": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "host": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "host": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            } ,
+                            "job": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "job": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "file": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "file": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "last_file_load": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "last_file_load": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "sample_date": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "sample_date": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            }
                         }
                     }
                 }
