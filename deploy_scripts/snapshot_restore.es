@@ -4,7 +4,7 @@ PUT /_snapshot/anthracite
 {
     "type": "fs",
     "settings": {
-        "location": "/Users/jjardel/Work/anthracite/backups/anthracite_backup",
+        "location": "/github/anthracite/backups/anthracite",
         "compress": true
     }
 }
@@ -12,8 +12,8 @@ PUT /_snapshot/anthracite
 {confirm repo registered}
 GET /_snapshot/anthracite
 
-{create snapshot with name snapshot_2}
-PUT /_snapshot/anthracite/snapshot_2
+{create snapshot with name snapshot_20150220}
+PUT /_snapshot/anthracite/snapshot_20150220
 {
     "indices": "anthracite",
     "ignore_unavailable": "true",
@@ -21,12 +21,10 @@ PUT /_snapshot/anthracite/snapshot_2
 }
 
 
-{restore from snapshot_1}
-POST /_snapshot/anthracite/snapshot_1/_restore
+{restore from snapshot_20150220}
+POST /_snapshot/anthracite/snapshot_20150220/_restore
 {
     "indices": "anthracite",
     "ignore_unavailable": "true",
     "include_global_state": false
 }
-
-GET /anthracite/_search
