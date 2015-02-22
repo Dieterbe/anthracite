@@ -290,7 +290,8 @@
       <!-- now for the attributes that matter -->
 
       <input type="hidden" name="event_id" id="comment-event_id" value="">
-        <select name="user" id="comments_user">
+        <select name="user" required>
+            <option value="">Select a user</option>
           % for name in set([x.extra_attributes['owner'] for x in events]):
           % if ";" not in name:
               <option value="{{name}}">{{name}}</option>
@@ -459,8 +460,6 @@ $('#modal-form-comment').on('submit', function(e){
         });
     });
 </script>
-
-
 
 
 <!-- try new implementation here http://jsfiddle.net/n3EmN/3/ -->

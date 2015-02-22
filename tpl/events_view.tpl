@@ -192,7 +192,8 @@
 
       <!-- now for the attributes that matter -->
       <input type="hidden" name="event_id" id="comment-event_id" value="">
-      <select name="user" id="comments_user">
+      <select name="user" required>
+          <option value="">Select a user</option>
           <option value="Archit Jain">Archit Jain</option>
           <option value="Ben Dundee">Ben Dundee</option>
           <option value="Joachim Hubele">Joachime Hubele</option>
