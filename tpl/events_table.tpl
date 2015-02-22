@@ -127,8 +127,19 @@
 
         <!-- don't show valid flag -->
         % del event.extra_attributes['valid']
+        % if 'comments' in event.extra_attributes:
+            % comments = event.extra_attributes['comments']
+            % del event.extra_attributes['comments']
+        % end
+
+        % if 'resolution' in event.extra_attributes:
+            % resolution = event.extra_attributes['resolution']
+            % del event.extra_attributes['resolution']
+        % end
+
 
         % for k, v in event.extra_attributes.items():
+        <!-- don't show comments/resolution in tags -->
             <br/><span class="text-info">{{k}}</span>:
             &nbsp;&nbsp;
             % if type(v) is list:
@@ -137,21 +148,19 @@
                 % end
             % else:
                 <span id="{{event.event_id}}-{{k}}">{{!v}}</span>
-            %end
-            % if k == 'comments':
-               % comments = v
             % end
-            % if k == 'resolution':
-                % resolution = v
-            % end
-
         %end
-        <br>
-        % if comments != '' or resolution != '':
-        <hr>
-        <b>Comments:</b> &nbsp {{comments}} {{resolution}}
 
+        % if comments != '':
+        <hr>
+        <b>Comments:</b> <br> {{!comments}}
         % end
+
+        % if resolution != '':
+        <hr>
+        <b>Resolution:</b> &nbsp {{resolution}}
+        %end
+
     </td>
     <td>
         <a href="/events/view/{{event.event_id}}"><i class="icon-zoom-in"></i></a>
@@ -276,23 +285,30 @@
       <h3 id="editLabel">Record Comments</h3>
     </div>
 
-    <div class="modal-body">
-
-      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
-      <input type="hidden" name="event_timestamp" value="GARBAGE">
-      <input type="hidden" name="event_desc" value="GARBAGE">
+    <span class="modal-body">
 
       <!-- now for the attributes that matter -->
-      <input type="hidden" name="event_id" id="comment-event_id" value="">
-      <input type="text" name="comments" size="500" value="">
 
-    </div>
+      <input type="hidden" name="event_id" id="comment-event_id" value="">
+        <select name="user" id="comments_user">
+          % for name in set([x.extra_attributes['owner'] for x in events]):
+          % if ";" not in name:
+              <option value="{{name}}">{{name}}</option>
+          % end
+          % end
+      </select>
+      <br>
+        <textarea rows="5" cols="50" style="width:95%" name="comments" value=""></textarea>
+        <!-- <input type="text" name="comments" size="500" value=""> -->
+
+    </span>
 
     <div class="modal-footer">
       <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
       <button id="comment-submit" class="btn btn-primary" type="submit">Save changes</button>
     </div>
     </form>
+
     </div>
 
 
@@ -301,7 +317,7 @@
 $('#modal-form-close').on('submit', function(e){
       var eventID = $('#close-event_id').val();
       $.ajax({
-              url: '/events/edit/' + eventID + '/script',
+              url: '/events/edit/' + eventID + '/close',
               data: $('#modal-form-close').serialize(),
               type: 'POST',
               error: function(data){
@@ -405,7 +421,7 @@ $('#modal-form-reassign').on('submit', function(e){
 $('#modal-form-comment').on('submit', function(e){
       var eventID = $('#comment-event_id').val();
       $.ajax({
-              url: '/events/edit/' + eventID + '/script',
+              url: '/events/edit/' + eventID + '/comment',
               data: $('#modal-form-comment').serialize(),
               type: 'POST',
               error: function(data){

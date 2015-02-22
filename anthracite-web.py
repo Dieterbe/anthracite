@@ -6,6 +6,7 @@ import os
 import time
 import sys
 import types
+import datetime
 from view import page
 from collections import deque
 import __builtin__
@@ -236,16 +237,88 @@ def events_edit_post(event_id):
         return render_last_page(['/events/edit/'], errors=[('Could not update event. Go back to previous page to retry', e)])
     return render_last_page(['/events/edit/'], successes=['The event was updated'])
 
+
+# similar method exists below, but we need an int timestamp
+def get_event_attributes(event):
+
+    ts = int(time.time())
+    desc = event.desc
+    tags = event.tags
+    extra_attributes = event.extra_attributes
+
+    return ts, desc, tags, extra_attributes
+
+# clicking on the comments button
+@route('/events/edit/<event_id>/comment', method='POST')
+def events_comment_post_script(event_id):
+    try:
+        event = backend.get_event(event_id)
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+    if extra_attributes.has_key('comments'):
+        comments = extra_attributes['comments']
+    else:
+        comments = ''
+
+    new_comments_string = request.forms['comments']
+    new_comments_user = request.forms['user']
+
+    now = datetime.datetime.now()
+    new_comments_timestamp = now.strftime('%Y-%m-%d %H:%M:%S ')
+
+    comments += '%s <b>%s:</b> %s <br>' % (new_comments_timestamp, new_comments_user, new_comments_string)
+    extra_attributes['comments'] = comments
+
+    # update the event
+    event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        return render_last_page(['/events/edit/'], successes=['The event was updated'])
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+
+# clicking on the close button
+@route('/events/edit/<event_id>/close', method='POST')
+def events_close_post_script(event_id):
+    try:
+        event = backend.get_event(event_id)
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+    now = datetime.datetime.now()
+    timestamp = now.strftime('%Y-%m-%d %H:%M:%S ')
+
+    resolution = '%s: %s' % (timestamp, request.forms['resolution'])
+    extra_attributes['resolution'] = resolution
+
+    # update the event
+    event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        return render_last_page(['/events/edit/'], successes=['The event was updated'])
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+
 # experimental
 @route('/events/edit/<event_id>/script', method='POST')
 def events_edit_post_script(event_id):
     try:
         event = backend.get_event(event_id)
-        #ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
-        ts = int(time.time())
-        desc = event.desc 
-        tags = event.tags
-        extra_attributes = event.extra_attributes
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
 
         # get rid of the base attributes that get sent in an edit request
         del request.forms['event_timestamp']
