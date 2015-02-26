@@ -299,6 +299,7 @@ def events_close_post_script(event_id):
 
     resolution = '%s: %s' % (timestamp, request.forms['resolution'])
     extra_attributes['resolution'] = resolution
+    extra_attributes['status'] = 'closed'
 
     # update the event
     event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
