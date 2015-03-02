@@ -524,6 +524,7 @@ def notify_on_close(notification):
     # put auth key on scratch server
     with open('hipchat_auth_key.txt') as fp:
         auth_token = fp.readline()
+        auth_token = auth_token.replace('\n', '')
 
     hc = HypChat(auth_token)
     room = hc.get_room('Data Science')
