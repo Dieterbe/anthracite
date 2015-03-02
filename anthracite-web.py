@@ -9,6 +9,7 @@ import types
 import datetime
 from view import page
 from collections import deque
+from hypchat import HypChat
 import __builtin__
 sys.path.append('%s/beaker' % os.path.dirname(os.path.realpath(__file__)))
 from beaker.middleware import SessionMiddleware
@@ -308,6 +309,16 @@ def events_close_post_script(event_id):
         event_id = backend.edit_event(event)
         time.sleep(1)
         response.status = 201
+        if tags == ['BuildFailures']:
+            job = event.extra_attributes['job']
+            host = event.extra_attributes['host']
+            owner = event.extra_attributes['owner']
+            resolution = event.extra_attributes['resolution']
+
+            message = '%s failure on %s closed by user %s\n resolution: %s' % (job, host, owner, resolution)
+
+            notify_on_close(message)
+
         return render_last_page(['/events/edit/'], successes=['The event was updated'])
     except Exception, e:
         response.status = 500
@@ -502,6 +513,28 @@ def events_add_script():
     except Exception, e:
         response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+
+## HARD-CODING A LIGHT HIPCHAT EXTENSION
+## when Datawarehouse repo gets installed on scratch server, replace with a call to Hipster()
+
+def notify_on_close(notification):
+    """ sends notification msg to HipChat room"""
+
+    # put auth key on scratch server
+    with open('hipchat_auth_key.txt') as fp:
+        auth_token = fp.readline()
+
+    hc = HypChat(auth_token)
+    room = hc.get_room('Data Science')
+
+    try:
+        # notify room
+        room.message(notification, color='green', notify=True)
+    except:
+        print "Failed to Nofity HipChat room on event close"
+
+
 
 
 @route('/report')
