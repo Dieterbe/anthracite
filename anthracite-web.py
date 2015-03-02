@@ -315,7 +315,7 @@ def events_close_post_script(event_id):
             owner = event.extra_attributes['owner']
             resolution = event.extra_attributes['resolution']
 
-            message = '%s failure on %s closed by user %s\n resolution: %s' % (job, host, owner, resolution)
+            message = '%s failure on %s closed by user %s <br> resolution: %s' % (job, host, owner, resolution)
 
             notify_on_close(message)
 
