@@ -40,6 +40,8 @@
                 % for val in v:
                     <span class="label">{{val}}</span>
                 % end
+            % elif k.endswith('_url'):
+                <a href="{{v}}">{{v}}</a>
             % else:
                 {{v}}
             %end
