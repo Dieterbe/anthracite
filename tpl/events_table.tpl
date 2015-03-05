@@ -98,7 +98,8 @@
         <a data-id="{{event.event_id}}" href="#modal-ignore" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
         <a data-id="{{event.event_id}}" href="#modal-reassign" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
         <a data-id="{{event.event_id}}" href="#modal-close" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
-        <a data-id="{{event.event_id}}" href="#modal-comment" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a>
+        <a data-id="{{event.event_id}}" href="#modal-comment" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a><br>
+        <a data-id="{{event.event_id}}" href="#modal-quality" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
         </div>
     </td>
     <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
@@ -312,6 +313,44 @@
 
     </div>
 
+<!-- Quality Modal -->
+
+  <div id="modal-quality" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-quality" method="post">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="QualityLabel">Select an option</h3>
+    </div>
+
+    <div class="modal-body">
+
+        <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+        <input type="hidden" name="event_id" id="quality-event_id" value="">
+      <select name="quality_flag">
+          <option value="unclear">Notification is unclear</option>
+          <option value="wrong">Notification is wrong/misguided</option>
+          <option value="deprecated">Notification is for deprecated behavior</option>
+          <option value="helpful">Notification is helpful but not urgent</option>
+          <option value="saved-non-PRD">Notification saved the day (non-PRD)</option>
+          <option value="saved-PRD">Notification saved the day in PRD</option>
+
+      </select>
+
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button id="quality-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+
+    </div>
+
+
 
 <!-- submit JS for close modal -->
 <script>
@@ -447,6 +486,37 @@ $('#modal-form-comment').on('submit', function(e){
 
 </script>
 
+
+<!-- submit JS for quality modal -->
+<script>
+$('#modal-form-quality').on('submit', function(e){
+      var eventID = $('#quality-event_id').val();
+      $.ajax({
+              url: '/events/edit/' + eventID + '/script',
+              data: $('#modal-form-quality').serialize(),
+              type: 'POST',
+              error: function(data){
+                  alert('something went wrong')
+
+              }
+         });
+    $('#modal-quality').modal('hide');
+     return false;
+    });
+</script>
+
+<!-- get Event ID for quality modal -->
+<script>
+    $(document).on('click', '.open-modal-quality', function(e){
+        e.preventDefault();
+        var _self = $(this);
+        var eventID = _self.data('id');
+        $('#quality-event_id').val(eventID);
+
+        $(_self.attr('href')).modal('show');
+    });
+
+</script>
 
 
 
