@@ -1,3 +1,14 @@
+  <br>
+    To silence a warning temporarily, click <i>ignore</i>. <br>
+    Use <i>close</i> to mark an item as resolved.  Note: this has a different behavior for each notification type <br>
+    <ul>
+    <li>Late Files: closed events will reopen if the file is still deemed late</li>
+    <li>Data Quality Checks: closed events remain closed for the marked ToPeriod.  If values are still out of range
+    next ToPeriod, a new notification is issued</li>
+    <li>Build Failures: closed events remain closed forever</li>
+    </ul>
+
+
 <h3>View event {{event.event_id}}</h3>
 %import datetime
 %format = '%Y-%m-%d %H:%M:%S'
