@@ -143,6 +143,8 @@ class Backend():
             import re
             if 'IndexAlreadyExistsException' in e.result['error']:
                 pass
+            elif 'already exists as alias' in e.result['error']:
+                pass
             else:
                 raise
         except requests.exceptions.ConnectionError as e:
