@@ -9,7 +9,7 @@ import types
 import datetime
 from view import page
 from collections import deque
-from hypchat import HypChat
+from slacker import Slacker
 import __builtin__
 sys.path.append('%s/beaker' % os.path.dirname(os.path.realpath(__file__)))
 from beaker.middleware import SessionMiddleware
@@ -315,9 +315,15 @@ def events_close_post_script(event_id):
             owner = event.extra_attributes['owner']
             resolution = event.extra_attributes['resolution']
 
+            message_dict = {
+                'job': job,
+                'host': host,
+                'owner': owner,
+                'resolution': resolution
+            }
             message = '%s failure on %s closed by user %s <br> resolution: %s' % (job, host, owner, resolution)
 
-            notify_on_close(message)
+            notify_on_close(message_dict)
 
         return render_last_page(['/events/edit/'], successes=['The event was updated'])
     except Exception, e:
@@ -328,6 +334,8 @@ def events_close_post_script(event_id):
 # experimental
 @route('/events/edit/<event_id>/script', method='POST')
 def events_edit_post_script(event_id):
+
+    print 'WHATS UP FUCKERS?'
     try:
         event = backend.get_event(event_id)
         ts, desc, tags, extra_attributes = get_event_attributes(event)
@@ -336,13 +344,14 @@ def events_edit_post_script(event_id):
         del request.forms['event_timestamp']
         del request.forms['event_desc']
 
+
         if 'event_tags' in request.forms:
             del request.forms['event_tags']
-
+        print '6'
         # this one comes from client-side requests
         if 'event_id' in request.forms:
             del request.forms['event_id']
-
+        print '7'
         # populate list of attributes to update from the remaining keys in the request
         updated_attributes = {}
 
@@ -515,25 +524,35 @@ def events_add_script():
         return 'Could not save new event: %s. Go back to previous page to retry' % e
 
 
-## HARD-CODING A LIGHT HIPCHAT EXTENSION
-## when Datawarehouse repo gets installed on scratch server, replace with a call to Hipster()
+## HARD-CODING A LIGHT Slack EXTENSION
+## when Datawarehouse repo gets installed on scratch server, replace with a call to SlackConnector()
 
-def notify_on_close(notification):
-    """ sends notification msg to HipChat room"""
+def notify_on_close(d):
+    """ sends notification msg to Slack room"""
 
     # put auth key on scratch server
-    with open('hipchat_auth_key.txt') as fp:
-        auth_token = fp.readline()
-        auth_token = auth_token.replace('\n', '')
+    with open('slack_config.private') as fp:
+        settings = json.load(fp)
+        auth_token = settings['auth_token']
 
-    hc = HypChat(auth_token)
-    room = hc.get_room('Data Science')
+    slack = Slacker(auth_token)
+    room = '#datascience'
+
+    message = '%s failure on %s closed by user %s <br> resolution: %s' % (d['job'], d['host'], d['owner'], d['resolution'])
+    attachments = [{
+                "fallback": "Build Failure closed",
+                "pretext": message,
+                "title": "Build Failure Closed",
+                "color": "success"
+    }]
+
+    data = json.dumps(attachments)
 
     try:
         # notify room
-        room.message(notification, color='green', notify=True)
+        slack.chat.post_message(room, ' ', attachments=data, username='AnthraciteBot')
     except:
-        print "Failed to Nofity HipChat room on event close"
+        print "Failed to Nofity Slack room on event close"
 
 
 
