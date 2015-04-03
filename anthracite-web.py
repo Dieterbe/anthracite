@@ -538,12 +538,13 @@ def notify_on_close(d):
     slack = Slacker(auth_token)
     room = '#datascience'
 
-    message = '%s failure on %s closed by user %s <br> resolution: %s' % (d['job'], d['host'], d['owner'], d['resolution'])
+    message = '%s failure on %s closed by user %s \n resolution: %s' % (d['job'], d['host'], d['owner'], d['resolution'])
     attachments = [{
                 "fallback": "Build Failure closed",
-                "pretext": message,
-                "title": "Build Failure Closed",
-                "color": "success"
+                "pretext": ' ',
+                "title": "%s failure on %s resolved by %s" % (d['job'], d['host'], d['owner']),
+                "text": message,
+                "color": "good"
     }]
 
     data = json.dumps(attachments)
