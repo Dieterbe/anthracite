@@ -543,7 +543,7 @@ def notify_on_close(d):
                 "fallback": "Build Failure closed",
                 "pretext": ' ',
                 "title": "%s failure on %s resolved by %s" % (d['job'], d['host'], d['owner']),
-                "text": message,
+                "text": 'resolution: %s' % d['resolution'],
                 "color": "good"
     }]
 
