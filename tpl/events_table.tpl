@@ -66,26 +66,47 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-6">
+        <h4>Filter by Type</h4>
+        <div class="filter-type">
+            <form>
+            <fieldset>
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="type" value="LateFiles" id="LateFiles"/>
+                Late Files
+            </label>
+            </div>
 
-<br>
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="type" value="DataQualityCheck" id="DataQualityCheck"/>
+                Data Quality
+            </label>
+            </div>
 
-<ul class="nav nav-pills" data-tabs="tabs">
-    <li class="active"><a href="#LateFiles" data-toggle="tab">Late Files</a></li>
-    <li><a href="#DataQualityCheck" data-toggle="tab">Data Quality</a></li>
-    <li><a href="#BuildFailures" data-toggle="tab">Build Failures</a></li>
-</ul>
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="type" value="BuildFailures" id="BuildFailures"/>
+                Build Failures
+            </label>
+            </div>
+        </fieldset>
+        </form>
+        </div>
+
+    </div>
+</div>
 
 
-<div class="tab-content">
+<!-- use this to diagnose filtering
+<pre id="result"></pre>
+-->
 
-% active_tab = "in active"
-% for tab in ['LateFiles', 'DataQualityCheck', 'BuildFailures']:
-
-<div class="tab-pane fade {{active_tab}}" id="{{tab}}">
-
-<table class="table table-hover table-condensed">
+<table class="table table-hover table-condensed" id="resultsTable">
 <tr><th></th><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
-    <tbody>
+    <tbody id="myTable">
     %for i, event in enumerate(events):
         % event_type = event.tags[0]
             % owner = event.extra_attributes['owner'].replace(' ', '-')
@@ -100,8 +121,7 @@
                 %end
             %end
 
-  % if event_type == tab:
-  <tr class="event" data-id="{{event.event_id}}" data-category="{{owner}} {{status}}"><!-- href="/events/edit/{{event.event_id}}">-->
+  <tr class="event" data-id="{{event.event_id}}" data-category="{{owner}} {{status}} {{event_type}}"><!-- href="/events/edit/{{event.event_id}}">-->
     <td>
         <div class="btn-group-vertical">
         <a data-id="{{event.event_id}}" href="#modal-ignore" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
@@ -181,15 +201,8 @@
   </tr>
    %end
   </tbody>
-   %end
 
 </table>
-
-</div>
-% active_tab = ""
-% end
-
-</div>
 
 
 
@@ -542,8 +555,9 @@ $('#modal-form-quality').on('submit', function(e){
 
 
 <!-- try new implementation here http://jsfiddle.net/n3EmN/3/ -->
-<script>        
-var byUser = [], byStatus = [], byLocation = [];
+
+<script>
+var byUser = [], byStatus = [], byType = [];
 		
 		$("input[name=user]").on( "change", function() {
 			if (this.checked) byUser.push("[data-category~='" + $(this).attr("value") + "']");
@@ -555,6 +569,10 @@ var byUser = [], byStatus = [], byLocation = [];
 			else removeA(byStatus, "[data-category~='" + $(this).attr("value") + "']");
 		});
 
+		$("input[name=type]").on( "change", function() {
+			if (this.checked) byType.push("[data-category~='" + $(this).attr("value") + "']");
+			else removeA(byType, "[data-category~='" + $(this).attr("value") + "']");
+		});
 		
 		$("input").on( "change", function() {
 			var str = "Include items \n";
@@ -577,7 +595,7 @@ var byUser = [], byStatus = [], byLocation = [];
 						});					
 					} else {
 						str += "    AND " + "with (" +  byUser.join(' OR ') + ")\n";				
-						$($('input[name=status]:checked')).each(function(index, byUser){
+						$($('input[name=user]:checked')).each(function(index, byUser){
 							selector += "[data-category~='" + byUser.id + "']";
 						});
 					}							
@@ -605,7 +623,28 @@ var byUser = [], byStatus = [], byLocation = [];
 					}			
 				}
 
-				
+                if (byType.length) {
+					if (str == "Include items \n") {
+						str += "    " + "with (" +  byType.join(' OR ') + ")\n";
+						$($('input[name=type]:checked')).each(function(index, byType){
+							if(selector === '') {
+								selector += "[data-category~='" + byType.id + "']";
+							} else {
+								selector += ",[data-category~='" + byType.id + "']";
+							}
+						});
+					} else {
+						str += "    AND " + "with (" +  byType.join(' OR ') + ")\n";
+						$($('input[name=type]:checked')).each(function(index, byType){
+							if(nselector === '') {
+								nselector += "[data-category~='" + byType.id + "']";
+							} else {
+								nselector += ",[data-category~='" + byType.id + "']";
+							}
+						});
+					}
+				}
+
 				$lis.hide(); 
 				console.log(selector);
 				console.log(cselector);
@@ -654,14 +693,118 @@ jQuery(document).ready(function ($) {
 });
 </script>
 
+<!-- http://www.bootply.com/lxa0FF9yhw (pagination)-->
+<script>
+$.fn.pageMe = function(opts){
+    var $this = this,
+        defaults = {
+            perPage: 7,
+            showPrevNext: false,
+            hidePageNumbers: false
+        },
+        settings = $.extend(defaults, opts);
 
-<!--script>
-    jQuery(document).ready(function($) {
-      $(".event").click(function() {
-            window.document.location = $(this).attr("href");
-      });
+    var listElement = $this;
+    var perPage = settings.perPage;
+    var children = listElement.children();
+    var pager = $('.pager');
+
+    if (typeof settings.childSelector!="undefined") {
+        children = listElement.find(settings.childSelector);
+    }
+
+    if (typeof settings.pagerSelector!="undefined") {
+        pager = $(settings.pagerSelector);
+    }
+
+    var numItems = children.size();
+    var numPages = Math.ceil(numItems/perPage);
+
+    pager.data("curr",0);
+
+    if (settings.showPrevNext){
+        $('<li><a href="#" class="prev_link">«</a></li>').appendTo(pager);
+    }
+
+    var curr = 0;
+    while(numPages > curr && (settings.hidePageNumbers==false)){
+        $('<li><a href="#" class="page_link">'+(curr+1)+'</a></li>').appendTo(pager);
+        curr++;
+    }
+
+    if (settings.showPrevNext){
+        $('<li><a href="#" class="next_link">»</a></li>').appendTo(pager);
+    }
+
+    pager.find('.page_link:first').addClass('active');
+    pager.find('.prev_link').hide();
+    if (numPages<=1) {
+        pager.find('.next_link').hide();
+    }
+  	pager.children().eq(1).addClass("active");
+
+    children.hide();
+    children.slice(0, perPage).show();
+
+    pager.find('li .page_link').click(function(){
+        var clickedPage = $(this).html().valueOf()-1;
+        goTo(clickedPage,perPage);
+        return false;
+    });
+    pager.find('li .prev_link').click(function(){
+        previous();
+        return false;
+    });
+    pager.find('li .next_link').click(function(){
+        next();
+        return false;
+    });
+
+    function previous(){
+        var goToPage = parseInt(pager.data("curr")) - 1;
+        goTo(goToPage);
+    }
+
+    function next(){
+        goToPage = parseInt(pager.data("curr")) + 1;
+        goTo(goToPage);
+    }
+
+    function goTo(page){
+        var startAt = page * perPage,
+            endOn = startAt + perPage;
+
+        children.css('display','none').slice(startAt, endOn).show();
+
+        if (page>=1) {
+            pager.find('.prev_link').show();
+        }
+        else {
+            pager.find('.prev_link').hide();
+        }
+
+        if (page<(numPages-1)) {
+            pager.find('.next_link').show();
+        }
+        else {
+            pager.find('.next_link').hide();
+        }
+
+        pager.data("curr",page);
+      	pager.children().removeClass("active");
+        pager.children().eq(page+1).addClass("active");
+
+    }
+};
+
+$(document).ready(function(){
+
+  $('#myTable').pageMe({pagerSelector:'#myPager',showPrevNext:true,hidePageNumbers:false,perPage:100});
+
 });
-</script>-->
 
 
+
+
+</script>
 
