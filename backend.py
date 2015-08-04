@@ -386,10 +386,10 @@ class Backend():
             events[i]['date'] = self.iso8601_to_unix_timestamp(events[i]['date'])
         return events
 
-    def get_events_objects(self):
+    def get_events_objects(self, limit=500):
         # retuns a list of event objects
         hits = self.es_get_events()
-        return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']]
+        return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']][:limit]
 
     def get_event(self, event_id):
         # http://localhost:9200/dieterfoobarbaz/event/PZ1su5w5Stmln_c2Kc4B2g

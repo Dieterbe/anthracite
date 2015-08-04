@@ -75,7 +75,8 @@
               Logged in as <a href="#" class="navbar-link">Username</a>
             </p> -->
             <p class="navbar-text pull-right">
-              {{events_count}} events in database
+              showing 500 of {{events_count}} events
+
             </p>
             <!-- <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
