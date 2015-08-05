@@ -140,9 +140,7 @@
 </div>
 
 
-<!--
 <pre id="result"></pre>
--->
 
 <table class="table table-hover table-condensed" id="resultsTable">
 <tr><th></th><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
@@ -730,8 +728,8 @@ var byUser = [], byStatus = [], byType = [], byEnv = [];
 				    $('table > tbody > tr').filter(selector).filter(eselector).show();
 				} else if (cselector === '' && eselector === ''){
 				    $('table > tbody > tr').filter(selector).filter(nselector).show();
-				} else if (nselector === '' && cselector === ''){
-				    $('table > tbody > tr').filter(selector).filter(eselector).show();
+				} else if (nselector === '' && eselector === ''){
+				    $('table > tbody > tr').filter(selector).filter(cselector).show();
 				} else if (cselector === '') {
 					$('table > tbody > tr').filter(selector).filter(nselector).filter(eselector).show();
 				} else if (nselector === '') {
