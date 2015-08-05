@@ -124,13 +124,34 @@
                 <input type="checkbox" name="env" value="etl-prd-nissan.private.square-root.com" id="etl-prd-nissan.private.square-root.com"/>
                etl-prd-nissan
             </label>
+
             </div>
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-dev-1.private.square-root.com" id="etl-dev-1.private.square-root.com"/>
+               etl-dev-1
+            </label>
+            </div>
+
                 <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
                 <input type="checkbox" name="env" value="etl-dev-2.private.square-root.com" id="etl-dev-2.private.square-root.com"/>
                etl-dev-2
             </label>
             </div>
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-stg-1.private.square-root.com" id="etl-stg-1.private.square-root.com"/>
+               etl-stg-1
+            </label>
+            </div>
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-prd-1.private.square-root.com" id="etl-prd-1.private.square-root.com"/>
+               etl-prd-1
+            </label>
+            </div>
+
         <br>
         </fieldset>
         </form>
