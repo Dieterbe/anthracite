@@ -99,8 +99,48 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-6">
+        <h4>Filter by Environment</h4>
+        <div class="filter-env">
+            <form>
+            <fieldset>
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-dev-nissan.private.square-root.com" id="etl-dev-nissan.private.square-root.com"/>
+                etl-dev-nissan
+            </label>
+            </div>
 
-<!-- use this to diagnose filtering
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-stg-nissan.private.square-root.com" id="etl-stg-nissan.private.square-root.com"/>
+                etl-stg-nissan
+            </label>
+            </div>
+
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-prd-nissan.private.square-root.com" id="etl-prd-nissan.private.square-root.com"/>
+               etl-prd-nissan
+            </label>
+            </div>
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-dev-2.private.square-root.com" id="etl-dev-2.private.square-root.com"/>
+               etl-dev-2
+            </label>
+            </div>
+        <br>
+        </fieldset>
+        </form>
+        </div>
+
+    </div>
+</div>
+
+
+<!--
 <pre id="result"></pre>
 -->
 
@@ -111,6 +151,11 @@
         % event_type = event.tags[0]
             % owner = event.extra_attributes['owner'].replace(' ', '-')
             % status = event.extra_attributes['status']
+            % if event.extra_attributes.has_key('host'):
+                % env = event.extra_attributes['host']
+            % else:
+                % env = 'UNKNOWN'
+            % end
             %row_class = ''
             %if event.outage is not None:
                 %row_class = 'error'
@@ -121,7 +166,7 @@
                 %end
             %end
 
-  <tr class="event" data-id="{{event.event_id}}" data-category="{{owner}} {{status}} {{event_type}}"><!-- href="/events/edit/{{event.event_id}}">-->
+  <tr class="event" data-id="{{event.event_id}}" data-category="{{owner}} {{status}} {{event_type}} {{env}}"><!-- href="/events/edit/{{event.event_id}}">-->
     <td>
         <div class="btn-group-vertical">
         <a data-id="{{event.event_id}}" href="#modal-ignore" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
@@ -557,7 +602,7 @@ $('#modal-form-quality').on('submit', function(e){
 <!-- try new implementation here http://jsfiddle.net/n3EmN/3/ -->
 
 <script>
-var byUser = [], byStatus = [], byType = [];
+var byUser = [], byStatus = [], byType = [], byEnv = [];
 		
 		$("input[name=user]").on( "change", function() {
 			if (this.checked) byUser.push("[data-category~='" + $(this).attr("value") + "']");
@@ -573,10 +618,15 @@ var byUser = [], byStatus = [], byType = [];
 			if (this.checked) byType.push("[data-category~='" + $(this).attr("value") + "']");
 			else removeA(byType, "[data-category~='" + $(this).attr("value") + "']");
 		});
+
+		$("input[name=env]").on( "change", function() {
+			if (this.checked) byEnv.push("[data-category~='" + $(this).attr("value") + "']");
+			else removeA(byEnv, "[data-category~='" + $(this).attr("value") + "']");
+		});		
 		
 		$("input").on( "change", function() {
 			var str = "Include items \n";
-			var selector = '', cselector = '', nselector = '';
+			var selector = '', cselector = '', nselector = '', eselector = '';
 					
 			var $lis = $('table > tbody > tr'),
 				$checked = $('input:checked');	
@@ -644,20 +694,52 @@ var byUser = [], byStatus = [], byType = [];
 						});
 					}
 				}
+				
+                if (byEnv.length) {
+					if (str == "Include items \n") {
+						str += "    " + "with (" +  byEnv.join(' OR ') + ")\n";
+						$($('input[name=env]:checked')).each(function(index, byEnv){
+							if(selector === '') {
+								selector += "[data-category~='" + byEnv.id + "']";
+							} else {
+								selector += ",[data-category~='" + byEnv.id + "']";
+							}
+						});
+					} else {
+						str += "    AND " + "with (" +  byEnv.join(' OR ') + ")\n";
+						$($('input[name=env]:checked')).each(function(index, byEnv){
+							if(eselector === '') {
+								eselector += "[data-category~='" + byEnv.id + "']";
+							} else {
+								eselector += ",[data-category~='" + byEnv.id + "']";
+							}
+						});
+					}
+				}
+				
 
 				$lis.hide(); 
 				console.log(selector);
 				console.log(cselector);
 				console.log(nselector);
+				console.log(eselector);
 				
-				if (cselector === '' && nselector === '') {			
+				if (cselector === '' && nselector === '' && eselector === '') {
 					$('table > tbody > tr').filter(selector).show();
+				} else if (cselector === '' && nselector === ''){
+				    $('table > tbody > tr').filter(selector).filter(eselector).show();
+				} else if (cselector === '' && eselector === ''){
+				    $('table > tbody > tr').filter(selector).filter(nselector).show();
+				} else if (nselector === '' && cselector === ''){
+				    $('table > tbody > tr').filter(selector).filter(eselector).show();
 				} else if (cselector === '') {
-					$('table > tbody > tr').filter(selector).filter(nselector).show();
+					$('table > tbody > tr').filter(selector).filter(nselector).filter(eselector).show();
 				} else if (nselector === '') {
-					$('table > tbody > tr').filter(selector).filter(cselector).show();
-				} else {
+					$('table > tbody > tr').filter(selector).filter(cselector).filter(eselector).show();
+				}  else if (eselector === '') {
 					$('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).show();
+				} else {
+					$('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).filter(eselector).show();
 				}
 				
 			} else {
