@@ -139,8 +139,9 @@
     </div>
 </div>
 
-
+<!--
 <pre id="result"></pre>
+-->
 
 <table class="table table-hover table-condensed" id="resultsTable">
 <tr><th></th><th>Date-Time</th><th>Description</th><th>Operations</th></tr>
