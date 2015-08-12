@@ -7,6 +7,7 @@
     Use <i>close</i> to mark an item as resolved.  Note: this has a different behavior for each notification type <br>
     <ul>
     <li>Late Files: closed events will reopen if the file is still deemed late</li>
+    <li>Quarantine: closed events will reopen if the file is still found in quarantine</li>
     <li>Data Quality Checks: closed events remain closed for the marked ToPeriod.  If values are still out of range
     next ToPeriod, a new notification is issued</li>
     <li>Build Failures: closed events remain closed forever</li>
