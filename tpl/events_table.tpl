@@ -160,6 +160,13 @@
             </label>
             </div>
 
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-dev-vw-1.private.square-root.com" id="etl-dev-vw-1.private.square-root.com"/>
+               etl-dev-vw-1
+            </label>
+            </div>
+
         <br>
         </fieldset>
         </form>
