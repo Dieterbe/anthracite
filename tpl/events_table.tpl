@@ -89,6 +89,14 @@
 
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
+                <input type="checkbox" name="type" value="FileLoadErrors" id="FileLoadErrors"/>
+                File Load Errors
+            </label>
+            </div>
+
+
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
                 <input type="checkbox" name="type" value="DataQualityCheck" id="DataQualityCheck"/>
                 Data Quality
             </label>
