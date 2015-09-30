@@ -175,6 +175,22 @@
             </label>
             </div>
 
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-stg-vw-1.private.square-root.com" id="etl-stg-vw-1.private.square-root.com"/>
+               etl-stg-vw-1
+            </label>
+            </div>
+
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-prd-vw-1.private.square-root.com" id="etl-prd-vw-1.private.square-root.com"/>
+               etl-prd-vw-1
+            </label>
+            </div>
+
+
+
         <br>
         </fieldset>
         </form>
