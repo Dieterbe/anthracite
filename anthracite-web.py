@@ -536,7 +536,7 @@ def notify_on_close(d):
         auth_token = settings['auth_token']
 
     slack = Slacker(auth_token)
-    room = '#datascience'
+    room = '#datascience-robots'
 
     message = '%s failure on %s closed by user %s \n resolution: %s' % (d['job'], d['host'], d['owner'], d['resolution'])
     attachments = [{
