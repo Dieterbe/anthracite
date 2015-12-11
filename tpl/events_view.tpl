@@ -181,7 +181,7 @@
           <option value="Mark Schwarz">Mark Schwarz</option>
           <option value="Niral Patel">Niral Patel</option>
           <option value="Qiong Zeng">Qiong Zeng</option>
-          <option value="Vikas Kundra">Vikas Kundra</option>
+          <option value="Deepak Maurya">Deepak Maurya</option>
           <option value="Jun Xue">Jun Xue</option>
 
 
@@ -219,6 +219,7 @@
           <option value="Mark Schwarz">Mark Schwarz</option>
           <option value="Niral Patel">Niral Patel</option>
           <option value="Qiong Zeng">Qiong Zeng</option>
+          <option value="Deepak Maurya">Deepak Maurya</option>
           <option value="Jun Xue">Jun Xue</option>
 
       </select>

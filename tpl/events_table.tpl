@@ -148,13 +148,6 @@
                etl-dev-1
             </label>
             </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-dev-2.private.square-root.com" id="etl-dev-2.private.square-root.com"/>
-               etl-dev-2
-            </label>
-            </div>
                 <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
                 <input type="checkbox" name="env" value="etl-stg-1.private.square-root.com" id="etl-stg-1.private.square-root.com"/>
@@ -189,7 +182,26 @@
             </label>
             </div>
 
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-dev-mt-1.private.square-root.com" id="etl-dev-mt-1.private.square-root.com"/>
+               etl-dev-mt-1
+            </label>
+            </div>
 
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-stg-mt-1.private.square-root.com" id="etl-stg-mt-1.private.square-root.com"/>
+               etl-stg-mt-1
+            </label>
+            </div>
+
+                <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="env" value="etl-prd-mt-1.private.square-root.com" id="etl-prd-mt-1.private.square-root.com"/>
+               etl-prd-mt-1
+            </label>
+            </div>
 
         <br>
         </fieldset>
