@@ -94,6 +94,13 @@
             </label>
             </div>
 
+            <div style="float:left; overflow:hidden; padding-left:15px">
+            <label>
+                <input type="checkbox" name="type" value="ConfigWarnings" id="ConfigWarnings"/>
+                Configuration Warnings
+            </label>
+            </div>
+
 
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
