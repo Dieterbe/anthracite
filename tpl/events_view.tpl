@@ -173,8 +173,6 @@
       <input type="hidden" name="event_id" id="reassign-event_id" value="">
       <select name="owner" id="owner">
           <option value="Archit Jain">Archit Jain</option>
-          <option value="Ben Dundee">Ben Dundee</option>
-          <option value="Debyani Ghosh">Debyani Ghosh</option>
           <option value="Joachim Hubele">Joachime Hubele</option>
           <option value="John Jardel">John Jardel</option>
           <option value="Mark Gorman">Mark Gorman</option>
@@ -184,6 +182,9 @@
           <option value="Deepak Maurya">Deepak Maurya</option>
           <option value="Jun Xue">Jun Xue</option>
           <option value="Farzad Vafaee">Farzad Vafaee</option>
+          <option value="Jeff Killeen">Jeff Killeen</option>
+          <option value="Samuel Taylor">Samuel Taylor</option>
+          <option value="Hitesh Singh">Hitesh Singh</option>
 
 
       </select>
