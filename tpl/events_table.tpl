@@ -445,7 +445,7 @@
           % end
       </select>
       <br>
-        <textarea rows="5" cols="50" style="width:95%" name="comments" value=""></textarea>
+        <textarea rows="5" cols="50" style="width:95%" name="comments" value="" maxlength=50></textarea>
         <!-- <input type="text" name="comments" size="500" value=""> -->
 
     </span>

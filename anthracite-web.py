@@ -264,7 +264,7 @@ def events_comment_post_script(event_id):
     else:
         comments = ''
 
-    new_comments_string = request.forms['comments']
+    new_comments_string = request.forms['comments'][:50]
     new_comments_user = request.forms['user']
 
     now = datetime.datetime.now()
