@@ -118,9 +118,7 @@ def events_view(event_id, **kwargs):
 
 @route('/events/table')
 def events_table(**kwargs):
-    user = None
-    if request.get_cookie("user"):
-        user = request.get_cookie("user")
+    user = request.get_cookie("user") or None
     print "User %s" % user
     return p(body=template('tpl/events_table', user=user, events=backend.get_events_objects()), page='table', **kwargs)
 

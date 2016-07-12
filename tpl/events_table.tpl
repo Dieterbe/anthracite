@@ -12,7 +12,14 @@
     next ToPeriod, a new notification is issued</li>
     <li>Build Failures: closed events remain closed forever</li>
     </ul>
-	Current User: <a href="#modal-session" role="button" class="open-modal-session btn" data-toggle="modal" id="usersession">Unknown</a>
+	Current User: <a href="#modal-session" role="button" class="open-modal-session btn" data-toggle="modal" id="usersession">
+	% if user:
+		{{user}}
+	% else:
+		Unknown
+	% end
+
+</a>
 
     <div class="col-md-6">
         <h4>Filter by User</h4>
@@ -247,11 +254,20 @@
   <tr class="event" data-id="{{event.event_id}}" data-category="{{owner}} {{status}} {{event_type}} {{env}}"><!-- href="/events/edit/{{event.event_id}}">-->
     <td>
         <div class="btn-group-vertical">
+	% if user:
         <a data-id="{{event.event_id}}" href="#modal-ignore" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
         <a data-id="{{event.event_id}}" href="#modal-reassign" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
         <a data-id="{{event.event_id}}" href="#modal-close" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
         <a data-id="{{event.event_id}}" href="#modal-comment" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a><br>
         <a data-id="{{event.event_id}}" href="#modal-quality" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
+	% else:
+	
+        <a href="#modal-unknown" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
+        <a href="#modal-unknown" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
+        <a href="#modal-unknown" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
+        <a href="#modal-unknown" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a><br>
+        <a href="#modal-unknown" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
+	% end
         </div>
     </td>
     <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
@@ -358,10 +374,25 @@
     </form>
     </div>
 
+<!-- Unknown Modal -->
+
+  <div id="modal-unknown" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="ignoreLabel">Please select a user from up top</h3>
+    </div>
+
+    <div class="modal-body">
+    </div>
+
+    <div class="modal-footer">
+    </div>
+    </div>
+
 <!-- Ignore Modal -->
 
   <div id="modal-ignore" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
-    <form id="modal-form-ignore" method="post">
+   <form id="modal-form-ignore" method="post">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
       <h3 id="ignoreLabel">Ignore for how many days?</h3>
@@ -634,6 +665,7 @@ $('#modal-form-session').on('submit', function(e){
               },
               success: function(data){
 		console.log(data);
+		location.reload();
               }
          });
     $('#modal-session').modal('hide');
