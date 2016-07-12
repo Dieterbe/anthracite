@@ -118,7 +118,11 @@ def events_view(event_id, **kwargs):
 
 @route('/events/table')
 def events_table(**kwargs):
-    return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table', **kwargs)
+    user = None
+    if request.get_cookie("user"):
+        user = request.get_cookie("user")
+    print "User %s" % user
+    return p(body=template('tpl/events_table', user=user, events=backend.get_events_objects()), page='table', **kwargs)
 
 
 @route('/events/timeline')
@@ -335,7 +339,6 @@ def events_close_post_script(event_id):
 @route('/events/edit/<event_id>/script', method='POST')
 def events_edit_post_script(event_id):
 
-    print 'WHATS UP FUCKERS?'
     try:
         event = backend.get_event(event_id)
         ts, desc, tags, extra_attributes = get_event_attributes(event)
@@ -523,7 +526,14 @@ def events_add_script():
         response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
 
-
+@route('/session', method='POST')
+def set_session():
+    print request.forms['session']
+    user = request.forms['session']
+    del request.forms['session']
+    response.set_cookie("user", user)
+    return user 
+    
 ## HARD-CODING A LIGHT Slack EXTENSION
 ## when Datawarehouse repo gets installed on scratch server, replace with a call to SlackConnector()
 

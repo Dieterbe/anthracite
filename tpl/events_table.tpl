@@ -12,7 +12,7 @@
     next ToPeriod, a new notification is issued</li>
     <li>Build Failures: closed events remain closed forever</li>
     </ul>
-
+	Current User: <a href="#modal-session" role="button" class="open-modal-session btn" data-toggle="modal" id="usersession">Unknown</a>
 
     <div class="col-md-6">
         <h4>Filter by User</h4>
@@ -422,6 +422,39 @@
     </form>
     </div>
 
+<!-- Session Modal -->
+
+  <div id="modal-session" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
+    <form id="modal-form-session" method="post">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="sessionLabel">Who are you?</h3>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- have to pass these fields for events_edit_post_script(), but their values get overwritten -->
+      <input type="hidden" name="event_timestamp" value="GARBAGE">
+      <input type="hidden" name="event_desc" value="GARBAGE">
+
+      <!-- now for the attributes that matter -->
+      <select name="session" id="session">
+          % for name in set([x.extra_attributes['owner'] for x in events]):
+          % if ";" not in name:
+              <option value="{{name}}">{{name}}</option>
+          % end
+          % end
+      </select>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button id="session-submit" class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+    </form>
+    </div>
+
 <!-- Comment Modal -->
 
   <div id="modal-comment" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
@@ -584,6 +617,26 @@ $('#modal-form-reassign').on('submit', function(e){
               }
          });
     $('#modal-reassign').modal('hide');
+     return false;
+    });
+</script>
+
+<!-- submit JS for session modal -->
+<script>
+$('#modal-form-session').on('submit', function(e){
+    $('#usersession').text($('#session').val());
+    $.ajax({
+              url: '/session',
+              data: $('#modal-form-session').serialize(),
+              type: 'POST',
+              error: function(data){
+                  alert('something went wrong')
+              },
+              success: function(data){
+		console.log(data);
+              }
+         });
+    $('#modal-session').modal('hide');
      return false;
     });
 </script>
