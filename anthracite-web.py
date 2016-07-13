@@ -255,7 +255,9 @@ def get_event_attributes(event):
 @route('/events/edit/<event_id>/comment', method='POST')
 def events_comment_post_script(event_id):
     try:
+        print "Where does it fail?"
         event = backend.get_event(event_id)
+        print "Not here"
         ts, desc, tags, extra_attributes = get_event_attributes(event)
     except Exception, e:
         response.status = 500
@@ -267,7 +269,7 @@ def events_comment_post_script(event_id):
         comments = ''
 
     new_comments_string = request.forms['comments'][:50]
-    new_comments_user = request.forms['user']
+    new_comments_user = request.get_cookie("user") or None
 
     now = datetime.datetime.now()
     new_comments_timestamp = now.strftime('%Y-%m-%d %H:%M:%S ')
@@ -281,8 +283,9 @@ def events_comment_post_script(event_id):
         event_id = backend.edit_event(event)
         time.sleep(1)
         response.status = 201
-        return render_last_page(['/events/edit/'], successes=['The event was updated'])
+        return render_last_page(['/events/edit/','/session'], successes=['The event was updated'])
     except Exception, e:
+        print "Exception: %s" % e
         response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
 
@@ -526,10 +529,12 @@ def events_add_script():
 
 @route('/session', method='POST')
 def set_session():
-    print request.forms['session']
+    print "SESSION"
     user = request.forms['session']
-    del request.forms['session']
+    #response.delete_cookie("user")
     response.set_cookie("user", user)
+    del request.forms['session']
+    print "User %s" % request.get_cookie("user")
     return user 
     
 ## HARD-CODING A LIGHT Slack EXTENSION

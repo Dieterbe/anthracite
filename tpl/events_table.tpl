@@ -262,11 +262,11 @@
         <a data-id="{{event.event_id}}" href="#modal-quality" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
 	% else:
 	
-        <a href="#modal-unknown" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
-        <a href="#modal-unknown" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
-        <a href="#modal-unknown" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
-        <a href="#modal-unknown" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a><br>
-        <a href="#modal-unknown" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
+        <a data-id="{{event.event_id}}" href="#modal-unknown" role="button" class="open-modal-ignore btn" data-toggle="modal">Ignore</a>
+        <a data-id="{{event.event_id}}" href="#modal-unknown" role="button" class="open-modal-reassign btn" data-toggle="modal">Reassign</a>
+        <a data-id="{{event.event_id}}" href="#modal-unknown" role="button" class="open-modal-close btn" data-toggle="modal">Close</a>
+        <a data-id="{{event.event_id}}" href="#modal-unknown" role="button" class="open-modal-comment btn btn-primary" data-toggle="modal">Comment</a><br>
+        <a data-id="{{event.event_id}}" href="#modal-unknown" role="button" class="open-modal-quality btn btn-info" data-toggle="modal">Feedback</a>
 	% end
         </div>
     </td>
@@ -500,15 +500,6 @@
       <!-- now for the attributes that matter -->
 
       <input type="hidden" name="event_id" id="comment-event_id" value="">
-        <select name="user" required>
-            <option value="">Select a user</option>
-          % for name in set([x.extra_attributes['owner'] for x in events]):
-          % if ";" not in name:
-              <option value="{{name}}">{{name}}</option>
-          % end
-          % end
-      </select>
-      <br>
         <textarea rows="5" cols="50" style="width:95%" name="comments" value="" maxlength=50></textarea>
         <!-- <input type="text" name="comments" size="500" value=""> -->
 
@@ -665,7 +656,11 @@ $('#modal-form-session').on('submit', function(e){
               },
               success: function(data){
 		console.log(data);
-		location.reload();
+		$("a.open-modal-ignore").attr("href","#modal-ignore");	
+		$("a.open-modal-reassign").attr("href","#modal-reassign");	
+		$("a.open-modal-close").attr("href","#modal-close");	
+		$("a.open-modal-comment").attr("href","#modal-comment");	
+		$("a.open-modal-quality").attr("href","#modal-quality");	
               }
          });
     $('#modal-session').modal('hide');
