@@ -270,7 +270,7 @@
 	% end
         </div>
     </td>
-    <td>{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
+    <td class="event-selector">{{datetime.datetime.fromtimestamp(event.timestamp).strftime(format)}}</td>
     <td>
         <b>{{!event.desc}}</b>
         <br/>
@@ -918,6 +918,39 @@ var byUser = [], byStatus = [], byType = [], byEnv = [];
 			}
 			return arr;
 		}
+</script>
+
+<script>
+$(document).ready(function() {
+	var selectors = $(".event-selector");
+	console.log(selectors);
+	var pos = 0;
+	$(document).keydown(function(e) {
+		if(e.keyCode == 75) {
+			var evpos = 0;
+                        if(pos == selectors.length-1)
+                        {
+                                evpos = $(Selectors[pos]).position().top;
+                        }
+                        else
+                        {
+                                evpos = $(selectors[pos++]).position().top;
+                        }
+                        window.scrollTo(0, evpos-100);
+		} else if (e.keyCode == 74) {
+			var evpos = 0;
+			if(pos == 0)
+			{
+				evpos = $(selectors[pos]).position().top;
+			}
+			else
+			{
+				evpos = $(selectors[pos--]).position().top;
+			}
+			window.scrollTo(0, evpos-100);
+		}
+	});	
+});
 </script>
 
 
