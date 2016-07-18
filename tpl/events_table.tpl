@@ -4,7 +4,6 @@
 <style>
 	.selected {background:orange;}
 </style>
-
 <div class="row" xmlns="http://www.w3.org/1999/html">
     <br>
     To silence a warning temporarily, click <i>ignore</i>. <br>
@@ -616,7 +615,7 @@ $('#modal-form-ignore').on('submit', function(e){
 <!-- get Event ID for ignore modal -->
 <script>
     $(document).on('click', '.open-modal-ignore', function(e){
-        e.preventDefault();
+	e.preventDefault();
         var _self = $(this);
         var eventID = _self.data('id');
         $('#ignore-event_id').val(eventID);
@@ -675,7 +674,7 @@ $('#modal-form-session').on('submit', function(e){
 <!-- get Event ID for reassign modal -->
 <script>
     $(document).on('click', '.open-modal-reassign', function(e){
-        e.preventDefault();
+	e.preventDefault();
         var _self = $(this);
         var eventID = _self.data('id');
         $('#reassign-event_id').val(eventID);
@@ -705,7 +704,7 @@ $('#modal-form-comment').on('submit', function(e){
 <!-- get Event ID for comment modal -->
 <script>
     $(document).on('click', '.open-modal-comment', function(e){
-        e.preventDefault();
+	e.preventDefault();
         var _self = $(this);
         var eventID = _self.data('id');
         $('#comment-event_id').val(eventID);
@@ -737,7 +736,7 @@ $('#modal-form-quality').on('submit', function(e){
 <!-- get Event ID for quality modal -->
 <script>
     $(document).on('click', '.open-modal-quality', function(e){
-        e.preventDefault();
+	e.preventDefault();
         var _self = $(this);
         var eventID = _self.data('id');
         $('#quality-event_id').val(eventID);
@@ -929,9 +928,10 @@ $(document).ready(function() {
 	var selectors = $(".event-selector");
 	console.log(selectors);
 	var pos = 0;
-	$(selectors[pos]).parent().addClass("selected");	
+	$(selectors[pos]).parent().addClass("selected");
 	$(document).keydown(function(e) {
-		if(e.keyCode == 75) {
+		var modalList = $(".modal-backdrop").length;
+		if(e.keyCode == 75 && modalList == 0) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
                         if(pos == selectors.length-1)
@@ -944,7 +944,7 @@ $(document).ready(function() {
                         }
 			$(selectors[pos]).parent().addClass("selected");
                         window.scrollTo(0, evpos-100);
-		} else if (e.keyCode == 74) {
+		} else if (e.keyCode == 74 && modalList == 0) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
 			if(pos == 0)
@@ -957,7 +957,7 @@ $(document).ready(function() {
 			}
 			$(selectors[pos]).parent().addClass("selected");
 			window.scrollTo(0, evpos-100);
-		} else if (e.keyCode == 79) {
+		} else if (e.keyCode == 79 && modalList == 0) {
 			var eventID = $(selectors[pos]).parent().data("id");
 			var serial="event_timestamp=GARBAGE&event_desc=GARBAGE&status=ignore&event_id="+eventID+"&ignore=30"
 			$.ajax({
