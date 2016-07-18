@@ -1,6 +1,10 @@
 %import datetime
 %format = '%Y-%m-%d %H:%M:%S'
 
+<style>
+	.selected {background:orange;}
+</style>
+
 <div class="row" xmlns="http://www.w3.org/1999/html">
     <br>
     To silence a warning temporarily, click <i>ignore</i>. <br>
@@ -925,29 +929,50 @@ $(document).ready(function() {
 	var selectors = $(".event-selector");
 	console.log(selectors);
 	var pos = 0;
+	$(selectors[pos]).parent().addClass("selected");	
 	$(document).keydown(function(e) {
 		if(e.keyCode == 75) {
 			var evpos = 0;
+			$(selectors[pos]).parent().removeClass("selected");
                         if(pos == selectors.length-1)
                         {
-                                evpos = $(Selectors[pos]).position().top;
+                                evpos = $(selectors[pos]).position().top;
                         }
                         else
                         {
-                                evpos = $(selectors[pos++]).position().top;
+                                evpos = $(selectors[++pos]).position().top;
                         }
+			$(selectors[pos]).parent().addClass("selected");
                         window.scrollTo(0, evpos-100);
 		} else if (e.keyCode == 74) {
 			var evpos = 0;
+			$(selectors[pos]).parent().removeClass("selected");
 			if(pos == 0)
 			{
 				evpos = $(selectors[pos]).position().top;
 			}
 			else
 			{
-				evpos = $(selectors[pos--]).position().top;
+				evpos = $(selectors[--pos]).position().top;
 			}
+			$(selectors[pos]).parent().addClass("selected");
 			window.scrollTo(0, evpos-100);
+		} else if (e.keyCode == 79) {
+			var eventID = $(selectors[pos]).parent().data("id");
+			var serial="event_timestamp=GARBAGE&event_desc=GARBAGE&status=ignore&event_id="+eventID+"&ignore=30"
+			$.ajax({
+              			url: '/events/edit/' + eventID + '/script',
+              			data: serial,
+              			type: 'POST',
+              			error: function(data){
+                  			alert('something went wrong');
+                  			},
+              			success: function(data){
+				$(selectors[pos]).parent().fadeOut(100).fadeIn(100);
+              			$("#" + eventID + "-status").replaceWith(("#" + eventID + "-status", "ignore"));
+              			$("#" + eventID + "-ignore").replaceWith(("#" + eventID + "-ignore", "30"));
+              			}
+         		});
 		}
 	});	
 });
