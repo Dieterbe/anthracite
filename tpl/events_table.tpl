@@ -503,7 +503,7 @@
       <!-- now for the attributes that matter -->
 
       <input type="hidden" name="event_id" id="comment-event_id" value="">
-        <textarea rows="5" cols="50" style="width:95%" name="comments" value="" maxlength=50></textarea>
+        <textarea id="commentTextArea" rows="5" cols="50" style="width:95%" name="comments" value="" maxlength=50></textarea>
         <!-- <input type="text" name="comments" size="500" value=""> -->
 
     </span>
@@ -746,6 +746,49 @@ $('#modal-form-quality').on('submit', function(e){
 
 </script>
 
+<!-- Keyboard input for submitting events -->
+<script>
+$("#commentTextArea").keydown(function (event) {
+	if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+	{
+		$('form#modal-form-comment').submit();
+		return false;			
+	}
+});
+
+$("#close-form-resolution").keydown(function (event) {
+	if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        {
+                $('form#modal-form-close').submit();
+                return false;
+        }
+});
+
+$("#modal-reassign").keydown(function (event) {
+        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        {
+                $('form#modal-form-reassign').submit();
+                return false;
+        }
+});
+
+$("#modal-ignore").keydown(function (event) {
+        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        {
+                $('form#modal-form-ignore').submit();
+                return false;
+        }
+});
+
+$("#modal-quality").keydown(function (event) {
+        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        {
+                $('form#modal-form-quality').submit();
+                return false;
+        }
+});
+
+</script>
 
 
 <!-- delete event -->
