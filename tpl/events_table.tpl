@@ -552,7 +552,10 @@
     </form>
 
     </div>
-
+<script>
+var selectors = $(".event-selector");
+var pos = 0;
+</script>
 
 
 <!-- submit JS for close modal -->
@@ -749,7 +752,7 @@ $('#modal-form-quality').on('submit', function(e){
 <!-- Keyboard input for submitting events -->
 <script>
 $("#commentTextArea").keydown(function (event) {
-	if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+	if((event.metaKey || event.ctrlKey) && event.keyCode == 13)
 	{
 		$('form#modal-form-comment').submit();
 		return false;			
@@ -757,7 +760,7 @@ $("#commentTextArea").keydown(function (event) {
 });
 
 $("#close-form-resolution").keydown(function (event) {
-	if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+	if((event.metaKey || event.ctrlKey) && event.keyCode == 13)
         {
                 $('form#modal-form-close').submit();
                 return false;
@@ -765,7 +768,7 @@ $("#close-form-resolution").keydown(function (event) {
 });
 
 $("#modal-reassign").keydown(function (event) {
-        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        if((event.metaKey || event.ctrlKey) && event.keyCode == 13)
         {
                 $('form#modal-form-reassign').submit();
                 return false;
@@ -773,7 +776,7 @@ $("#modal-reassign").keydown(function (event) {
 });
 
 $("#modal-ignore").keydown(function (event) {
-        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        if((event.metaKey || event.ctrlKey) && event.keyCode == 13)
         {
                 $('form#modal-form-ignore').submit();
                 return false;
@@ -781,7 +784,7 @@ $("#modal-ignore").keydown(function (event) {
 });
 
 $("#modal-quality").keydown(function (event) {
-        if((event.metaKey || even.ctrlKey) && event.keyCode == 13)
+        if((event.metaKey || event.ctrlKey) && event.keyCode == 13)
         {
                 $('form#modal-form-quality').submit();
                 return false;
@@ -968,13 +971,11 @@ var byUser = [], byStatus = [], byType = [], byEnv = [];
 
 <script>
 $(document).ready(function() {
-	var selectors = $(".event-selector");
 	console.log(selectors);
-	var pos = 0;
 	$(selectors[pos]).parent().addClass("selected");
 	$(document).keydown(function(e) {
 		var modalList = $(".modal-backdrop").length;
-		if(e.keyCode == 75 && modalList == 0) {
+		if(e.keyCode == 74 && modalList == 0) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
                         if(pos == selectors.length-1)
@@ -987,7 +988,7 @@ $(document).ready(function() {
                         }
 			$(selectors[pos]).parent().addClass("selected");
                         window.scrollTo(0, evpos-100);
-		} else if (e.keyCode == 74 && modalList == 0) {
+		} else if (e.keyCode == 75 && modalList == 0) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
 			if(pos == 0)
@@ -1016,6 +1017,39 @@ $(document).ready(function() {
               			$("#" + eventID + "-ignore").replaceWith(("#" + eventID + "-ignore", "30"));
               			}
          		});
+		} else if (e.keyCode == 73 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+			$('#ignore-event_id').val(eventID);
+        		$('#modal-ignore').modal('show');
+		} else if (e.keyCode == 67 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+                        $('#comment-event_id').val(eventID);
+                        $('#modal-comment').modal('show');
+		} else if (e.keyCode == 70 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+                        $('#quailty-event_id').val(eventID);
+                        $('#modal-quality').modal('show');
+		} else if (e.keyCode == 82 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+                        $('#reassign-event_id').val(eventID);
+                        $('#modal-reassign').modal('show');
+		} else if (e.keyCode == 88 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+                        $('#close-event_id').val(eventID);
+                        $('#modal-close').modal('show');
+		} else if (e.keyCode == 81 && modalList == 0) {
+			var eventID = $(selectors[pos]).parent().data("id");
+			if($("#"+eventID+"-sql_query").text()) {
+				$('<textarea id="tmp" />')
+                    		.appendTo($(this))
+                    		.val(clickText)
+                    		.focus()
+                    		.select();
+
+				document.execCommand('copy');
+				alert("copied");
+				$("#tmp").remove();	
+			}
 		}
 	});	
 });
