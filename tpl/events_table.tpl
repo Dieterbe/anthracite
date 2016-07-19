@@ -987,7 +987,10 @@ $(document).ready(function() {
                                 evpos = $(selectors[++pos]).position().top;
                         }
 			$(selectors[pos]).parent().addClass("selected");
-                        window.scrollTo(0, evpos-100);
+                        //window.scrollTo(0, evpos-100);
+			$('html, body').stop().animate({
+            			scrollTop: $(selectors[pos]).position().top-100
+        		}, 1000);
 		} else if (e.keyCode == 75 && modalList == 0) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
@@ -1000,7 +1003,10 @@ $(document).ready(function() {
 				evpos = $(selectors[--pos]).position().top;
 			}
 			$(selectors[pos]).parent().addClass("selected");
-			window.scrollTo(0, evpos-100);
+			//window.scrollTo(0, evpos-100);
+			$('html, body').stop().animate({
+                                scrollTop: $(selectors[pos]).position().top-100
+                        }, 1000);
 		} else if (e.keyCode == 79 && modalList == 0) {
 			var eventID = $(selectors[pos]).parent().data("id");
 			var serial="event_timestamp=GARBAGE&event_desc=GARBAGE&status=ignore&event_id="+eventID+"&ignore=30"
