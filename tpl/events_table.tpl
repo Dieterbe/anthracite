@@ -975,7 +975,7 @@ $(document).ready(function() {
 	$(selectors[pos]).parent().addClass("selected");
 	$(document).keydown(function(e) {
 		var modalList = $(".modal-backdrop").length;
-		if(e.keyCode == 74 && modalList == 0) {
+		if(e.keyCode == 74 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
                         if(pos == selectors.length-1)
@@ -990,7 +990,7 @@ $(document).ready(function() {
 			$('html, body').stop().animate({
             			scrollTop: $(selectors[pos]).position().top-100
         		}, 1000);
-		} else if (e.keyCode == 75 && modalList == 0) {
+		} else if (e.keyCode == 75 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var evpos = 0;
 			$(selectors[pos]).parent().removeClass("selected");
 			if(pos == 0)
@@ -1005,7 +1005,7 @@ $(document).ready(function() {
 			$('html, body').stop().animate({
                                 scrollTop: $(selectors[pos]).position().top-100
                         }, 1000);
-		} else if (e.keyCode == 79 && modalList == 0) {
+		} else if (e.keyCode == 79 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
 			var serial="event_timestamp=GARBAGE&event_desc=GARBAGE&status=ignore&event_id="+eventID+"&ignore=30"
 			$.ajax({
@@ -1021,7 +1021,7 @@ $(document).ready(function() {
               			$("#" + eventID + "-ignore").replaceWith(("#" + eventID + "-ignore", "30"));
               			}
          		});
-		} else if (e.keyCode == 73 && modalList == 0) {
+		} else if (e.keyCode == 73 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
 			$('#ignore-event_id').val(eventID);
         		$('#modal-ignore').modal('show');
@@ -1029,11 +1029,11 @@ $(document).ready(function() {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#comment-event_id').val(eventID);
                         $('#modal-comment').modal('show');
-		} else if (e.keyCode == 70 && modalList == 0) {
+		} else if (e.keyCode == 70 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#quailty-event_id').val(eventID);
                         $('#modal-quality').modal('show');
-		} else if (e.keyCode == 82 && modalList == 0) {
+		} else if (e.keyCode == 82 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#reassign-event_id').val(eventID);
                         $('#modal-reassign').modal('show');
@@ -1041,7 +1041,7 @@ $(document).ready(function() {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#close-event_id').val(eventID);
                         $('#modal-close').modal('show');
-		} else if (e.keyCode == 81 && modalList == 0) {
+		} else if (e.keyCode == 81 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
 			if($("#"+eventID+"-sql_query").text()) {
 				$('<textarea id="tmp" />')
