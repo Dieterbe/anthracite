@@ -987,7 +987,6 @@ $(document).ready(function() {
                                 evpos = $(selectors[++pos]).position().top;
                         }
 			$(selectors[pos]).parent().addClass("selected");
-                        //window.scrollTo(0, evpos-100);
 			$('html, body').stop().animate({
             			scrollTop: $(selectors[pos]).position().top-100
         		}, 1000);
@@ -1003,7 +1002,6 @@ $(document).ready(function() {
 				evpos = $(selectors[--pos]).position().top;
 			}
 			$(selectors[pos]).parent().addClass("selected");
-			//window.scrollTo(0, evpos-100);
 			$('html, body').stop().animate({
                                 scrollTop: $(selectors[pos]).position().top-100
                         }, 1000);
@@ -1027,7 +1025,7 @@ $(document).ready(function() {
 			var eventID = $(selectors[pos]).parent().data("id");
 			$('#ignore-event_id').val(eventID);
         		$('#modal-ignore').modal('show');
-		} else if (e.keyCode == 67 && modalList == 0) {
+		} else if (e.keyCode == 67 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#comment-event_id').val(eventID);
                         $('#modal-comment').modal('show');
@@ -1039,7 +1037,7 @@ $(document).ready(function() {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#reassign-event_id').val(eventID);
                         $('#modal-reassign').modal('show');
-		} else if (e.keyCode == 88 && modalList == 0) {
+		} else if (e.keyCode == 88 && modalList == 0 && !(e.metaKey || e.ctrlKey)) {
 			var eventID = $(selectors[pos]).parent().data("id");
                         $('#close-event_id').val(eventID);
                         $('#modal-close').modal('show');
