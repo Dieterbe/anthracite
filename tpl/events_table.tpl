@@ -29,7 +29,7 @@
 
         <div class="filter-user">
         <form>
-            % for owner in set([x.extra_attributes['owner'] for x in events]):
+            % for owner in users:
             % if ";" not in owner:
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
@@ -440,7 +440,7 @@
       <!-- now for the attributes that matter -->
       <input type="hidden" name="event_id" id="reassign-event_id" value="">
       <select name="owner" id="owner">
-          % for name in set([x.extra_attributes['owner'] for x in events]):
+          % for name in users:
           % if ";" not in name:
               <option value="{{name}}">{{name}}</option>
           % end
@@ -473,7 +473,7 @@
 
       <!-- now for the attributes that matter -->
       <select name="session" id="session">
-          % for name in set([x.extra_attributes['owner'] for x in events]):
+          % for name in users:
           % if ";" not in name:
               <option value="{{name}}">{{name}}</option>
           % end
