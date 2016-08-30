@@ -30,14 +30,12 @@
         <div class="filter-user">
         <form>
             % for owner in users:
-            % if ";" not in owner:
             <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
                 <input type="checkbox" name="user" value="{{owner.replace(' ', '-')}}" id="{{owner.replace(' ', '-')}}">
                 {{owner}}
             </label>
             </div>
-            % end
             % end
         </form>
         </div>
@@ -441,9 +439,7 @@
       <input type="hidden" name="event_id" id="reassign-event_id" value="">
       <select name="owner" id="owner">
           % for name in users:
-          % if ";" not in name:
               <option value="{{name}}">{{name}}</option>
-          % end
           % end
       </select>
 
@@ -474,9 +470,7 @@
       <!-- now for the attributes that matter -->
       <select name="session" id="session">
           % for name in users:
-          % if ";" not in name:
               <option value="{{name}}">{{name}}</option>
-          % end
           % end
       </select>
 
