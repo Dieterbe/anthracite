@@ -551,12 +551,14 @@ def notify_on_close(d):
 
     slack = Slacker(auth_token)
     room = '#datascience-robots'
+    user = d['owner']
+    if request.get_cookie("user"):
+        user = request.get_cookie("user")
 
-    message = '%s failure on %s closed by user %s \n resolution: %s' % (d['job'], d['host'], d['owner'], d['resolution'])
     attachments = [{
                 "fallback": "Build Failure closed",
                 "pretext": ' ',
-                "title": "%s failure on %s resolved by %s" % (d['job'], d['host'], d['owner']),
+                "title": "%s failure on %s resolved by %s" % (d['job'], d['host'], user),
                 "text": 'resolution: %s' % d['resolution'],
                 "color": "good"
     }]
