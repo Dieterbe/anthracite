@@ -74,9 +74,8 @@
             <!-- <p class="navbar-text pull-right">
               Logged in as <a href="#" class="navbar-link">Username</a>
             </p> -->
-            <p class="navbar-text pull-right">
-              showing 500 of {{events_count}} events
-
+            <p id="filterEvents" class="navbar-text pull-right">
+              showing {{events_count}} of {{events_count}} events
             </p>
             <!-- <ul class="nav">
               <li class="active"><a href="#">Home</a></li>

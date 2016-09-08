@@ -804,7 +804,8 @@ $("#modal-quality").keydown(function (event) {
 
 <script>
 var byUser = [], byStatus = [], byType = [], byEnv = [];
-		
+var maxCount = $('table > tbody > tr').size()-1;
+var filterCount = 0;
 		$("input[name=user]").on( "change", function() {
 			if (this.checked) byUser.push("[data-category~='" + $(this).attr("value") + "']");
 			else removeA(byUser, "[data-category~='" + $(this).attr("value") + "']");
@@ -924,29 +925,37 @@ var byUser = [], byStatus = [], byType = [], byEnv = [];
 				console.log(cselector);
 				console.log(nselector);
 				console.log(eselector);
-				
 				if (cselector === '' && nselector === '' && eselector === '') {
 					$('table > tbody > tr').filter(selector).show();
+					filterCount = $('table > tbody > tr').filter(selector).size();
 				} else if (cselector === '' && nselector === ''){
-				    $('table > tbody > tr').filter(selector).filter(eselector).show();
+				    	$('table > tbody > tr').filter(selector).filter(eselector).show();
+				    	filterCount = $('table > tbody > tr').filter(selector).filter(eselector).size();
 				} else if (cselector === '' && eselector === ''){
-				    $('table > tbody > tr').filter(selector).filter(nselector).show();
+				    	$('table > tbody > tr').filter(selector).filter(nselector).show();
+				    	filterCount = $('table > tbody > tr').filter(selector).filter(nselector).size();
 				} else if (nselector === '' && eselector === ''){
-				    $('table > tbody > tr').filter(selector).filter(cselector).show();
+				    	$('table > tbody > tr').filter(selector).filter(cselector).show();
+				    	filterCount = $('table > tbody > tr').filter(selector).filter(cselector).size();
 				} else if (cselector === '') {
 					$('table > tbody > tr').filter(selector).filter(nselector).filter(eselector).show();
+					filterCount = $('table > tbody > tr').filter(selector).filter(nselector).filter(eselector).size();
 				} else if (nselector === '') {
 					$('table > tbody > tr').filter(selector).filter(cselector).filter(eselector).show();
+					filterCount = $('table > tbody > tr').filter(selector).filter(cselector).filter(eselector).size();
 				}  else if (eselector === '') {
 					$('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).show();
+					filterCount = $('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).size();
 				} else {
 					$('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).filter(eselector).show();
+					filterCount = $('table > tbody > tr').filter(selector).filter(cselector).filter(nselector).filter(eselector).size();
 				}
 				
 			} else {
 				$lis.show();
+				filterCount = $lis.size()-1;
 			}	
-								  
+                        $('#filterEvents').text("showing " + filterCount + " of " + maxCount + " events");			  
 			$("#result").html(str);	
 	
 		});
