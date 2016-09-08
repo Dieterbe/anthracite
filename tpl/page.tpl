@@ -52,6 +52,7 @@
         function onResize() {};
     </script>
 	<script>
+        var maxCount = "{{events_count}}";
 		$().ready(function() {
 			// change active link based on "page"
 			var page="{{page}}";
@@ -86,7 +87,8 @@
         </div>
       </div>
     </div>
-
+<script>
+</script>
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span3">

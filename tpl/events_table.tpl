@@ -343,7 +343,10 @@
   </tbody>
 
 </table>
-
+<script>
+var listCount = $('table > tbody > tr').size()-1;
+$("#filterEvents").text("showing " + listCount + " of " + maxCount  + " events");
+</script>
 
 
 
@@ -804,7 +807,6 @@ $("#modal-quality").keydown(function (event) {
 
 <script>
 var byUser = [], byStatus = [], byType = [], byEnv = [];
-var maxCount = $('table > tbody > tr').size()-1;
 var filterCount = 0;
 		$("input[name=user]").on( "change", function() {
 			if (this.checked) byUser.push("[data-category~='" + $(this).attr("value") + "']");
