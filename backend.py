@@ -346,18 +346,14 @@ class Backend():
     def es_get_events(self, query = None):
         if query is None:
             query = {
-                    "filtered" : {
-                        "query" : {
-                            "match_all" : {}
-                    },
-                    "filter": {
-                    "term": {
-                        "valid": "1"
-                        }
-                    }
-
-                }
-            }
+    "bool": {
+      "should": [
+        { "match": { "tags":  "Quarantine" }},
+        { "match": { "tags": "BuildFailures"   }}
+      ]
+   } 
+  }
+            
 
 
 
@@ -457,18 +453,14 @@ class Backend():
     def get_events_count(self):
         count = 0
         query = {
-                    "filtered" : {
-                        "query" : {
-                            "match_all" : {}
-                    },
-                    "filter": {
-                    "term": {
-                        "valid": "1"
-                        }
-                    }
+    "bool": {
+      "should": [
+        { "match": { "tags":  "Quarantine" }},
+        { "match": { "tags": "BuildFailures"   }}
+      ]
+   }
+  } 
 
-                }
-            }
 
         #events = self.es.get('%s/event/_search' % self.config.es_index)
         events = self.es.get('%s/event/_search?size=5000' % self.config.es_index,

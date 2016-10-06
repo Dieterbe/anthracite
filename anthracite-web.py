@@ -121,7 +121,7 @@ def events_table(**kwargs):
     user = request.get_cookie("user") or None
     print "User %s" % user
     users = ["Archit Jain", "Farzad Vafaee", "Joachim Hubele", "John Jardel", "Jun Xue", "Mark Gorman", "Mark Schwarz", "Niral Patel", "Qiong Zeng", "Hitesh Singh", "Samuel Taylor", "Jeff Killeen", "Vijayant Soni"]
-    return p(body=template('tpl/events_table', user=user, users=users, events=backend.get_events_objects()), page='table', **kwargs)
+    return p(body=template('tpl/events_table', user=user, users=users, events=backend.get_events_objects(limit=4000)), page='table', **kwargs)
 
 
 @route('/events/timeline')
