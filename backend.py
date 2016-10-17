@@ -348,7 +348,6 @@ class Backend():
             query = {
     "bool": {
       "should": [
-        { "match": { "tags":  "Quarantine" }},
         { "match": { "tags": "BuildFailures"   }}
       ]
    } 
@@ -455,7 +454,6 @@ class Backend():
         query = {
     "bool": {
       "should": [
-        { "match": { "tags":  "Quarantine" }},
         { "match": { "tags": "BuildFailures"   }}
       ]
    }
