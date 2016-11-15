@@ -136,27 +136,6 @@
         <div class="filter-env">
             <form>
             <fieldset>
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-dev-nissan.private.square-root.com" id="etl-dev-nissan.private.square-root.com"/>
-                etl-dev-nissan
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-stg-nissan.private.square-root.com" id="etl-stg-nissan.private.square-root.com"/>
-                etl-stg-nissan
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-prd-nissan.private.square-root.com" id="etl-prd-nissan.private.square-root.com"/>
-               etl-prd-nissan
-            </label>
-
-            </div>
                 <div style="float:left; overflow:hidden; padding-left:15px">
             <label>
                 <input type="checkbox" name="env" value="etl-dev-1.private.square-root.com" id="etl-dev-1.private.square-root.com"/>
@@ -559,6 +538,7 @@ var pos = 0;
 <script>
 $('#modal-form-close').on('submit', function(e){
       var eventID = $('#close-event_id').val();
+      console.log($('#modal-form-close').serialize());
       $.ajax({
               url: '/events/edit/' + eventID + '/close',
               data: $('#modal-form-close').serialize(),
