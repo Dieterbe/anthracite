@@ -125,7 +125,7 @@ def events_table(**kwargs):
     currentevents = []
     evedict = {}
     for e in events:
-        if "%s %s" % (e.extra_attributes['job'], e.extra_attributes['host'])  not in evedict:
+        if e.extra_attributes.get('job') and e.extra_attributes.get('host') and "%s %s" % (e.extra_attributes['job'], e.extra_attributes['host'])  not in evedict:
             evedict["%s %s" % (e.extra_attributes['job'], e.extra_attributes['host'])] = True
             currentevents.append(e)
     return p(body=template('tpl/events_table', user=user, users=users, events=currentevents), page='table', **kwargs)
