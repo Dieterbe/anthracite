@@ -814,7 +814,15 @@ var filterCount = 0;
 					
 			var $lis = $('table > tbody > tr'),
 				$checked = $('input:checked');	
-				
+			// Logic for appending href without reloading browser	
+			var s = window.location.href.split("?")[0]+"?";
+			if ($('input:checked').length > 0) {
+				var url = $('input:checked').map(function (i, val) {
+				s += "k="+ val.id + "&"
+			});
+				s = s.substring(0,s.length-1);
+			}
+			history.pushState('','',s);
 			if ($checked.length) {	
 			
 				if (byUser.length) {		
@@ -1164,7 +1172,7 @@ $.fn.pageMe = function(opts){
 $(document).ready(function(){
 
   $('#myTable').pageMe({pagerSelector:'#myPager',showPrevNext:true,hidePageNumbers:false,perPage:100});
-
+  window.location.href.split("?")[1].split("&").map(function(val,i){return document.getElementById(val.substring(2)).click()});  
 });
 
 
