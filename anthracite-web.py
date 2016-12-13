@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response, app, hook
 from backend import Backend, Event, Reportpoint, load_plugins, Config
+from config import USERS, EVENT_TYPES, SERVERS
 import json
 import os
 import time
@@ -120,15 +121,56 @@ def events_view(event_id, **kwargs):
 def events_table(**kwargs):
     user = request.get_cookie("user") or None
     print "User %s" % user
-    users = ["Archit Jain", "Farzad Vafaee", "Joachim Hubele", "John Jardel", "Jun Xue", "Mark Gorman", "Mark Schwarz", "Niral Patel", "Qiong Zeng", "Hitesh Singh", "Samuel Taylor", "Jeff Killeen", "Vijayant Soni"]
+
     events = backend.get_events_objects(limit=4000)
+    # specify fields which should be used to group events and only show latest one
+    # this is used to avoid cluttering up of anthracite and making it more usable
+    keys_to_filter_events = {
+        # "LateFiles": ['', ''],
+        # "Quarantine": ['', ''],
+        # "FileLoadErrors": ['', ''],
+        # "ConfigWarnings": ['', ''],
+        # "DataQualityCheck": ['', ''],
+        "BuildFailures": ['host', 'job'],
+        "etl_milestones": ['host', 'job']
+    }
     currentevents = []
-    evedict = {}
+    event_group_parsed = set()
+
+    # tag specific filtering to avoid cluttering of anthracite
     for e in events:
-        if e.extra_attributes.get('job') and e.extra_attributes.get('host') and "%s %s" % (e.extra_attributes['job'], e.extra_attributes['host'])  not in evedict:
-            evedict["%s %s" % (e.extra_attributes['job'], e.extra_attributes['host'])] = True
+        tag_matched = False
+        for event_type in keys_to_filter_events:
+            if event_type in e.tags:
+                tag_matched = True
+                value_list = []
+                for key in keys_to_filter_events[event_type]:
+                    if e.extra_attributes.get(key):
+                        value_list.append(e.extra_attributes[key])
+
+                # checking presence of keys on which we need to apply filtering
+                # break if key is not present
+                # ignoring such events
+                if len(keys_to_filter_events[event_type]) != len(value_list):
+                    break
+
+                # checking if same combination has already been parsed or not
+                # break if already parsed
+                if (event_type, tuple(value_list)) not in event_group_parsed:
+                    event_group_parsed.add((event_type, tuple(value_list)))
+                    currentevents.append(e)
+                else:
+                    break
+
+                # breaking inner loop in order to avoid appending same event twice
+                # if it has two tags satisfying above conditions
+                break
+
+        # if tags does not match with any predefined event types then just show the event
+        if not tag_matched:
             currentevents.append(e)
-    return p(body=template('tpl/events_table', user=user, users=users, events=currentevents), page='table', **kwargs)
+
+    return p(body=template('tpl/events_table', user=user, users=USERS, event_types=EVENT_TYPES, servers=SERVERS, events=currentevents), page='table', **kwargs)
 
 
 @route('/events/timeline')

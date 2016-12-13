@@ -81,52 +81,17 @@
         <div class="filter-type">
             <form>
             <fieldset>
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="LateFiles" id="LateFiles"/>
-                Late Files
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="Quarantine" id="Quarantine"/>
-                Quarantine
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="FileLoadErrors" id="FileLoadErrors"/>
-                File Load Errors
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="ConfigWarnings" id="ConfigWarnings"/>
-                Configuration Warnings
-            </label>
-            </div>
-
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="DataQualityCheck" id="DataQualityCheck"/>
-                Data Quality
-            </label>
-            </div>
-
-            <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="type" value="BuildFailures" id="BuildFailures"/>
-                Build Failures
-            </label>
-            </div>
-        </fieldset>
-        </form>
+                % for event_type in event_types:
+                    <div style="float:left; overflow:hidden; padding-left:15px">
+                    <label>
+                        <input type="checkbox" name="type" value="{{event_type}}" id="{{event_type}}">
+                        {{event_type}}
+                    </label>
+                    </div>
+                % end
+            </fieldset>
+            </form>
         </div>
-
     </div>
 </div>
 
@@ -136,72 +101,18 @@
         <div class="filter-env">
             <form>
             <fieldset>
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-dev-1.private.square-root.com" id="etl-dev-1.private.square-root.com"/>
-               etl-dev-1
-            </label>
-            </div>
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-stg-1.private.square-root.com" id="etl-stg-1.private.square-root.com"/>
-               etl-stg-1
-            </label>
-            </div>
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-prd-1.private.square-root.com" id="etl-prd-1.private.square-root.com"/>
-               etl-prd-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-dev-vw-1.private.square-root.com" id="etl-dev-vw-1.private.square-root.com"/>
-               etl-dev-vw-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-stg-vw-1.private.square-root.com" id="etl-stg-vw-1.private.square-root.com"/>
-               etl-stg-vw-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-prd-vw-1.private.square-root.com" id="etl-prd-vw-1.private.square-root.com"/>
-               etl-prd-vw-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-dev-mt-1.private.square-root.com" id="etl-dev-mt-1.private.square-root.com"/>
-               etl-dev-mt-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-stg-mt-1.private.square-root.com" id="etl-stg-mt-1.private.square-root.com"/>
-               etl-stg-mt-1
-            </label>
-            </div>
-
-                <div style="float:left; overflow:hidden; padding-left:15px">
-            <label>
-                <input type="checkbox" name="env" value="etl-prd-mt-1.private.square-root.com" id="etl-prd-mt-1.private.square-root.com"/>
-               etl-prd-mt-1
-            </label>
-            </div>
-
-        <br>
-        </fieldset>
-        </form>
+                % for server in servers:
+                    % server_name = server.replace('.private.square-root.com', '')
+                    <div style="float:left; overflow:hidden; padding-left:15px">
+                    <label>
+                        <input type="checkbox" name="env" value="{{server}}" id="{{server}}">
+                        {{server_name}}
+                    </label>
+                    </div>
+                % end
+            </fieldset>
+            </form>
         </div>
-
     </div>
 </div>
 
@@ -804,7 +715,10 @@ var filterCount = 0;
 		});
 
 		$("input[name=env]").on( "change", function() {
-			if (this.checked) byEnv.push("[data-category~='" + $(this).attr("value") + "']");
+			if (this.checked) {
+				byEnv.push("[data-category~='" + $(this).attr("value") + "']");
+				byEnv.push("[data-category~='" + $(this).attr("value").replace('.private.square-root.com', '') + "']");
+			}
 			else removeA(byEnv, "[data-category~='" + $(this).attr("value") + "']");
 		});		
 		
@@ -886,15 +800,17 @@ var filterCount = 0;
 						});
 					}
 				}
-				
+
                 if (byEnv.length) {
 					if (str == "Include items \n") {
 						str += "    " + "with (" +  byEnv.join(' OR ') + ")\n";
 						$($('input[name=env]:checked')).each(function(index, byEnv){
 							if(selector === '') {
 								selector += "[data-category~='" + byEnv.id + "']";
+								selector += ",[data-category~='" + byEnv.id.replace('.private.square-root.com', '') + "']";
 							} else {
 								selector += ",[data-category~='" + byEnv.id + "']";
+								selector += ",[data-category~='" + byEnv.id.replace('.private.square-root.com', '') + "']";
 							}
 						});
 					} else {
@@ -902,8 +818,10 @@ var filterCount = 0;
 						$($('input[name=env]:checked')).each(function(index, byEnv){
 							if(eselector === '') {
 								eselector += "[data-category~='" + byEnv.id + "']";
+								eselector += ",[data-category~='" + byEnv.id.replace('.private.square-root.com', '') + "']";
 							} else {
 								eselector += ",[data-category~='" + byEnv.id + "']";
+								eselector += ",[data-category~='" + byEnv.id.replace('.private.square-root.com', '') + "']";
 							}
 						});
 					}

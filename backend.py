@@ -1,4 +1,5 @@
 from types import IntType, StringType, UnicodeType
+from config import EVENT_TYPES
 import time
 import datetime
 import calendar
@@ -342,19 +343,20 @@ class Backend():
     def edit_event(self, event):
         self.es.post('%s/event/%s/_update' % (self.config.es_index, event.event_id), data={'doc': self.object_to_dict(event)})
 
+    @staticmethod
+    def prepare_tag_match_query():
+        query_params = []
+        for event_type in EVENT_TYPES:
+            query_params.append({ "match": { "tags": event_type}})
+        return query_params
 
     def es_get_events(self, query = None):
         if query is None:
             query = {
-    "bool": {
-      "should": [
-        { "match": { "tags": "BuildFailures"   }}
-      ]
-   } 
-  }
-            
-
-
+                "bool": {
+                    "should": self.prepare_tag_match_query()
+                }
+            }
 
         return self.es.get('%s/event/_search?size=5000' % self.config.es_index, data={
             "query": query,
@@ -452,13 +454,10 @@ class Backend():
     def get_events_count(self):
         count = 0
         query = {
-    "bool": {
-      "should": [
-        { "match": { "tags": "BuildFailures"   }}
-      ]
-   }
-  } 
-
+            "bool": {
+                "should": self.prepare_tag_match_query()
+            }
+        }
 
         #events = self.es.get('%s/event/_search' % self.config.es_index)
         events = self.es.get('%s/event/_search?size=5000' % self.config.es_index,
