@@ -1,13 +1,16 @@
 #!/usr/bin/env python2
 from bottle import route, run, debug, template, request, static_file, error, response, app, hook
 from backend import Backend, Event, Reportpoint, load_plugins, Config
+from config import USERS, EVENT_TYPES, SERVERS
 import json
 import os
 import time
 import sys
 import types
+import datetime
 from view import page
 from collections import deque
+from slacker import Slacker
 import __builtin__
 sys.path.append('%s/beaker' % os.path.dirname(os.path.realpath(__file__)))
 from beaker.middleware import SessionMiddleware
@@ -95,6 +98,7 @@ def render_last_page(pages_to_ignore=[], **kwargs):
             last_page = candidate
             break
     fn, args = url_to_fn_args(last_page)
+    print 'args', args
     print "calling last rendered page:", last_page, args, kwargs
     return call_func(fn, *args, **kwargs)
 
@@ -115,7 +119,58 @@ def events_view(event_id, **kwargs):
 
 @route('/events/table')
 def events_table(**kwargs):
-    return p(body=template('tpl/events_table', events=backend.get_events_objects()), page='table', **kwargs)
+    user = request.get_cookie("user") or None
+    print "User %s" % user
+
+    events = backend.get_events_objects(limit=4000)
+    # specify fields which should be used to group events and only show latest one
+    # this is used to avoid cluttering up of anthracite and making it more usable
+    keys_to_filter_events = {
+        # "LateFiles": ['', ''],
+        # "Quarantine": ['', ''],
+        # "FileLoadErrors": ['', ''],
+        # "ConfigWarnings": ['', ''],
+        # "DataQualityCheck": ['', ''],
+        "BuildFailures": ['host', 'job'],
+        "etl_milestones": ['host', 'job']
+    }
+    currentevents = []
+    event_group_parsed = set()
+
+    # tag specific filtering to avoid cluttering of anthracite
+    for e in events:
+        tag_matched = False
+        for event_type in keys_to_filter_events:
+            if event_type in e.tags:
+                tag_matched = True
+                value_list = []
+                for key in keys_to_filter_events[event_type]:
+                    if e.extra_attributes.get(key):
+                        value_list.append(e.extra_attributes[key])
+
+                # checking presence of keys on which we need to apply filtering
+                # break if key is not present
+                # ignoring such events
+                if len(keys_to_filter_events[event_type]) != len(value_list):
+                    break
+
+                # checking if same combination has already been parsed or not
+                # break if already parsed
+                if (event_type, tuple(value_list)) not in event_group_parsed:
+                    event_group_parsed.add((event_type, tuple(value_list)))
+                    currentevents.append(e)
+                else:
+                    break
+
+                # breaking inner loop in order to avoid appending same event twice
+                # if it has two tags satisfying above conditions
+                break
+
+        # if tags does not match with any predefined event types then just show the event
+        if not tag_matched:
+            currentevents.append(e)
+
+    return p(body=template('tpl/events_table', user=user, users=USERS, event_types=EVENT_TYPES, servers=SERVERS, events=currentevents), page='table', **kwargs)
 
 
 @route('/events/timeline')
@@ -179,6 +234,8 @@ def events_delete(event_id):
 def events_edit(event_id, **kwargs):
     try:
         event = backend.get_event(event_id)
+        print 'THESE ARE EXTR ATTRS'
+        print event.extra_attributes['status']
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not load event', e)])
     return p(body=template('tpl/events_edit', event=event, tags=backend.get_tags()), page='edit', **kwargs)
@@ -194,14 +251,36 @@ def local_datepick_to_unix_timestamp(datepick):
     return int(time.mktime(datetime.datetime.strptime(datepick, "%m/%d/%Y %I:%M:%S %p").timetuple()))
 
 
+# how does this function get called?
 @route('/events/edit/<event_id>', method='POST')
 def events_edit_post(event_id):
+    print 'INSIDE EVENTS_EDIT_POST'
+    print request.forms.keys()
     try:
         # TODO: do the same validation here as in add
         ts = local_datepick_to_unix_timestamp(request.forms.event_datetime)
         # (select2 tags form field uses comma)
         tags = request.forms.event_tags.split(',')
-        event = Event(timestamp=ts, desc=request.forms.event_desc, tags=tags, event_id=event_id)
+        desc = request.forms.event_desc
+
+        # everything else that was sent in this request is an extra attribute
+
+        # get rid of the 3 standard fields
+        del request.forms['event_datetime']
+        del request.forms['event_tags']
+        del request.forms['event_desc']
+
+        #populate extra attributes that need changing
+        extra_attributes = {}
+        for key in request.forms:
+            extra_attributes[key] = request.forms[key]
+
+        # if status changes from ignore to something else, put garbage in the ignore tag
+        if 'status' in request.forms:
+            if request.forms['status'] != 'ignore':
+                extra_attributes['ignore'] = 'NA'
+
+        event = Event(timestamp=ts, desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not recreate event from received information. Go back to previous page to retry', e)])
     try:
@@ -210,6 +289,152 @@ def events_edit_post(event_id):
     except Exception, e:
         return render_last_page(['/events/edit/'], errors=[('Could not update event. Go back to previous page to retry', e)])
     return render_last_page(['/events/edit/'], successes=['The event was updated'])
+
+
+# similar method exists below, but we need an int timestamp
+def get_event_attributes(event):
+
+    ts = int(time.time())
+    desc = event.desc
+    tags = event.tags
+    extra_attributes = event.extra_attributes
+
+    return ts, desc, tags, extra_attributes
+
+# clicking on the comments button
+@route('/events/edit/<event_id>/comment', method='POST')
+def events_comment_post_script(event_id):
+    try:
+        print "Where does it fail?"
+        event = backend.get_event(event_id)
+        print "Not here"
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+    if extra_attributes.has_key('comments'):
+        comments = extra_attributes['comments']
+    else:
+        comments = ''
+
+    new_comments_string = request.forms['comments'][:50]
+    new_comments_user = request.get_cookie("user") or None
+
+    now = datetime.datetime.now()
+    new_comments_timestamp = now.strftime('%Y-%m-%d %H:%M:%S ')
+
+    comments += '%s <b>%s:</b> %s <br>' % (new_comments_timestamp, new_comments_user, new_comments_string)
+    extra_attributes['comments'] = comments
+
+    # update the event
+    event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        return render_last_page(['/events/edit/','/session'], successes=['The event was updated'])
+    except Exception, e:
+        print "Exception: %s" % e
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+
+# clicking on the close button
+@route('/events/edit/<event_id>/close', method='POST')
+def events_close_post_script(event_id):
+    try:
+        event = backend.get_event(event_id)
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+    now = datetime.datetime.now()
+    timestamp = now.strftime('%Y-%m-%d %H:%M:%S ')
+
+    resolution = '%s: %s' % (timestamp, request.forms['resolution'])
+    extra_attributes['resolution'] = resolution
+    extra_attributes['status'] = 'closed'
+
+    # update the event
+    event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        if tags == ['BuildFailures']:
+            job = event.extra_attributes['job']
+            host = event.extra_attributes['host']
+            owner = event.extra_attributes['owner']
+            resolution = event.extra_attributes['resolution']
+
+            message_dict = {
+                'job': job,
+                'host': host,
+                'owner': owner,
+                'resolution': resolution
+            }
+            message = '%s failure on %s closed by user %s <br> resolution: %s' % (job, host, owner, resolution)
+
+            notify_on_close(message_dict)
+
+        return render_last_page(['/events/edit/'], successes=['The event was updated'])
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+
+# experimental
+@route('/events/edit/<event_id>/script', method='POST')
+def events_edit_post_script(event_id):
+
+    try:
+        event = backend.get_event(event_id)
+        ts, desc, tags, extra_attributes = get_event_attributes(event)
+
+        # get rid of the base attributes that get sent in an edit request
+        del request.forms['event_timestamp']
+        del request.forms['event_desc']
+
+
+        if 'event_tags' in request.forms:
+            del request.forms['event_tags']
+        print '6'
+        # this one comes from client-side requests
+        if 'event_id' in request.forms:
+            del request.forms['event_id']
+        print '7'
+        # populate list of attributes to update from the remaining keys in the request
+        updated_attributes = {}
+
+        for key in request.forms.keys():
+            val = request.forms.getall(key)
+            if val:
+                if len(val) == 1:
+                    val = val[0]
+            updated_attributes[key] = val            
+        print updated_attributes
+        extra_attributes.update(updated_attributes)
+        print extra_attributes
+        event = Event(timestamp=int(ts), desc=desc, tags=tags, event_id=event_id, extra_attributes=extra_attributes)
+        print 'IT WORKED'
+
+    # these exceptions don't print anything to the screen.  I should fix that...
+    except Exception, e:
+        return 'Could not edit event: %s. Go back to previous page to retry' % e
+
+    try:
+        event_id = backend.edit_event(event)
+        time.sleep(1)
+        response.status = 201
+        print 'ok'
+        #return 'ok event_id=%s\n' % event_id
+        return render_last_page(['/events/edit/'], successes=['The event was updated'])
+    except Exception, e:
+        response.status = 500
+        return 'Could not save new event: %s. Go back to previous page to retry' % e
 
 
 @route('/events/add', method='GET')
@@ -232,6 +457,9 @@ def add_post_validate_and_parse_base_attributes(request):
 
 
 def add_post_validate_and_parse_extra_attributes(request, config):
+    for key in request.forms:
+        print key
+
     extra_attributes = {}
     for attribute in config.extra_attributes:
         if attribute.mandatory:
@@ -297,6 +525,7 @@ __builtin__.add_post_handler_default = add_post_handler_default
 @route('/events/add', method='POST')
 @route('/events/add/<handler>', method='POST')
 def events_add_post(handler='default'):
+    print 'IM IN HERE'
     try:
         event = call_func('add_post_handler_' + handler, request, config)
     except Exception, e:
@@ -323,9 +552,20 @@ def events_add_post(handler='default'):
 @route('/events/add/script', method='POST')
 def events_add_script():
     try:
-        event = Event(timestamp=int(request.forms.event_timestamp),
-                      desc=request.forms.event_desc,
-                      tags=request.forms.event_tags.split())
+        # explicitly do the work of add_post_verify_and_parse_base_attributes
+        ts = int(request.forms.event_timestamp)
+        desc = request.forms.event_desc
+        tags = request.forms.event_tags.split()
+
+        # get extra and unknown attributes
+        extra_attributes = add_post_validate_and_parse_extra_attributes(request, config)
+        unknown_attributes = add_post_validate_and_parse_unknown_attributes(request, config)
+        extra_attributes.update(unknown_attributes)
+
+        event = Event(timestamp=ts,
+                      desc=desc,
+                      tags=tags,
+                      extra_attributes=extra_attributes)
     except Exception, e:
         response.status = 400
         return 'Could not create new event: %s' % e
@@ -336,6 +576,51 @@ def events_add_script():
     except Exception, e:
         response.status = 500
         return 'Could not save new event: %s. Go back to previous page to retry' % e
+
+@route('/session', method='POST')
+def set_session():
+    print "SESSION"
+    user = request.forms['session']
+    #response.delete_cookie("user")
+    response.set_cookie("user", user)
+    del request.forms['session']
+    print "User %s" % request.get_cookie("user")
+    return user 
+    
+## HARD-CODING A LIGHT Slack EXTENSION
+## when Datawarehouse repo gets installed on scratch server, replace with a call to SlackConnector()
+
+def notify_on_close(d):
+    """ sends notification msg to Slack room"""
+
+    # put auth key on scratch server
+    with open('slack_config.private') as fp:
+        settings = json.load(fp)
+        auth_token = settings['auth_token']
+
+    slack = Slacker(auth_token)
+    room = '#datascience-robots'
+    user = d['owner']
+    if request.get_cookie("user"):
+        user = request.get_cookie("user")
+
+    attachments = [{
+                "fallback": "Build Failure closed",
+                "pretext": ' ',
+                "title": "%s failure on %s resolved by %s" % (d['job'], d['host'], user),
+                "text": 'resolution: %s' % d['resolution'],
+                "color": "good"
+    }]
+
+    data = json.dumps(attachments)
+
+    try:
+        # notify room
+        slack.chat.post_message(room, ' ', attachments=data, username='AnthraciteBot')
+    except:
+        print "Failed to Nofity Slack room on event close"
+
+
 
 
 @route('/report')

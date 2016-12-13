@@ -1,4 +1,5 @@
 from types import IntType, StringType, UnicodeType
+from config import EVENT_TYPES
 import time
 import datetime
 import calendar
@@ -43,10 +44,13 @@ class Event():
     event_id is optional, it's the elasticsearch _id field
     '''
 
+
     def __init__(self, timestamp=None, desc=None, tags=[], event_id=None, extra_attributes={}):
+
         assert type(timestamp) is IntType, "timestamp must be an integer: %r" % timestamp
         assert type(desc) in (StringType, UnicodeType), "desc must be a non-empty string: %r" % desc
         assert desc, "desc must be a non-empty string: %r" % desc
+
         self.timestamp = timestamp
         self.desc = desc
         self.tags = tags  # just a list of strings
@@ -133,6 +137,149 @@ class Backend():
                             "tags": {
                                 "type": "string",
                                 "index": "not_analyzed"
+                            },
+                            "DWDataSource": {
+                                "type": "multi_field",
+                                "fields": {
+                                    "DWDataSource" : {
+                                        "type": "string",
+                                        "index" : "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                }
+                            },
+                            "data_point": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "data_point": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "sql_query": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "sql_query": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "owner": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "owner": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "desc": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "desc": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "FileName": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "FileName": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "host": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "host": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            } ,
+                            "job": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "job": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "file": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "file": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "last_file_load": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "last_file_load": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
+                            },
+                            "sample_date": {
+                                "type": "multi_field",
+                                "fields":{
+                                    "sample_date": {
+                                        "type": "string",
+                                        "index": "analyzed",
+                                        "index_analyzer": "whitespace",
+                                        "search_analyzer": "whitespace"},
+                                    "exact": {
+                                        "type": "string",
+                                        "index": "not_analyzed"}
+                                    }
                             }
                         }
                     }
@@ -198,14 +345,22 @@ class Backend():
     def edit_event(self, event):
         self.es.post('%s/event/%s/_update' % (self.config.es_index, event.event_id), data={'doc': self.object_to_dict(event)})
 
+    @staticmethod
+    def prepare_tag_match_query():
+        query_params = []
+        for event_type in EVENT_TYPES:
+            query_params.append({ "match": { "tags": event_type}})
+        return query_params
+
     def es_get_events(self, query = None):
         if query is None:
             query = {
-                "query_string": {
-                    "query": "*"
+                "bool": {
+                    "should": self.prepare_tag_match_query()
                 }
             }
-        return self.es.get('%s/event/_search?size=1000' % self.config.es_index, data={
+
+        return self.es.get('%s/event/_search?size=5000' % self.config.es_index, data={
             "query": query,
             "sort": [
                 {
@@ -230,10 +385,10 @@ class Backend():
             events[i]['date'] = self.iso8601_to_unix_timestamp(events[i]['date'])
         return events
 
-    def get_events_objects(self):
+    def get_events_objects(self, limit=500):
         # retuns a list of event objects
         hits = self.es_get_events()
-        return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']]
+        return [self.hit_to_object(event_hit) for event_hit in hits['hits']['hits']][:limit]
 
     def get_event(self, event_id):
         # http://localhost:9200/dieterfoobarbaz/event/PZ1su5w5Stmln_c2Kc4B2g
@@ -300,7 +455,20 @@ class Backend():
 
     def get_events_count(self):
         count = 0
-        events = self.es.get('%s/event/_search' % self.config.es_index)
+        query = {
+            "bool": {
+                "should": self.prepare_tag_match_query()
+            }
+        }
+
+        #events = self.es.get('%s/event/_search' % self.config.es_index)
+        events = self.es.get('%s/event/_search?size=5000' % self.config.es_index,
+                             data={"query": query,
+                             "sort": [{
+                             "date": {
+                             "order": "desc",
+                             "ignore_unmapped": True  # avoid 'No mapping found for [date] in order to sort on' when we don't have data yet
+                             }}]})
         count = events['hits']['total']
         return count
 
